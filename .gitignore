@@ -1,0 +1,22 @@
+# Dependencies (React source lives in /journey)
+node_modules/
+journey/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Vite local/dev artifacts
+journey/dist/
+journey/dist-ssr/
+*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# NOTE: /journey-dist/ (built bundle) is intentionally COMMITTED so the
+# static root site (index.html) works from file:// with no Node installed.

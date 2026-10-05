@@ -104,7 +104,8 @@
       radial: document.getElementById("view-container-radial"),
       circle0: document.getElementById("view-container-circle0"),
       timeline: document.getElementById("view-container-timeline"),
-      calendar: document.getElementById("view-container-calendar")
+      calendar: document.getElementById("view-container-calendar"),
+      journey: document.getElementById("view-container-journey")
     },
 
     // Radial controls
@@ -411,6 +412,11 @@
       renderPremiereTimeline();
     } else if (viewName === "calendar") {
       renderGoogleCalendar();
+    } else if (viewName === "journey") {
+      // window.MCTJourney is provided by src/journey-dist/journey.js (IIFE)
+      if (window.MCTJourney) {
+        window.MCTJourney.mount(document.getElementById("journey-root"));
+      }
     }
   }
 

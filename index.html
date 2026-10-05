@@ -6,6 +6,7 @@
   <title>Muslim Citation Timeline — Circadian Sacred Text Instrument</title>
   <meta name="description" content="Contemplative circadian Islamic citation timeline with a washing machine dial selector, Premiere video timeline, Google calendar, Zen Mode, and structured scholarly data sheet.">
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="src/journey-dist/journey.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
 </head>
 <body data-theme="auto">
@@ -34,6 +35,9 @@
         </button>
         <button class="view-tab-btn" data-view="calendar" title="Kalender Jadwal Google">
           <span>📅</span> <span>Kalender</span>
+        </button>
+        <button class="view-tab-btn" data-view="journey" title="Perjalanan Akhirat: peta & timeline">
+          <span>🧭</span> <span>Akhirat</span>
         </button>
       </nav>
 
@@ -389,6 +393,11 @@
           </div>
         </div>
 
+        <!-- VIEW 5: AKHIRAT JOURNEY (React bundle mounts here) -->
+        <div class="visual-view-container" id="view-container-journey">
+          <div id="journey-root" style="width:100%;height:100%;"></div>
+        </div>
+
       </section>
 
       <!-- DRAGGABLE DIVIDER -->
@@ -502,6 +511,7 @@
 
   <!-- Data Script followed by Application Engine -->
   <script src="citations-data.js"></script>
+  <script src="src/journey-dist/journey.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
