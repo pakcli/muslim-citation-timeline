@@ -1,0 +1,1083 @@
+/* ==========================================================================
+   MUSLIM CITATION TIMELINE — DESIGN SYSTEM & STYLES (v2.0)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* 8 Circadian Phase Colors */
+  --phase-p1: hsl(42, 92%, 55%);   /* Dawn Gold */
+  --phase-p2: hsl(48, 96%, 53%);   /* Mid-Morning Solar */
+  --phase-p3: hsl(198, 88%, 48%);  /* High Noon Azure */
+  --phase-p4: hsl(24, 85%, 52%);   /* Afternoon Terracotta */
+  --phase-p5: hsl(340, 75%, 56%);  /* Sunset Twilight Rose */
+  --phase-p6: hsl(228, 62%, 54%);  /* Early Night Indigo */
+  --phase-p7: hsl(265, 50%, 48%);  /* Midnight Nocturne */
+  --phase-p8: hsl(182, 70%, 46%);  /* Pre-Dawn Cyan */
+
+  /* Default Active Phase Accent */
+  --phase-accent: var(--phase-p1);
+  --phase-accent-glow: hsla(42, 92%, 55%, 0.28);
+  --phase-accent-subtle: hsla(42, 92%, 55%, 0.12);
+
+  /* Typography */
+  --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-arabic: 'Amiri', 'Noto Naskh Arabic', serif;
+
+  /* Theme: Auto (Default Dark Circadian Slate) */
+  --bg-app: #0c0f17;
+  --bg-surface: #141924;
+  --bg-surface-elevated: #1b2232;
+  --bg-surface-glass: rgba(20, 25, 36, 0.78);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(255, 255, 255, 0.18);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --shadow-main: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+  --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   THEME PRESETS
+   ========================================================================== */
+
+/* Theme: Desert Sand (Warm Parchment & Umber) */
+body[data-theme="sand"] {
+  --bg-app: #f7f3e9;
+  --bg-surface: #ede7d7;
+  --bg-surface-elevated: #dfd7c2;
+  --bg-surface-glass: rgba(237, 231, 215, 0.85);
+  --border-subtle: rgba(74, 53, 31, 0.12);
+  --border-active: rgba(74, 53, 31, 0.26);
+  --text-primary: #2d2419;
+  --text-secondary: #5e503f;
+  --text-muted: #8c7a6b;
+  --shadow-main: 0 16px 36px -10px rgba(94, 80, 63, 0.2);
+}
+
+/* Theme: Medina Night (Obsidian Slate & Royal Gold) */
+body[data-theme="medina"] {
+  --bg-app: #060911;
+  --bg-surface: #0e1424;
+  --bg-surface-elevated: #151d34;
+  --bg-surface-glass: rgba(14, 20, 36, 0.82);
+  --border-subtle: rgba(229, 185, 95, 0.14);
+  --border-active: rgba(229, 185, 95, 0.35);
+  --text-primary: #fdfaf2;
+  --text-secondary: #9cb1d1;
+  --text-muted: #5e7399;
+  --phase-accent: #e5b95f;
+  --phase-accent-glow: rgba(229, 185, 95, 0.35);
+  --phase-accent-subtle: rgba(229, 185, 95, 0.12);
+  --shadow-main: 0 24px 50px -15px rgba(0, 0, 0, 0.8);
+}
+
+/* Theme: Pomegranate (Terracotta & Crimson Ochre) */
+body[data-theme="pomegranate"] {
+  --bg-app: #14080a;
+  --bg-surface: #220e12;
+  --bg-surface-elevated: #31151b;
+  --bg-surface-glass: rgba(34, 14, 18, 0.85);
+  --border-subtle: rgba(244, 96, 114, 0.15);
+  --border-active: rgba(244, 96, 114, 0.35);
+  --text-primary: #fff2f4;
+  --text-secondary: #d69ca5;
+  --text-muted: #96616a;
+  --phase-accent: #f46072;
+  --phase-accent-glow: rgba(244, 96, 114, 0.35);
+  --phase-accent-subtle: rgba(244, 96, 114, 0.12);
+  --shadow-main: 0 20px 45px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* ==========================================================================
+   RESET & BASE STYLES
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-active);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ==========================================================================
+   APP HEADER
+   ========================================================================== */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+.app-header {
+  height: 58px;
+  min-height: 58px;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 50;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-symbol {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--phase-accent), transparent 90%);
+  border: 1px solid var(--phase-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 0 16px var(--phase-accent-glow);
+  transition: all var(--transition-smooth);
+}
+
+.brand-title-wrap h1 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Date Selector */
+.date-badge {
+  display: flex;
+  align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 2px 4px;
+}
+
+.date-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.date-btn:hover {
+  color: var(--text-primary);
+}
+
+.date-btn.active {
+  background: var(--bg-surface-elevated);
+  color: var(--phase-accent);
+  border: 1px solid var(--border-active);
+}
+
+/* Select Pickers */
+.ui-select {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ui-select:focus {
+  border-color: var(--phase-accent);
+  box-shadow: 0 0 0 2px var(--phase-accent-glow);
+}
+
+/* ==========================================================================
+   SPLIT VIEW CONTAINER
+   ========================================================================== */
+
+.split-workspace {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+/* Desktop layout: Left & Right panes */
+.pane-visual {
+  flex: 0 0 50%;
+  min-width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at center, var(--phase-accent-subtle) 0%, transparent 68%);
+  overflow-y: auto;
+  position: relative;
+  padding: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pane-data {
+  flex: 1;
+  min-width: 360px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+  overflow: hidden;
+}
+
+/* Draggable Divider */
+.split-divider {
+  width: 10px;
+  height: 100%;
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background var(--transition-fast);
+}
+
+.split-divider:hover, .split-divider.is-dragging {
+  background: var(--phase-accent-subtle);
+}
+
+.divider-handle {
+  width: 4px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  background: var(--border-active);
+  transition: all var(--transition-fast);
+}
+
+.split-divider:hover .divider-handle,
+.split-divider.is-dragging .divider-handle {
+  background: var(--phase-accent);
+  height: 64px;
+  box-shadow: 0 0 10px var(--phase-accent-glow);
+}
+
+/* ==========================================================================
+   VISUAL INSTRUMENT (RADIAL VALVE DIAL & CONTROLS)
+   ========================================================================== */
+
+/* Top Radial Controls Toolbar */
+.radial-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  box-shadow: var(--shadow-main);
+  z-index: 20;
+}
+
+.control-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.control-pill:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-elevated);
+}
+
+.control-pill.active {
+  background: var(--phase-accent-subtle);
+  color: var(--phase-accent);
+  border: 1px solid var(--phase-accent);
+}
+
+.control-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Radial Stage */
+.radial-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  min-height: 380px;
+  user-select: none;
+}
+
+.radial-dial-wrapper {
+  position: relative;
+  width: min(85vw, 420px);
+  height: min(85vw, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none; /* Crucial: prevent vertical scroll when dragging wheel */
+}
+
+/* SVG Wheel */
+.radial-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.45));
+  cursor: grab;
+  transition: transform 0.08s ease-out;
+}
+
+.radial-svg.is-dragging {
+  cursor: grabbing;
+}
+
+.dial-segment {
+  cursor: pointer;
+  transition: opacity var(--transition-fast), filter var(--transition-fast);
+}
+
+.dial-segment path {
+  transition: stroke var(--transition-fast), fill var(--transition-fast);
+}
+
+.dial-segment:hover path {
+  filter: brightness(1.2);
+}
+
+.dial-segment.active path {
+  stroke-width: 3.5px;
+  stroke: var(--text-primary);
+  filter: drop-shadow(0 0 12px var(--phase-accent));
+}
+
+.dial-segment.is-zen-masked {
+  opacity: 0.28 !important;
+  cursor: pointer;
+}
+
+.dial-segment.is-past {
+  opacity: 0.42;
+}
+
+/* Center Valve Hub */
+.dial-center-hub {
+  position: absolute;
+  width: 48%;
+  height: 48%;
+  border-radius: 50%;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid var(--border-active);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 20px var(--phase-accent-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+}
+
+.dial-center-hub:hover {
+  border-color: var(--phase-accent);
+  box-shadow: 0 12px 30px var(--phase-accent-glow);
+}
+
+.hub-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 4px;
+}
+
+.hub-status-badge.live {
+  background: rgba(34, 197, 94, 0.16);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.hub-status-badge.scrubbed {
+  background: rgba(234, 179, 8, 0.16);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.hub-live-clock {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.hub-phase-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--phase-accent);
+  margin-top: 3px;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hub-phase-range {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Floating "Back to Now" Chip */
+.back-to-now-chip {
+  position: absolute;
+  bottom: -22px;
+  background: var(--phase-accent);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  border: none;
+  box-shadow: 0 4px 14px var(--phase-accent-glow);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  animation: pulse-badge 2s infinite ease-in-out;
+  transition: transform var(--transition-fast);
+  z-index: 15;
+}
+
+.back-to-now-chip:hover {
+  transform: scale(1.06);
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Bottom Instruction Footnote */
+.instrument-footer {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface-glass);
+  padding: 4px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   DATA SHEET & LENS PANE
+   ========================================================================== */
+
+.sheet-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.sheet-title-group h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheet-badge {
+  font-size: 0.68rem;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+.sheet-search-input {
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-family: inherit;
+  outline: none;
+  width: 180px;
+  transition: all var(--transition-fast);
+}
+
+.sheet-search-input:focus {
+  border-color: var(--phase-accent);
+  width: 220px;
+}
+
+/* Table Container */
+.sheet-table-wrap {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.citations-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.citations-table th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 5;
+  white-space: nowrap;
+}
+
+.citations-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  transition: background var(--transition-fast);
+}
+
+.citation-row {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.citation-row:hover {
+  background: var(--bg-surface-elevated);
+}
+
+.citation-row.is-active-phase {
+  background: var(--phase-accent-subtle);
+  box-shadow: inset 4px 0 0 var(--phase-accent);
+}
+
+.citation-row.is-zen-masked {
+  filter: blur(3.5px) opacity(0.35);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Table Cells */
+.col-phase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.phase-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.col-type-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.col-type-tag.quran {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.col-type-tag.hadith {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.col-topic {
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 220px;
+}
+
+.col-arabic-preview {
+  font-family: var(--font-arabic);
+  font-size: 1.15rem;
+  direction: rtl;
+  color: var(--text-primary);
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Quick Actions Button Group */
+.row-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.quick-action-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.quick-action-btn:hover {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--phase-accent);
+}
+
+.quick-action-btn.copy-all {
+  background: var(--phase-accent-subtle);
+  color: var(--phase-accent);
+  border-color: var(--phase-accent);
+}
+
+/* ==========================================================================
+   INSPECTOR DRAWER / MODAL
+   ========================================================================== */
+
+.inspector-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(92vw, 480px);
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--transition-smooth);
+}
+
+.inspector-drawer.is-open {
+  transform: translateX(0);
+}
+
+.drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-smooth);
+}
+
+.drawer-backdrop.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-drawer-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.close-drawer-btn:hover {
+  color: var(--text-primary);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Arabic Card */
+.inspector-arabic-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+  text-align: right;
+  direction: rtl;
+  font-family: var(--font-arabic);
+  font-size: 1.65rem;
+  line-height: 2.1;
+  color: var(--text-primary);
+  box-shadow: inset 0 0 25px var(--phase-accent-subtle);
+  position: relative;
+}
+
+.arabic-reference-tag {
+  direction: ltr;
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--phase-accent);
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Translation & Explanation Box */
+.inspector-card-section {
+  background: var(--bg-surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.inspector-card-section h4 {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.inspector-card-section p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Meta Badges */
+.inspector-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meta-pill {
+  font-size: 0.72rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+}
+
+.meta-pill.highlight {
+  border-color: var(--phase-accent);
+  color: var(--phase-accent);
+}
+
+/* Drawer Footer Actions */
+.drawer-footer {
+  padding: 1.25rem;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.btn-primary-action {
+  width: 100%;
+  background: var(--phase-accent);
+  color: #000;
+  border: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px var(--phase-accent-glow);
+  transition: all var(--transition-fast);
+}
+
+.btn-primary-action:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-secondary-link {
+  width: 100%;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.btn-secondary-link:hover {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATION
+   ========================================================================== */
+
+.app-toast-container {
+  position: fixed;
+  top: 70px;
+  right: 1.5rem;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-item {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--phase-accent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slide-in-toast 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+}
+
+@keyframes slide-in-toast {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT (MOBILE SPLIT)
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .split-workspace {
+    flex-direction: column;
+  }
+
+  .pane-visual {
+    flex: 0 0 52%;
+    min-width: 100%;
+    min-height: 360px;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0.75rem;
+  }
+
+  .split-divider {
+    width: 100%;
+    height: 12px;
+    cursor: row-resize;
+  }
+
+  .divider-handle {
+    width: 48px;
+    height: 4px;
+  }
+
+  .split-divider:hover .divider-handle,
+  .split-divider.is-dragging .divider-handle {
+    width: 64px;
+    height: 4px;
+  }
+
+  .pane-data {
+    flex: 1;
+    min-width: 100%;
+  }
+
+  .inspector-drawer {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 85vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-left: none;
+    border-top: 1px solid var(--border-active);
+    transform: translateY(100%);
+  }
+
+  .inspector-drawer.is-open {
+    transform: translateY(0);
+  }
+
+  .radial-control-bar {
+    max-width: 96%;
+    overflow-x: auto;
+  }
+
+  .sheet-header-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sheet-search-input {
+    width: 100%;
+  }
+}

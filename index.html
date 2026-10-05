@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Muslim Citation Timeline — Circadian Sacred Text Instrument</title>
+  <meta name="description" content="Contemplative circadian Islamic citation timeline with an analog radial valve dial, Zen Mode, and structured scholarly data sheet.">
+  <link rel="stylesheet" href="index.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+</head>
+<body data-theme="auto">
+
+  <div class="app-container">
+    <!-- Top Header Navigation -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-symbol" id="brand-symbol">۞</div>
+        <div class="brand-title-wrap">
+          <h1>Muslim Citation Timeline</h1>
+          <div class="brand-subtitle">Circadian Sacred Text Instrument (8-Phase Valve)</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Date Selector -->
+        <div class="date-badge" id="date-selector-group">
+          <button class="date-btn" data-date="2026-10-04">Kemarin</button>
+          <button class="date-btn active" data-date="2026-10-05">Hari Ini</button>
+          <button class="date-btn" data-date="2026-10-06">Besok</button>
+        </div>
+
+        <!-- Language Preference -->
+        <select id="lang-select" class="ui-select" title="Pilihan Bahasa">
+          <option value="id" selected>ID (Bahasa)</option>
+          <option value="en">EN (English)</option>
+        </select>
+
+        <!-- Theme Preset Picker -->
+        <select id="theme-select" class="ui-select" title="Tema Tampilan">
+          <option value="auto" selected>Auto (Circadian)</option>
+          <option value="sand">Desert Sand (Cream)</option>
+          <option value="medina">Medina Night (Gold)</option>
+          <option value="pomegranate">Pomegranate (Ochre)</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- Main Dual-Pane Workspace -->
+    <main class="split-workspace" id="split-workspace">
+      
+      <!-- LEFT / TOP PANE: Visual Instrument (Radial 8 Valve Dial) -->
+      <section class="pane-visual" id="pane-visual">
+        
+        <!-- Radial Top Control Bar -->
+        <div class="radial-control-bar">
+          <button class="control-pill active" id="toggle-labels-btn" title="Tampilkan / Sembunyikan Label Fase">
+            <span class="pill-dot"></span>
+            <span class="pill-label">Label: ON</span>
+          </button>
+
+          <select class="ui-select" id="icon-mode-select" title="Tampilan Ikon">
+            <option value="celestial" selected>Ikon: Surya/Waktu</option>
+            <option value="clock">Ikon: Jam Numerik</option>
+            <option value="none">Ikon: Sembunyikan</option>
+          </select>
+
+          <button class="control-pill active" id="toggle-titles-btn" title="Tampilkan Judul Topik pada Ring">
+            <span class="pill-dot"></span>
+            <span class="pill-label">Topik: ON</span>
+          </button>
+
+          <button class="control-pill active" id="toggle-zen-btn" title="Zen Mode: No Spoilers (Hanya Sekarang & 6 Jam ke Depan)">
+            <span class="pill-dot"></span>
+            <span class="pill-label">Zen: ON</span>
+          </button>
+        </div>
+
+        <!-- Radial Stage with Valve Dial -->
+        <div class="radial-stage" id="radial-stage">
+          <div class="radial-dial-wrapper" id="radial-dial-wrapper">
+            
+            <!-- SVG Rotating Ring (The Valve) -->
+            <svg class="radial-svg" id="radial-svg" viewBox="-220 -220 440 440">
+              <defs>
+                <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <g id="dial-wheel-group"></g>
+            </svg>
+
+            <!-- Center Valve Hub -->
+            <div class="dial-center-hub" id="dial-center-hub" title="Klik untuk membuka detail fase aktif">
+              <span class="hub-status-badge live" id="hub-mode-badge">● LIVE</span>
+              <div class="hub-live-clock" id="hub-live-clock">12:00:00</div>
+              <div class="hub-phase-title" id="hub-phase-title">Pagi / Fajar</div>
+              <div class="hub-phase-range" id="hub-phase-range">05:00 - 08:00</div>
+
+              <!-- Floating "Back to Now" Chip (visible when scrubbed) -->
+              <button class="back-to-now-chip" id="back-to-now-btn" style="display: none;">
+                ↺ Kembali ke Sekarang
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer Guidance -->
+        <div class="instrument-footer">
+          <span>🔄 <strong>Putar roda dial</strong> seperti katup (valve) untuk melintasi waktu • Klik segmen untuk inspeksi</span>
+        </div>
+      </section>
+
+      <!-- DRAGGABLE DIVIDER -->
+      <div class="split-divider" id="split-divider" title="Tarik untuk menyesuaikan ukuran layar">
+        <div class="divider-handle"></div>
+      </div>
+
+      <!-- RIGHT / BOTTOM PANE: Data Sheet Lens -->
+      <section class="pane-data" id="pane-data">
+        <div class="sheet-header-bar">
+          <div class="sheet-title-group">
+            <h2>
+              <span>Data Lens (Citations Sheet)</span>
+              <span class="sheet-badge" id="sheet-row-count">8 Fase / Hari</span>
+            </h2>
+          </div>
+
+          <div class="sheet-controls">
+            <input type="text" id="sheet-search-input" class="sheet-search-input" placeholder="Cari topik, ayat, atau hadis...">
+          </div>
+        </div>
+
+        <div class="sheet-table-wrap">
+          <table class="citations-table" id="citations-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Fase Waktu</th>
+                <th style="width: 90px;">Jam</th>
+                <th style="width: 90px;">Jenis</th>
+                <th>Topik Kontemplasi</th>
+                <th style="width: 200px;">Teks Arab</th>
+                <th style="width: 170px; text-align: center;">Salin Cepat</th>
+              </tr>
+            </thead>
+            <tbody id="citations-table-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Backdrop for Drawer / Modal -->
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+    <!-- Inspector Drawer / Detail Panel -->
+    <aside class="inspector-drawer" id="inspector-drawer" aria-label="Detail Sitasi">
+      <div class="drawer-header">
+        <h3 id="inspector-header-title">
+          <span id="inspector-phase-badge">Phase 1</span>
+          <span id="inspector-phase-name">Pagi / Fajar</span>
+        </h3>
+        <button class="close-drawer-btn" id="close-drawer-btn" title="Tutup Panel">&times;</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Arabic High Calligraphy Card -->
+        <div class="inspector-arabic-card">
+          <div id="inspector-arabic-text">وَالصُّبْحِ إِذَا تَنَفَّسَ</div>
+          <div class="arabic-reference-tag" id="inspector-reference-tag">
+            <span>📖</span>
+            <span id="inspector-source-label">QS. At-Takwir: 18</span>
+          </div>
+        </div>
+
+        <!-- Meta Badges -->
+        <div class="inspector-meta-row" id="inspector-meta-row">
+          <span class="meta-pill highlight" id="inspector-meta-type">Al-Qur'an</span>
+          <span class="meta-pill" id="inspector-meta-time">05:00 - 08:00</span>
+          <span class="meta-pill" id="inspector-meta-grading" style="display: none;">Sahih</span>
+        </div>
+
+        <!-- Translation Card -->
+        <div class="inspector-card-section">
+          <h4>Terjemahan (Bahasa Indonesia & English)</h4>
+          <p id="inspector-text-id" style="margin-bottom: 0.6rem; font-weight: 500;"></p>
+          <p id="inspector-text-en" style="color: var(--text-secondary); font-style: italic; font-size: 0.84rem;"></p>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;" id="inspector-credit"></div>
+        </div>
+
+        <!-- Contextual Reflection / Tafsir -->
+        <div class="inspector-card-section">
+          <h4>Hikmah & Konteks Fase</h4>
+          <p id="inspector-explain-id" style="margin-bottom: 0.6rem;"></p>
+          <p id="inspector-explain-en" style="color: var(--text-secondary); font-size: 0.84rem;"></p>
+        </div>
+
+        <!-- Tags -->
+        <div class="inspector-meta-row" id="inspector-tags-container"></div>
+      </div>
+
+      <div class="drawer-footer">
+        <button class="btn-primary-action" id="inspector-copy-btn">
+          <span>📋</span> Salin Sitasi Lengkap (Format Ilmiah)
+        </button>
+        <a href="#" target="_blank" rel="noopener noreferrer" class="btn-secondary-link" id="inspector-source-link">
+          <span>🔗</span> Buka Sumber di Quran.com / Sunnah.com
+        </a>
+      </div>
+    </aside>
+
+    <!-- Toast Notification Container -->
+    <div class="app-toast-container" id="toast-container"></div>
+
+  </div>
+
+  <!-- Data Script followed by Application Engine -->
+  <script src="citations-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
