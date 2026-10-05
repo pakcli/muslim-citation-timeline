@@ -195,6 +195,44 @@ html, body {
   font-weight: 500;
 }
 
+/* View Switcher Tabs (Radial, Premiere Timeline, Google Calendar) */
+.view-switcher {
+  display: flex;
+  align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 3px;
+}
+
+.view-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.view-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-elevated);
+}
+
+.view-tab-btn.active {
+  background: var(--phase-accent-subtle);
+  color: var(--phase-accent);
+  border: 1px solid var(--phase-accent);
+  box-shadow: 0 0 12px var(--phase-accent-glow);
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -265,6 +303,25 @@ html, body {
   width: 100%;
 }
 
+/* Split Workspace Focus States (Shrink & Collapse) */
+.split-workspace.focus-visual .pane-visual {
+  flex: 1 1 100% !important;
+  min-width: 100% !important;
+}
+.split-workspace.focus-visual .pane-data,
+.split-workspace.focus-visual .split-divider {
+  display: none !important;
+}
+
+.split-workspace.focus-data .pane-data {
+  flex: 1 1 100% !important;
+  min-width: 100% !important;
+}
+.split-workspace.focus-data .pane-visual,
+.split-workspace.focus-data .split-divider {
+  display: none !important;
+}
+
 /* Desktop layout: Left & Right panes */
 .pane-visual {
   flex: 0 0 50%;
@@ -275,9 +332,10 @@ html, body {
   background: radial-gradient(circle at center, var(--phase-accent-subtle) 0%, transparent 68%);
   overflow-y: auto;
   position: relative;
-  padding: 1rem;
+  padding: 0.85rem 1rem;
   align-items: center;
   justify-content: space-between;
+  transition: flex 0.25s ease-out;
 }
 
 .pane-data {
@@ -288,6 +346,56 @@ html, body {
   flex-direction: column;
   background: var(--bg-app);
   overflow: hidden;
+  transition: flex 0.25s ease-out;
+}
+
+/* Pane Action Header */
+.pane-action-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  z-index: 25;
+}
+
+/* Focus/Collapse Toggle Button */
+.pane-focus-btn {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.pane-focus-btn:hover {
+  background: var(--phase-accent-subtle);
+  color: var(--phase-accent);
+  border-color: var(--phase-accent);
+}
+
+/* View Container Switching (Radial, Timeline, Calendar) */
+.visual-view-container {
+  display: none;
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.visual-view-container.active {
+  display: flex;
 }
 
 /* Draggable Divider */
@@ -389,8 +497,8 @@ html, body {
 
 .radial-dial-wrapper {
   position: relative;
-  width: min(85vw, 420px);
-  height: min(85vw, 420px);
+  width: min(94vw, 500px);
+  height: min(94vw, 500px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -404,11 +512,35 @@ html, body {
   overflow: visible;
   filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.45));
   cursor: grab;
-  transition: transform 0.08s ease-out;
 }
 
 .radial-svg.is-dragging {
   cursor: grabbing;
+}
+
+/* Background Radar/Spider Grid (Image 2 style) */
+.radar-web-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 1;
+}
+
+.radar-spoke-line {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  transition: stroke var(--transition-fast);
+}
+
+.radar-spoke-line.active {
+  stroke: var(--phase-accent);
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+}
+
+/* Rotating Wedges */
+.dial-wedges-group {
+  transition: transform 0.08s ease-out;
 }
 
 .dial-segment {
@@ -425,9 +557,9 @@ html, body {
 }
 
 .dial-segment.active path {
-  stroke-width: 3.5px;
-  stroke: var(--text-primary);
-  filter: drop-shadow(0 0 12px var(--phase-accent));
+  stroke-width: 3px;
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 14px var(--phase-accent));
 }
 
 .dial-segment.is-zen-masked {
@@ -439,11 +571,49 @@ html, body {
   opacity: 0.42;
 }
 
+/* Strictly Horizontal Radar Chart Labels (Image 2 style) */
+.dial-label-item {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease-out, opacity var(--transition-fast);
+}
+
+.dial-label-item text {
+  font-family: var(--font-ui);
+  text-rendering: geometricPrecision;
+}
+
+.dial-label-item:hover text {
+  filter: brightness(1.25);
+}
+
+.dial-label-item.active text .dial-label-title {
+  fill: var(--phase-accent);
+  font-weight: 800;
+}
+
+.dial-label-item.is-zen-masked {
+  opacity: 0.32;
+}
+
+.dial-label-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  fill: var(--text-primary);
+}
+
+.dial-label-sub {
+  font-size: 9px;
+  font-weight: 500;
+  fill: var(--text-secondary);
+}
+
 /* Center Valve Hub */
 .dial-center-hub {
   position: absolute;
-  width: 48%;
-  height: 48%;
+  width: 38%;
+  height: 38%;
   border-radius: 50%;
   background: var(--bg-surface-glass);
   backdrop-filter: blur(20px);
@@ -455,7 +625,7 @@ html, body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 1rem;
+  padding: 0.75rem;
   z-index: 10;
   pointer-events: auto;
   cursor: pointer;
@@ -1009,6 +1179,789 @@ html, body {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Washing Machine Selector Knob Needle */
+.knob-pointer-needle {
+  transform-origin: 0 0;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.knob-needle-line {
+  stroke: var(--phase-accent);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px var(--phase-accent));
+}
+.knob-needle-tip {
+  fill: var(--phase-accent);
+  filter: drop-shadow(0 0 10px var(--phase-accent));
+}
+
+/* Mode number badge pill in view switcher */
+.mode-number-pill {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.view-tab-btn.active .mode-number-pill {
+  background: var(--phase-accent);
+  color: #000;
+  border-color: var(--phase-accent);
+}
+
+/* ==========================================================================
+   VIEW 2: MODE 8 — DUAL RING SIDE BY SIDE (oo)
+   8 = oo = dua lingkaran berdampingan: o kiri AM | o kanan PM
+   ========================================================================== */
+
+/* Outer flex container holding both rings */
+.mode8-dual-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 0;
+  padding: 0.5rem 0.25rem;
+  overflow: hidden;
+}
+
+/* Each ring panel (AM left, PM right) */
+.ring8-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.5rem;
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-smooth), box-shadow var(--transition-smooth);
+  position: relative;
+  max-width: 310px;
+}
+
+.ring8-panel.am-ring {
+  border-right: 1px solid var(--border-subtle);
+}
+
+.ring8-panel.is-active-ring {
+  background: var(--phase-accent-subtle);
+  box-shadow: 0 0 20px var(--phase-accent-glow);
+}
+
+/* Ring header label */
+.ring8-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 0.4rem;
+}
+
+.ring8-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.ring8-subrange {
+  font-size: 0.64rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* SVG wrapper + hub overlay */
+.ring8-svg-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+}
+
+.ring8-svg {
+  width: min(40vw, 220px);
+  height: min(40vw, 220px);
+  overflow: visible;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5));
+  cursor: pointer;
+}
+
+/* Digital readout hub overlaid at center of each ring */
+.ring8-hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ring8-time {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.ring8-phase {
+  font-size: 0.66rem;
+  color: var(--phase-accent);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Waist connector between AM and PM (the narrow middle of figure 8) */
+.ring8-waist {
+  width: 36px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 5;
+}
+
+.ring8-center-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-surface-elevated);
+  border: 2px solid var(--phase-accent);
+  box-shadow: 0 0 14px var(--phase-accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring8-mode-number {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--phase-accent);
+  line-height: 1;
+}
+
+.ring8-waist-hint {
+  font-size: 0.56rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+/* Active node in Mode 8 ring */
+.ring8-node-active circle {
+  filter: drop-shadow(0 0 6px var(--phase-accent));
+}
+
+/* Mobile: stack rings vertically on narrow screens */
+@media (max-width: 600px) {
+  .mode8-dual-stage {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .ring8-panel.am-ring {
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .ring8-waist {
+    width: auto;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .ring8-svg {
+    width: min(80vw, 200px);
+    height: min(80vw, 200px);
+  }
+}
+
+
+/* ==========================================================================
+   VIEW 3: AUTHENTIC ADOBE PREMIERE PRO TIMELINE PANEL
+   ========================================================================== */
+.premiere-panel-frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #181818;
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-main);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #d4d4d4;
+}
+
+/* Premiere Tab Bar */
+.premiere-panel-tab-bar {
+  height: 32px;
+  background: #252525;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.premiere-active-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #181818;
+  padding: 5px 12px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top: 2px solid #2388ee;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.tab-seq-icon { font-size: 0.85rem; }
+.tab-close-x { color: #888; cursor: pointer; font-size: 0.9rem; margin-left: 6px; }
+
+.premiere-tools-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pr-tool-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #8e8e8e;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pr-tool-btn:hover { color: #fff; background: #333; }
+.pr-tool-btn.active { color: #fff; background: #2388ee; border-color: #2388ee; }
+.pr-tool-separator { color: #444; margin: 0 4px; font-size: 0.7rem; }
+.pr-magnet-btn { background: transparent; border: none; font-size: 0.85rem; cursor: pointer; opacity: 0.7; }
+.pr-magnet-btn.active { opacity: 1; filter: drop-shadow(0 0 4px #2388ee); }
+
+/* Premiere Timecode Bar */
+.premiere-timecode-bar {
+  height: 38px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #282828;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.pr-timecode-box {
+  background: #0d0d0d;
+  border: 1px solid #333;
+  padding: 3px 8px;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.pr-tc-digits {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #2388ee;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 6px rgba(35, 136, 238, 0.4);
+}
+
+.pr-sequence-duration {
+  font-size: 0.7rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pr-fps-badge {
+  background: #282828;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #aaa;
+}
+
+.pr-transport-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pr-btn {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #bbb;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pr-btn:hover { background: #383838; color: #fff; }
+.pr-btn.pr-live-active { background: #2388ee; color: #fff; border-color: #2388ee; }
+
+/* Premiere Work Area */
+.premiere-work-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  background: #141414;
+  min-height: 240px;
+}
+
+/* Left Track Headers Column */
+.premiere-track-headers-col {
+  width: 110px;
+  background: #232323;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.pr-ruler-corner {
+  height: 26px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 0.7rem;
+}
+
+.pr-header-row {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  gap: 5px;
+  border-bottom: 1px solid #2d2d2d;
+  font-size: 0.72rem;
+  color: #999;
+}
+
+.pr-header-row.active-target {
+  background: #282828;
+  color: #fff;
+}
+
+.pr-track-btn {
+  width: 18px;
+  height: 18px;
+  background: #1e1e1e;
+  border: 1px solid #383838;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #888;
+}
+
+.pr-track-btn:hover { background: #333; color: #fff; }
+.pr-track-btn.mute { color: #f59e0b; }
+.pr-track-btn.solo { color: #22c55e; }
+
+.pr-track-target {
+  background: #2388ee;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.68rem;
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+
+.pr-track-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pr-av-divider {
+  height: 6px;
+  background: #181818;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+/* Right Tracks Canvas */
+.premiere-tracks-canvas {
+  flex: 1;
+  position: relative;
+  background: #121212;
+  overflow-x: auto;
+  overflow-y: hidden;
+  user-select: none;
+}
+
+/* Pixel Accurate Time Ruler */
+.premiere-pixel-ruler {
+  height: 26px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  position: relative;
+  display: flex;
+}
+
+.pr-ruler-tick-item {
+  flex: 1;
+  height: 100%;
+  border-left: 1px solid #3a3a3a;
+  font-size: 0.64rem;
+  font-family: monospace;
+  color: #888;
+  padding-left: 4px;
+  padding-top: 4px;
+  position: relative;
+}
+
+.pr-ruler-tick-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  height: 6px;
+  background: #2d2d2d;
+}
+
+/* Track Lanes */
+.pr-lane-row {
+  height: 54px;
+  border-bottom: 1px solid #1e1e1e;
+  position: relative;
+  display: flex;
+}
+
+.pr-lane-row.v1-lane {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pr-lane-av-divider {
+  height: 6px;
+  background: #0d0d0d;
+  border-top: 1px solid #282828;
+  border-bottom: 1px solid #282828;
+}
+
+/* Premiere Pro Style Colored Clips */
+.premiere-clip-block {
+  height: 100%;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  margin-right: 1px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: filter var(--transition-fast);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.premiere-clip-block:hover {
+  filter: brightness(1.18);
+}
+
+.premiere-clip-block.active {
+  box-shadow: inset 0 0 0 2px #fff, 0 0 12px var(--phase-accent);
+  z-index: 5;
+}
+
+.pr-clip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pr-clip-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.pr-clip-duration {
+  font-size: 0.62rem;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.pr-clip-preview {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
+/* Audio Waveform Clips */
+.pr-audio-clip-block {
+  height: 100%;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  margin-right: 1px;
+  background: #1c322b;
+  position: relative;
+  overflow: hidden;
+}
+
+.pr-audio-waveform-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Premiere Blue/Red CTI Playhead */
+.premiere-cti-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  margin-left: -7px;
+  z-index: 50;
+  pointer-events: auto;
+  cursor: ew-resize;
+  transition: left 0.08s ease-out;
+}
+
+.cti-head {
+  width: 14px;
+  height: 14px;
+  background: #2388ee;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  filter: drop-shadow(0 2px 5px rgba(35, 136, 238, 0.8));
+}
+
+.cti-line {
+  width: 2px;
+  height: calc(100% - 14px);
+  background: #2388ee;
+  margin: 0 auto;
+  box-shadow: 0 0 8px rgba(35, 136, 238, 0.8);
+}
+
+/* Premiere Zoom Navigator Bar */
+.premiere-zoom-navigator {
+  height: 24px;
+  background: #1f1f1f;
+  border-top: 1px solid #282828;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 8px;
+}
+
+.zoom-icon { font-size: 0.7rem; color: #777; }
+
+.zoom-scroll-track {
+  flex: 1;
+  height: 10px;
+  background: #111;
+  border-radius: 5px;
+  position: relative;
+}
+
+.zoom-scroll-thumb {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #333;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.zoom-handle {
+  width: 8px;
+  height: 8px;
+  background: #555;
+  border-radius: 50%;
+  cursor: ew-resize;
+}
+
+.zoom-thumb-body {
+  flex: 1;
+  height: 100%;
+  cursor: grab;
+}
+
+.pr-snap-status {
+  font-size: 0.65rem;
+  color: #2388ee;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   GOOGLE CALENDAR VIEW
+   ========================================================================== */
+.calendar-schedule-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-main);
+}
+
+.calendar-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-surface-elevated);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.cal-today-pill {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+.legend-dot.quran { background: #38bdf8; }
+.legend-dot.hadith { background: #34d399; }
+
+.calendar-day-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cal-time-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  min-height: 48px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cal-hour-label {
+  width: 75px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 6px;
+  flex-shrink: 0;
+}
+
+.cal-event-card {
+  flex: 1;
+  background: var(--bg-surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all var(--transition-fast);
+}
+
+.cal-event-card:hover {
+  background: var(--bg-surface-elevated);
+  transform: translateX(3px);
+  border-color: var(--phase-accent);
+}
+
+.cal-event-card.active {
+  background: var(--phase-accent-subtle);
+  border-color: var(--phase-accent);
+  box-shadow: 0 4px 14px var(--phase-accent-glow);
+}
+
+.cal-event-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-event-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cal-event-topic {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.cal-event-arabic {
+  font-family: var(--font-arabic);
+  font-size: 1.1rem;
+  direction: rtl;
+  color: var(--text-primary);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==========================================================================

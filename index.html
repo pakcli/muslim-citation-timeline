@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Muslim Citation Timeline — Circadian Sacred Text Instrument</title>
-  <meta name="description" content="Contemplative circadian Islamic citation timeline with an analog radial valve dial, Zen Mode, and structured scholarly data sheet.">
+  <meta name="description" content="Contemplative circadian Islamic citation timeline with a washing machine dial selector, Premiere video timeline, Google calendar, Zen Mode, and structured scholarly data sheet.">
   <link rel="stylesheet" href="index.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
 </head>
@@ -17,9 +17,25 @@
         <div class="brand-symbol" id="brand-symbol">۞</div>
         <div class="brand-title-wrap">
           <h1>Muslim Citation Timeline</h1>
-          <div class="brand-subtitle">Circadian Sacred Text Instrument (8-Phase Valve)</div>
+          <div class="brand-subtitle">Circadian Sacred Text Instrument</div>
         </div>
       </div>
+
+      <!-- Center: View Switcher (Mode 0 Radial O-ring, Mode 8 Double-ring oo, Premiere Timeline, Google Calendar) -->
+      <nav class="view-switcher" id="view-switcher">
+        <button class="view-tab-btn active" data-view="radial" title="Mode 0: Radial Single Ring (O = satu lingkaran, selector 8 fase)">
+          <span class="mode-number-pill">0</span> <span>Radial</span>
+        </button>
+        <button class="view-tab-btn" data-view="circle0" title="Mode 8: Double Ring oo (8 = dua lingkaran, 2x12jam = 24jam)">
+          <span class="mode-number-pill">8</span> <span>Double Ring (oo)</span>
+        </button>
+        <button class="view-tab-btn" data-view="timeline" title="Timeline Panel Premiere Pro">
+          <span>⏱️</span> <span>Timeline</span>
+        </button>
+        <button class="view-tab-btn" data-view="calendar" title="Kalender Jadwal Google">
+          <span>📅</span> <span>Kalender</span>
+        </button>
+      </nav>
 
       <div class="header-actions">
         <!-- Date Selector -->
@@ -48,68 +64,331 @@
     <!-- Main Dual-Pane Workspace -->
     <main class="split-workspace" id="split-workspace">
       
-      <!-- LEFT / TOP PANE: Visual Instrument (Radial 8 Valve Dial) -->
+      <!-- LEFT PANE: Visual Instrument (Radial 8 / Circle 0 / Premiere Timeline / Google Calendar) -->
       <section class="pane-visual" id="pane-visual">
         
-        <!-- Radial Top Control Bar -->
-        <div class="radial-control-bar">
-          <button class="control-pill active" id="toggle-labels-btn" title="Tampilkan / Sembunyikan Label Fase">
-            <span class="pill-dot"></span>
-            <span class="pill-label">Label: ON</span>
-          </button>
+        <!-- Visual Top Control Bar with Pane Collapse Button -->
+        <div class="pane-action-header">
+          <!-- Controls Bar -->
+          <div class="radial-control-bar" id="view-controls-bar">
+            <button class="control-pill active" id="toggle-labels-btn" title="Tampilkan / Sembunyikan Label">
+              <span class="pill-dot"></span>
+              <span class="pill-label">Label: ON</span>
+            </button>
 
-          <select class="ui-select" id="icon-mode-select" title="Tampilan Ikon">
-            <option value="celestial" selected>Ikon: Surya/Waktu</option>
-            <option value="clock">Ikon: Jam Numerik</option>
-            <option value="none">Ikon: Sembunyikan</option>
-          </select>
+            <select class="ui-select" id="icon-mode-select" title="Tampilan Ikon">
+              <option value="celestial" selected>Ikon: Surya/Waktu</option>
+              <option value="clock">Ikon: Jam Numerik</option>
+              <option value="none">Ikon: Sembunyikan</option>
+            </select>
 
-          <button class="control-pill active" id="toggle-titles-btn" title="Tampilkan Judul Topik pada Ring">
-            <span class="pill-dot"></span>
-            <span class="pill-label">Topik: ON</span>
-          </button>
+            <button class="control-pill active" id="toggle-titles-btn" title="Tampilkan Judul Topik">
+              <span class="pill-dot"></span>
+              <span class="pill-label">Topik: ON</span>
+            </button>
 
-          <button class="control-pill active" id="toggle-zen-btn" title="Zen Mode: No Spoilers (Hanya Sekarang & 6 Jam ke Depan)">
-            <span class="pill-dot"></span>
-            <span class="pill-label">Zen: ON</span>
+            <button class="control-pill active" id="toggle-zen-btn" title="Zen Mode: No Spoilers (Hanya Sekarang & 6 Jam ke Depan)">
+              <span class="pill-dot"></span>
+              <span class="pill-label">Zen: ON</span>
+            </button>
+          </div>
+
+          <!-- Focus / Collapse Split Screen Toggle -->
+          <button class="pane-focus-btn" id="btn-focus-visual" title="Perluas Layar Visual (Collapse Data)">
+            <span class="focus-icon">⤢</span>
+            <span class="focus-text">Fokus Visual</span>
           </button>
         </div>
 
-        <!-- Radial Stage with Valve Dial -->
-        <div class="radial-stage" id="radial-stage">
-          <div class="radial-dial-wrapper" id="radial-dial-wrapper">
+        <!-- ======================================================== -->
+        <!-- VIEW 1: MODE 0 — RADIAL (O = satu lingkaran = single ring) -->
+        <!-- Label & teks STATIS HORIZONTAL. Hanya jarum yang berputar  -->
+        <!-- 0 = O = 1 lingkaran donat 8 fase. Knob selector, anti-pusing! -->
+        <!-- ======================================================== -->
+        <div class="visual-view-container active" id="view-container-radial">
+          <div class="radial-stage" id="radial-stage">
+            <div class="radial-dial-wrapper" id="radial-dial-wrapper">
+              
+              <!-- SVG Radar/Knob Stage -->
+              <svg class="radial-svg" id="radial-svg" viewBox="-280 -280 560 560">
+                <defs>
+                  <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                <!-- Background Radar / Spider Concentric Web Rings (Image 2 style) -->
+                <g id="radar-grid-group"></g>
+
+                <!-- Static 8 Phase Wedges (Permanent, Fixed in Place) -->
+                <g id="dial-wedges-group"></g>
+
+                <!-- Spoke Connectors to Static Outer Labels -->
+                <g id="dial-spokes-group"></g>
+
+                <!-- Selector Knob Pointer Needle -->
+                <g id="dial-pointer-needle-group"></g>
+
+                <!-- Strictly Horizontal Static Labels (Always 100% Horizontal, Never Tilted) -->
+                <g id="dial-labels-group"></g>
+              </svg>
+
+              <!-- Center Dial Hub -->
+              <div class="dial-center-hub" id="dial-center-hub" title="Klik untuk membuka detail fase aktif">
+                <span class="hub-status-badge live" id="hub-mode-badge">● LIVE</span>
+                <div class="hub-live-clock" id="hub-live-clock">12:00:00</div>
+                <div class="hub-phase-title" id="hub-phase-title">Pagi / Fajar</div>
+                <div class="hub-phase-range" id="hub-phase-range">05:00 - 08:00</div>
+
+                <!-- Floating "Back to Now" Chip -->
+                <button class="back-to-now-chip" id="back-to-now-btn" style="display: none;">
+                  ↺ Kembali ke Sekarang
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Footer Guidance -->
+          <div class="instrument-footer">
+            <span>⭕ <strong>Mode 0 (O = satu lingkaran):</strong> Radial 8 fase sirkadian — label statis horizontal, hanya jarum penunjuk yang berputar (anti-pusing)</span>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 2: MODE 8 — DUAL RING SIDE BY SIDE (oo)            -->
+        <!-- 8 = oo = dua lingkaran berdampingan horizontal           -->
+        <!-- o kiri = AM ring (00:00–12:00)                          -->
+        <!-- o kanan = PM ring (12:00–24:00)                         -->
+        <!-- ======================================================== -->
+        <div class="visual-view-container" id="view-container-circle0">
+
+          <!-- Dual Ring Stage: Two rings side by side -->
+          <div class="mode8-dual-stage" id="mode8-dual-stage">
+
+            <!-- ===== LEFT RING: AM (00:00 – 12:00) ===== -->
+            <div class="ring8-panel am-ring" id="ring8-am-panel">
+              <div class="ring8-header">
+                <span class="ring8-label">☀️ AM</span>
+                <span class="ring8-subrange">00:00 – 12:00</span>
+              </div>
+              <div class="ring8-svg-wrap">
+                <svg class="ring8-svg" id="ring8-am-svg" viewBox="-130 -130 260 260">
+                  <g id="ring8-am-ticks"></g>
+                  <g id="ring8-am-nodes"></g>
+                  <g id="ring8-am-hand"></g>
+                </svg>
+                <div class="ring8-hub" id="ring8-am-hub">
+                  <div class="ring8-time" id="ring8-am-time">06:00</div>
+                  <div class="ring8-phase" id="ring8-am-phase">Fajar</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== CENTER CONNECTOR (waist of 8) ===== -->
+            <div class="ring8-waist">
+              <div class="ring8-center-badge" id="ring8-center-badge">
+                <div class="ring8-mode-number">8</div>
+              </div>
+              <div class="ring8-waist-hint">oo<br>2×12h</div>
+            </div>
+
+            <!-- ===== RIGHT RING: PM (12:00 – 24:00) ===== -->
+            <div class="ring8-panel pm-ring" id="ring8-pm-panel">
+              <div class="ring8-header">
+                <span class="ring8-label">🌙 PM</span>
+                <span class="ring8-subrange">12:00 – 24:00</span>
+              </div>
+              <div class="ring8-svg-wrap">
+                <svg class="ring8-svg" id="ring8-pm-svg" viewBox="-130 -130 260 260">
+                  <g id="ring8-pm-ticks"></g>
+                  <g id="ring8-pm-nodes"></g>
+                  <g id="ring8-pm-hand"></g>
+                </svg>
+                <div class="ring8-hub" id="ring8-pm-hub">
+                  <div class="ring8-time" id="ring8-pm-time">18:00</div>
+                  <div class="ring8-phase" id="ring8-pm-phase">Maghrib</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Hidden legacy elements referenced in app.js (kept for compat) -->
+          <div style="display:none">
+            <div id="circle0-center-hub"><div id="circle0-loop-badge"><span id="circle0-loop-text"></span></div><div id="circle0-clock"></div><div id="circle0-phase-name"></div></div>
+            <svg id="circle0-svg"><g id="circle0-ticks-group"></g><g id="circle0-nodes-group"></g><g id="circle0-hand-group"></g></svg>
+          </div>
+
+          <!-- Footer -->
+          <div class="instrument-footer">
+            <span>8️⃣ <strong>Mode 8 (oo = dua cincin berdampingan):</strong> o kiri ☀️ AM (00:00–12:00) &amp; o kanan 🌙 PM (12:00–24:00) — klik node untuk memilih fase</span>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 3: TIMELINE PANEL IN ADOBE PREMIERE PRO             -->
+        <!-- Authentic Premiere Pro NLE Panel with sequence header,   -->
+        <!-- timecode, tool pallet, V1/V2/A1 tracks, audio waveforms, -->
+        <!-- CTI playhead, and zoom navigator handles!               -->
+        <!-- ======================================================== -->
+        <div class="visual-view-container" id="view-container-timeline">
+          <div class="premiere-panel-frame" id="premiere-panel-frame">
             
-            <!-- SVG Rotating Ring (The Valve) -->
-            <svg class="radial-svg" id="radial-svg" viewBox="-220 -220 440 440">
-              <defs>
-                <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="6" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-              <g id="dial-wheel-group"></g>
-            </svg>
+            <!-- Premiere Top Panel Tab Header -->
+            <div class="premiere-panel-tab-bar">
+              <div class="premiere-active-tab">
+                <span class="tab-seq-icon">🎬</span>
+                <span class="tab-seq-title">Muslim_Timeline_24h.prproj</span>
+                <span class="tab-close-x">×</span>
+              </div>
+              <div class="premiere-tools-ribbon">
+                <span class="pr-tool-btn active" title="Selection Tool (V)">V</span>
+                <span class="pr-tool-btn" title="Track Select Forward (A)">A</span>
+                <span class="pr-tool-btn" title="Ripple Edit Tool (B)">B</span>
+                <span class="pr-tool-btn" title="Razor Tool (C)">C</span>
+                <span class="pr-tool-btn" title="Hand Tool (H)">H</span>
+                <span class="pr-tool-separator">|</span>
+                <button class="pr-magnet-btn active" id="pr-magnet-btn" title="Snap in Timeline (S)">🧲</button>
+              </div>
+            </div>
 
-            <!-- Center Valve Hub -->
-            <div class="dial-center-hub" id="dial-center-hub" title="Klik untuk membuka detail fase aktif">
-              <span class="hub-status-badge live" id="hub-mode-badge">● LIVE</span>
-              <div class="hub-live-clock" id="hub-live-clock">12:00:00</div>
-              <div class="hub-phase-title" id="hub-phase-title">Pagi / Fajar</div>
-              <div class="hub-phase-range" id="hub-phase-range">05:00 - 08:00</div>
+            <!-- Premiere Timecode & Transport Bar -->
+            <div class="premiere-timecode-bar">
+              <div class="pr-timecode-box">
+                <span class="pr-tc-digits" id="premiere-timecode-digits">00;08;24;15</span>
+              </div>
+              <div class="pr-sequence-duration">
+                <span>TOTAL: 24:00:00:00</span>
+                <span class="pr-fps-badge">29.97 fps (Circadian)</span>
+              </div>
+              <div class="pr-transport-btns">
+                <button class="pr-btn" id="btn-tl-prev" title="Step Back to Prev Phase">⏮ Step</button>
+                <button class="pr-btn pr-live-active" id="btn-tl-live" title="Play Live Time">● Live CTI</button>
+                <button class="pr-btn" id="btn-tl-next" title="Step Forward to Next Phase">Step ⏭</button>
+              </div>
+            </div>
 
-              <!-- Floating "Back to Now" Chip (visible when scrubbed) -->
-              <button class="back-to-now-chip" id="back-to-now-btn" style="display: none;">
-                ↺ Kembali ke Sekarang
-              </button>
+            <!-- Premiere Timeline Work Area (Left Track Headers + Right Track Canvas) -->
+            <div class="premiere-work-area" id="premiere-work-area">
+              
+              <!-- Left Track Headers Column (V2, V1, A1, A2) -->
+              <div class="premiere-track-headers-col">
+                <div class="pr-ruler-corner">
+                  <span class="pr-time-icon">⏱️</span>
+                </div>
+                <!-- Track V2 Header -->
+                <div class="pr-header-row v-track">
+                  <span class="pr-track-btn eye" title="Toggle Track Output">👁</span>
+                  <span class="pr-track-btn lock" title="Lock Track">🔒</span>
+                  <span class="pr-track-name">V2 Overlays</span>
+                </div>
+                <!-- Track V1 Header (Sacred Citations) -->
+                <div class="pr-header-row v-track active-target">
+                  <span class="pr-track-btn eye" title="Toggle Track Output">👁</span>
+                  <span class="pr-track-btn lock" title="Lock Track">🔒</span>
+                  <span class="pr-track-target">V1</span>
+                  <span class="pr-track-name">Citations</span>
+                </div>
+                <!-- Video / Audio Split Divider -->
+                <div class="pr-av-divider"></div>
+                <!-- Track A1 Header (Ambient Audio) -->
+                <div class="pr-header-row a-track active-target">
+                  <span class="pr-track-btn mute" title="Mute Track">M</span>
+                  <span class="pr-track-btn solo" title="Solo Track">S</span>
+                  <span class="pr-track-target">A1</span>
+                  <span class="pr-track-name">Ambient</span>
+                </div>
+                <!-- Track A2 Header (Tafsir Voice) -->
+                <div class="pr-header-row a-track">
+                  <span class="pr-track-btn mute" title="Mute Track">M</span>
+                  <span class="pr-track-btn solo" title="Solo Track">S</span>
+                  <span class="pr-track-name">A2 Tafsir</span>
+                </div>
+              </div>
+
+              <!-- Right Tracks Canvas (Ruler + Lanes + Clips + CTI Playhead) -->
+              <div class="premiere-tracks-canvas" id="premiere-tracks-board">
+                
+                <!-- Premiere Pixel-Accurate Time Ruler -->
+                <div class="premiere-pixel-ruler" id="premiere-ruler">
+                  <!-- Renders tick marks & timestamps every 2h -->
+                </div>
+
+                <!-- Track Lane V2 -->
+                <div class="pr-lane-row v2-lane">
+                  <div class="pr-blank-track"></div>
+                </div>
+
+                <!-- Track Lane V1: Colored Premiere Pro Citation Clips -->
+                <div class="pr-lane-row v1-lane" id="premiere-citations-lane">
+                  <!-- 8 Premiere clips dynamically rendered -->
+                </div>
+
+                <!-- AV Dividing Line -->
+                <div class="pr-lane-av-divider"></div>
+
+                <!-- Track Lane A1: Audio Waveforms -->
+                <div class="pr-lane-row a1-lane" id="premiere-ambient-lane">
+                  <!-- Waveform clips dynamically rendered -->
+                </div>
+
+                <!-- Track Lane A2: Secondary Audio -->
+                <div class="pr-lane-row a2-lane">
+                  <div class="pr-blank-track"></div>
+                </div>
+
+                <!-- Adobe Premiere Blue CTI Playhead Needle -->
+                <div class="premiere-cti-playhead" id="premiere-playhead">
+                  <div class="cti-head"></div>
+                  <div class="cti-line"></div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Bottom Premiere Pro Zoom / Scroll Navigator Bar -->
+            <div class="premiere-zoom-navigator">
+              <span class="zoom-icon">🔍</span>
+              <div class="zoom-scroll-track" id="zoom-scroll-track">
+                <div class="zoom-scroll-thumb" id="zoom-scroll-thumb">
+                  <span class="zoom-handle left" title="Tarik untuk zoom in/out timeline"></span>
+                  <span class="zoom-thumb-body"></span>
+                  <span class="zoom-handle right" title="Tarik untuk zoom in/out timeline"></span>
+                </div>
+              </div>
+              <span class="pr-snap-status">Snap: ON</span>
             </div>
 
           </div>
         </div>
 
-        <!-- Footer Guidance -->
-        <div class="instrument-footer">
-          <span>🔄 <strong>Putar roda dial</strong> seperti katup (valve) untuk melintasi waktu • Klik segmen untuk inspeksi</span>
+        <!-- ======================================================== -->
+        <!-- VIEW 4: GOOGLE CALENDAR SCHEDULE GRID                   -->
+        <!-- ======================================================== -->
+
+        <!-- ======================================================== -->
+        <!-- VIEW 3: GOOGLE CALENDAR SCHEDULE GRID                   -->
+        <!-- Day grid with hourly slots, event cards, category chips  -->
+        <!-- ======================================================== -->
+        <div class="visual-view-container" id="view-container-calendar">
+          <div class="calendar-schedule-wrap" id="calendar-schedule-wrap">
+            <div class="calendar-header-bar">
+              <div class="cal-today-pill" id="cal-today-title">Senin, 05 Oktober 2026</div>
+              <div class="cal-legend">
+                <span class="legend-dot quran"></span> Qur'an
+                <span class="legend-dot hadith"></span> Hadits
+              </div>
+            </div>
+
+            <!-- Time Grid Schedule -->
+            <div class="calendar-day-grid" id="calendar-day-grid">
+              <!-- Dynamically populated 8 time blocks -->
+            </div>
+          </div>
         </div>
+
       </section>
 
       <!-- DRAGGABLE DIVIDER -->
@@ -117,7 +396,7 @@
         <div class="divider-handle"></div>
       </div>
 
-      <!-- RIGHT / BOTTOM PANE: Data Sheet Lens -->
+      <!-- RIGHT PANE: Data Sheet Lens -->
       <section class="pane-data" id="pane-data">
         <div class="sheet-header-bar">
           <div class="sheet-title-group">
@@ -129,6 +408,10 @@
 
           <div class="sheet-controls">
             <input type="text" id="sheet-search-input" class="sheet-search-input" placeholder="Cari topik, ayat, atau hadis...">
+            <button class="pane-focus-btn" id="btn-focus-data" title="Perluas Layar Data (Collapse Visual)">
+              <span class="focus-icon">⤢</span>
+              <span class="focus-text">Fokus Data</span>
+            </button>
           </div>
         </div>
 
