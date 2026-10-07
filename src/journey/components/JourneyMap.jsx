@@ -10,10 +10,12 @@ const TYPE_COLOR = {
 const toPath = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'} ${p[0]} ${p[1]}`).join(' ')
 
 export default function JourneyMap({ selectedId, onSelect, pathKey }) {
-  const onPath = PATHS[pathKey]
+  const onPath = PATHS[pathKey] || PATHS.all
   const edgeOnPath = (e) =>
-    e.type === 'neutral' ||
-    (e.type === pathKey && onPath.includes(e.from) && onPath.includes(e.to))
+    pathKey === 'all'
+      ? true
+      : e.type === 'neutral' ||
+        (e.type === pathKey && onPath.includes(e.from) && onPath.includes(e.to))
 
   return (
     <svg className="jny-map" viewBox="0 0 900 540" role="img" aria-label="Akhirat journey map">

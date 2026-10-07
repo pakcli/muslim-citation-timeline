@@ -71,12 +71,14 @@ export const EDGES = [
 
 // Ordered stage lists for the timeline scrub, per path.
 export const PATHS = {
+  all: ['dharr', 'womb', 'dunya', 'grave', 'horn', 'resurrection', 'intercession', 'judgement', 'books', 'scale', 'fountain', 'test', 'sirat', 'arch', 'heaven', 'hell'],
   believer: ['dharr', 'womb', 'dunya', 'grave', 'horn', 'resurrection', 'intercession', 'judgement', 'books', 'scale', 'fountain', 'test', 'sirat', 'arch', 'heaven'],
   disbeliever: ['dharr', 'womb', 'dunya', 'grave', 'horn', 'resurrection', 'intercession', 'judgement', 'books', 'scale', 'hell'],
   hypocrite: ['dharr', 'womb', 'dunya', 'grave', 'horn', 'resurrection', 'intercession', 'judgement', 'books', 'scale', 'fountain', 'test', 'hell'],
 }
 
 export const PATH_META = {
+  all: { label: 'All Roles', color: '#38bdf8' },
   believer: { label: 'Believers', color: '#34d399' },
   disbeliever: { label: 'Disbelievers', color: '#f87171' },
   hypocrite: { label: 'Hypocrites', color: '#fbbf24' },

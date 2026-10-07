@@ -6,7 +6,7 @@ export default function JourneyTimeline({ order, index, pathKey, onSelect, onSte
   const trackRef = useRef(null)
   const dragging = useRef(false)
   const n = order.length
-  const color = PATH_META[pathKey].color
+  const color = PATH_META[pathKey]?.color || '#38bdf8'
 
   const scrub = (clientX) => {
     const rect = trackRef.current.getBoundingClientRect()
