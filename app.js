@@ -1967,7 +1967,6 @@
           <td colspan="4" class="section-phase-banner">
             <div class="section-banner-content">
               <div class="section-banner-title">
-                <span class="section-phase-dot" style="background: ${phase.color}; color: ${phase.color};"></span>
                 <span class="section-phase-name">${phase.icon} ${phaseName}</span>
                 <span class="section-time-pill">${phase.range || item.time_range}</span>
                 ${isCurrentActive ? '<span class="section-active-badge">● Fase Aktif</span>' : ''}

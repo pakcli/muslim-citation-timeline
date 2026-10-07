@@ -1262,14 +1262,6 @@ body::after {
   gap: 10px;
 }
 
-.section-phase-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  box-shadow: 0 0 8px currentColor;
-  flex-shrink: 0;
-}
-
 .section-phase-name {
   font-weight: 800;
   font-size: 0.85rem;
