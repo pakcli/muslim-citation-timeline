@@ -47,7 +47,12 @@
     // Scriptural Source & Hadith Authenticity Filters
     sourceFilter: "all",       // 'all' | 'quran' | 'hadith'
     hadithMinGrade: 1,         // 1: Muttafaqun 'Alayh / Sahih High, 2: Sahih, 3: Hasan, 4: Dha'if
-    hadithMaxGrade: 4          // Range max grade
+    hadithMaxGrade: 4,         // Range max grade
+    // Sheet Sorting & Grouping
+    sheetSortBy: "phase",      // 'phase' | 'type' | 'topic' | 'len'
+    sheetSortOrder: "asc",     // 'asc' | 'desc'
+    // Inspector Drawer Mode ('left' | 'center' | 'right')
+    drawerMode: localStorage.getItem("mct_drawer_mode") || "right"
   };
 
   // Fixed angular positions for Mode 0 Radial Dial (laid out as real 24h clock):
@@ -167,12 +172,16 @@
 
     // Sheet elements
     sheetSearchInput: document.getElementById("sheet-search-input"),
+    sheetSortSelect: document.getElementById("sheet-sort-select"),
     sheetTableBody: document.getElementById("citations-table-body"),
     sheetRowCount: document.getElementById("sheet-row-count"),
+    thSortables: document.querySelectorAll(".th-sortable"),
 
     // Inspector Drawer elements
     inspectorDrawer: document.getElementById("inspector-drawer"),
     drawerBackdrop: document.getElementById("drawer-backdrop"),
+    drawerModeToggle: document.getElementById("drawer-mode-toggle"),
+    drawerModeBtns: document.querySelectorAll(".drawer-mode-btn"),
     closeDrawerBtn: document.getElementById("close-drawer-btn"),
     inspectorHeaderTitle: document.getElementById("inspector-header-title"),
     inspectorPhaseBadge: document.getElementById("inspector-phase-badge"),
@@ -1903,13 +1912,13 @@
     }
 
     if (dom.sheetRowCount) {
-      dom.sheetRowCount.textContent = `${rows.length} Fase`;
+      dom.sheetRowCount.textContent = `${rows.length} Data Sitasi`;
     }
 
     if (rows.length === 0) {
       const emptyTr = document.createElement("tr");
       emptyTr.innerHTML = `
-        <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
+        <td colspan="4" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
           Tidak ada naskah yang cocok dengan filter "${state.sourceFilter.toUpperCase()}" dan rentang derajat saat ini.
         </td>
       `;
@@ -1917,72 +1926,148 @@
       return;
     }
 
+    // Sort rows according to state.sheetSortBy and state.sheetSortOrder
+    rows.sort((a, b) => {
+      let cmp = 0;
+      if (state.sheetSortBy === "phase") {
+        cmp = a.slot - b.slot;
+      } else if (state.sheetSortBy === "type") {
+        cmp = a.source_type.localeCompare(b.source_type);
+      } else if (state.sheetSortBy === "topic") {
+        const topicA = (state.lang === "id" ? a.topic_id : a.topic_en) || "";
+        const topicB = (state.lang === "id" ? b.topic_id : b.topic_en) || "";
+        cmp = topicA.localeCompare(topicB);
+      } else if (state.sheetSortBy === "len") {
+        const lenA = (a.arabic || "").length + (a.text_id || "").length;
+        const lenB = (b.arabic || "").length + (b.text_id || "").length;
+        cmp = lenA - lenB;
+      }
+      return state.sheetSortOrder === "desc" ? -cmp : cmp;
+    });
+
+    let currentPhaseSlot = null;
+
     rows.forEach(item => {
       const phase = PHASES.find(p => p.slot === item.slot) || PHASES[0];
       const isCurrentActive = item.slot === state.activeSlot;
       const isVisible = isSlotZenVisible(item.slot);
 
-      const tr = document.createElement("tr");
-      tr.className = `citation-row ${isCurrentActive ? "is-active-phase" : ""} ${!isVisible && state.zenMode ? "is-zen-masked" : ""}`;
-      tr.setAttribute("data-slot", item.slot);
-
       const phaseName = state.lang === "id" ? phase.name_id : phase.name_en;
       const topicText = state.lang === "id" ? item.topic_id : item.topic_en;
       const isQuran = item.source_type === "quran";
       const typeTagClass = isQuran ? "quran" : "hadith";
-      const typeLabel = isQuran ? "Qur'an" : "Hadits";
+      const typeLabel = isQuran ? "Al-Qur'an" : "Hadits";
+
+      // If sorting by phase, render section header banner row for each phase group
+      if (state.sheetSortBy === "phase" && currentPhaseSlot !== item.slot) {
+        currentPhaseSlot = item.slot;
+        const groupTr = document.createElement("tr");
+        groupTr.className = "section-group-row";
+        groupTr.innerHTML = `
+          <td colspan="4" class="section-phase-banner">
+            <div class="section-banner-content">
+              <div class="section-banner-title">
+                <span class="section-phase-dot" style="background: ${phase.color}; color: ${phase.color};"></span>
+                <span class="section-phase-name">${phase.icon} ${phaseName}</span>
+                <span class="section-time-pill">${phase.timeRange}</span>
+                ${isCurrentActive ? '<span class="section-active-badge">● Fase Aktif</span>' : ''}
+              </div>
+              <div class="section-banner-meta">
+                <span class="section-organ-hint">${phase.organ || ""} • ${phase.focus || ""}</span>
+              </div>
+            </div>
+          </td>
+        `;
+        dom.sheetTableBody.appendChild(groupTr);
+      }
+
+      // Build refSnippet & grading
+      let refSnippet = "";
+      let gradingBadgeHtml = "";
+      if (isQuran && item.quran_detail) {
+        refSnippet = `QS. ${item.quran_detail.surah_name}: ${item.quran_detail.ayah}`;
+      } else if (item.hadith_detail) {
+        refSnippet = `HR. ${item.hadith_detail.collection} No. ${item.hadith_detail.hadith_no}`;
+        gradingBadgeHtml = `<span class="col-grading-badge">${item.hadith_detail.grading}</span>`;
+      }
+
+      const tr = document.createElement("tr");
+      tr.className = `citation-row ${isCurrentActive ? "is-active-phase" : ""} ${!isVisible && state.zenMode ? "is-zen-masked" : ""}`;
+      tr.setAttribute("data-slot", item.slot);
 
       tr.innerHTML = `
-        <td>
-          <div class="col-phase">
-            <span class="phase-dot" style="background: ${phase.color};"></span>
-            <span>${phaseName}</span>
+        <!-- Col 1: Jenis -->
+        <td class="cell-copyable" data-copy-type="type" title="Klik untuk salin jenis & referensi">
+          <div class="col-type-wrap">
+            <span class="col-type-tag ${typeTagClass}">${typeLabel}</span>
+            <span class="col-type-ref">${refSnippet}</span>
+            ${gradingBadgeHtml}
           </div>
         </td>
-        <td><span style="font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 0.78rem;">${item.time_range}</span></td>
-        <td><span class="col-type-tag ${typeTagClass}">${typeLabel}</span></td>
-        <td class="col-topic">${topicText}</td>
-        <td class="col-arabic-preview" title="${item.arabic}">${item.arabic}</td>
-        <td>
-          <div class="row-actions-group">
-            <button class="quick-action-btn copy-arabic" title="Salin Teks Arab Sahaja">
-              <span>عربي</span>
+
+        <!-- Col 2: Topik Kontemplasi -->
+        <td class="cell-copyable" data-copy-type="topic" title="Klik untuk salin topik kontemplasi">
+          <span class="col-topic">${topicText}</span>
+          ${state.sheetSortBy !== "phase" ? `<span class="col-topic-phase-tag">${phase.icon} ${phaseName} (${item.time_range})</span>` : ""}
+        </td>
+
+        <!-- Col 3: Teks Arab -->
+        <td class="cell-copyable" data-copy-type="arabic" title="Klik untuk salin teks Arab">
+          <span class="col-arabic-preview" dir="rtl" title="${item.arabic}">${item.arabic}</span>
+        </td>
+
+        <!-- Col 4: Sticky Action Column Freeze (Far Right) -->
+        <td class="col-sticky-actions">
+          <div class="table-actions-cluster">
+            <button class="tbl-btn btn-detail" title="Buka Detail di Panel Inspector">
+              <span>🔍 Detail</span>
             </button>
-            <button class="quick-action-btn copy-trans" title="Salin Terjemahan">
-              <span>${state.lang.toUpperCase()}</span>
+            <button class="tbl-btn btn-copy-row" title="Salin Seluruh Baris Ini (Format Lengkap)">
+              <span>📋 Salin Baris</span>
             </button>
-            <button class="quick-action-btn copy-all" title="Salin Sitasi Lengkap">
-              <span>📋 Lengkap</span>
-            </button>
+            <a href="${item.source_url}" target="_blank" rel="noopener noreferrer" class="tbl-btn btn-source" title="Buka Sumber Asli">
+              <span>↗ Sumber</span>
+            </a>
           </div>
         </td>
       `;
 
-      tr.addEventListener("click", (e) => {
-        if (e.target.closest(".quick-action-btn")) return;
-        setActiveSlot(item.slot, false);
-        openInspector(item.slot);
+      // Cell-level copy click listeners
+      const copyableCells = tr.querySelectorAll(".cell-copyable");
+      copyableCells.forEach(cell => {
+        cell.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const copyType = cell.getAttribute("data-copy-type");
+          if (copyType === "type") {
+            const copyContent = `${typeLabel} (${refSnippet}${item.hadith_detail ? ', ' + item.hadith_detail.grading : ''})`;
+            copyToClipboard(copyContent, "📋 Jenis & referensi berhasil disalin!");
+          } else if (copyType === "topic") {
+            copyToClipboard(topicText, "📋 Topik kontemplasi berhasil disalin!");
+          } else if (copyType === "arabic") {
+            copyToClipboard(item.arabic, "📋 Teks Arab berhasil disalin!");
+          }
+        });
       });
 
-      const btnCopyArabic = tr.querySelector(".copy-arabic");
-      btnCopyArabic.addEventListener("click", (e) => {
-        e.stopPropagation();
-        copyToClipboard(item.arabic, "✓ Teks Arab berhasil disalin!");
-      });
+      // Sticky Action Buttons
+      const btnDetail = tr.querySelector(".btn-detail");
+      if (btnDetail) {
+        btnDetail.addEventListener("click", (e) => {
+          e.stopPropagation();
+          setActiveSlot(item.slot, false);
+          openInspector(item.slot);
+        });
+      }
 
-      const btnCopyTrans = tr.querySelector(".copy-trans");
-      btnCopyTrans.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const trText = state.lang === "id" ? item.text_id : item.text_en;
-        copyToClipboard(trText, `✓ Terjemahan (${state.lang.toUpperCase()}) berhasil disalin!`);
-      });
-
-      const btnCopyAll = tr.querySelector(".copy-all");
-      btnCopyAll.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const fullCitation = formatScholarlyCitation(item);
-        copyToClipboard(fullCitation, "✓ Sitasi ilmiah lengkap berhasil disalin!");
-      });
+      const btnCopyRow = tr.querySelector(".btn-copy-row");
+      if (btnCopyRow) {
+        btnCopyRow.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const trText = state.lang === "id" ? item.text_id : item.text_en;
+          const fullRowText = `[Fase ${item.slot}: ${phaseName} (${item.time_range})] ${typeLabel} - ${refSnippet}\nTopik: ${topicText}\nArab: ${item.arabic}\nTerjemahan: "${trText}"\nSumber: ${item.source_url}`;
+          copyToClipboard(fullRowText, "📋 Seluruh baris berhasil disalin!");
+        });
+      }
 
       dom.sheetTableBody.appendChild(tr);
     });
@@ -2049,6 +2134,41 @@
   function closeInspector() {
     dom.inspectorDrawer.classList.remove("is-open");
     dom.drawerBackdrop.classList.remove("is-visible");
+  }
+
+  // ==========================================================================
+  // INSPECTOR DRAWER DISPLAY MODE (LEFT / CENTER / RIGHT)
+  // ==========================================================================
+  function setDrawerMode(mode) {
+    if (!["left", "center", "right"].includes(mode)) mode = "right";
+    state.drawerMode = mode;
+    localStorage.setItem("mct_drawer_mode", mode);
+
+    if (dom.inspectorDrawer) {
+      dom.inspectorDrawer.classList.remove("drawer-mode-right", "drawer-mode-left", "drawer-mode-center");
+      dom.inspectorDrawer.classList.add(`drawer-mode-${mode}`);
+    }
+
+    if (dom.drawerModeBtns) {
+      dom.drawerModeBtns.forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-mode") === mode);
+      });
+    }
+  }
+
+  function updateSortHeaderIndicators() {
+    const indType = document.getElementById("sort-ind-type");
+    const indTopic = document.getElementById("sort-ind-topic");
+    if (indType) {
+      indType.textContent = state.sheetSortBy === "type" ? (state.sheetSortOrder === "asc" ? "▲" : "▼") : "↕";
+      const thType = indType.closest("th");
+      if (thType) thType.classList.toggle("active", state.sheetSortBy === "type");
+    }
+    if (indTopic) {
+      indTopic.textContent = state.sheetSortBy === "topic" ? (state.sheetSortOrder === "asc" ? "▲" : "▼") : "↕";
+      const thTopic = indTopic.closest("th");
+      if (thTopic) thTopic.classList.toggle("active", state.sheetSortBy === "topic");
+    }
   }
 
   // ==========================================================================
@@ -2284,6 +2404,49 @@
       renderDataSheet();
     });
 
+    // Sheet Sort Select
+    if (dom.sheetSortSelect) {
+      dom.sheetSortSelect.addEventListener("change", (e) => {
+        const val = e.target.value;
+        const parts = val.split("_");
+        state.sheetSortBy = parts[0];
+        state.sheetSortOrder = parts[1] || "asc";
+        updateSortHeaderIndicators();
+        renderDataSheet();
+      });
+    }
+
+    // Sheet Sortable Header Click
+    if (dom.thSortables) {
+      dom.thSortables.forEach(th => {
+        th.addEventListener("click", () => {
+          const sortField = th.getAttribute("data-sort");
+          if (state.sheetSortBy === sortField) {
+            state.sheetSortOrder = state.sheetSortOrder === "asc" ? "desc" : "asc";
+          } else {
+            state.sheetSortBy = sortField;
+            state.sheetSortOrder = "asc";
+          }
+          if (dom.sheetSortSelect) {
+            dom.sheetSortSelect.value = `${state.sheetSortBy}_${state.sheetSortOrder}`;
+          }
+          updateSortHeaderIndicators();
+          renderDataSheet();
+        });
+      });
+    }
+
+    // Drawer Mode Toggle Buttons (Left, Center Popup, Right)
+    if (dom.drawerModeBtns) {
+      dom.drawerModeBtns.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const mode = btn.getAttribute("data-mode");
+          setDrawerMode(mode);
+        });
+      });
+    }
+
     // Drawer close buttons
     dom.closeDrawerBtn.addEventListener("click", closeInspector);
     dom.drawerBackdrop.addEventListener("click", closeInspector);
@@ -2303,6 +2466,8 @@
     initStarfield();
     applyTheme(state.theme);
     dom.langSelect.value = state.lang;
+    setDrawerMode(state.drawerMode);
+    updateSortHeaderIndicators();
 
     // Render Views
     renderRadialDial();

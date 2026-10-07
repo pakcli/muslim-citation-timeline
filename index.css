@@ -1150,6 +1150,57 @@ body::after {
   white-space: nowrap;
 }
 
+.citations-table th.th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.citations-table th.th-sortable:hover {
+  color: var(--phase-accent);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.citations-table th .th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sort-indicator {
+  font-size: 0.78rem;
+  opacity: 0.45;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
+}
+
+.citations-table th.th-sortable.active .sort-indicator {
+  opacity: 1;
+  color: var(--phase-accent);
+}
+
+/* Sticky Action Column Freeze (Far Right) */
+.th-sticky-actions {
+  position: sticky;
+  right: 0;
+  background: var(--bg-surface-glass) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-left: 1px solid var(--border-subtle);
+  z-index: 10;
+  box-shadow: -6px 0 12px rgba(0, 0, 0, 0.35);
+}
+
+.col-sticky-actions {
+  position: sticky;
+  right: 0;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  z-index: 8;
+  box-shadow: -6px 0 12px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  white-space: nowrap;
+}
+
 .citations-table td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border-subtle);
@@ -1158,11 +1209,15 @@ body::after {
 }
 
 .citation-row {
-  cursor: pointer;
+  cursor: default;
   transition: all var(--transition-fast);
 }
 
 .citation-row:hover {
+  background: var(--bg-surface-elevated);
+}
+
+.citation-row:hover .col-sticky-actions {
   background: var(--bg-surface-elevated);
 }
 
@@ -1171,26 +1226,113 @@ body::after {
   box-shadow: inset 4px 0 0 var(--phase-accent);
 }
 
+.citation-row.is-active-phase .col-sticky-actions {
+  background: var(--bg-surface-elevated);
+}
+
 .citation-row.is-zen-masked {
   filter: blur(3.5px) opacity(0.35);
   user-select: none;
   pointer-events: none;
 }
 
-/* Table Cells */
-.col-phase {
+/* Section Header Banner Row (Circadian Phase Grouping) */
+.section-group-row {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.section-phase-banner {
+  padding: 9px 16px !important;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(20, 24, 33, 0.95) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.section-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-phase-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  flex-shrink: 0;
+}
+
+.section-phase-name {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.section-time-pill {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  border: 1px solid var(--border-subtle);
+}
+
+.section-active-badge {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--phase-accent);
+  color: #000;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.section-banner-meta {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
-.phase-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.section-organ-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Cell-Level Copyable */
+.cell-copyable {
+  cursor: copy;
+  position: relative;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+}
+
+.cell-copyable:hover {
+  background: rgba(255, 255, 255, 0.06);
+  outline: 1px dashed var(--border-active);
+}
+
+.cell-copyable:active {
+  background: var(--phase-accent-subtle);
+  transform: scale(0.99);
+}
+
+/* Table Cells */
+.col-type-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .col-type-tag {
@@ -1201,6 +1343,7 @@ body::after {
   padding: 2px 7px;
   border-radius: var(--radius-sm);
   white-space: nowrap;
+  width: fit-content;
 }
 
 .col-type-tag.quran {
@@ -1215,93 +1358,235 @@ body::after {
   border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
+.col-type-ref {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.col-grading-badge {
+  font-size: 0.62rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--phase-accent);
+  width: fit-content;
+}
+
 .col-topic {
   font-weight: 600;
   color: var(--text-primary);
-  max-width: 220px;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.22);
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  display: inline-block;
+  max-width: 260px;
+  line-height: 1.35;
+  display: block;
+}
+
+.col-topic-phase-tag {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 2px;
 }
 
 .col-arabic-preview {
   font-family: var(--font-arabic);
-  font-size: 1.15rem;
+  font-size: 1.18rem;
   direction: rtl;
   color: var(--text-primary);
-  max-width: 260px;
+  max-width: 280px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 4px 10px;
+  padding: 5px 10px;
   background: rgba(0, 0, 0, 0.32);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
-  display: inline-block;
+  display: block;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Quick Actions Button Group */
-.row-actions-group {
-  display: flex;
+/* Sticky Action Column Buttons */
+.table-actions-cluster {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   white-space: nowrap;
 }
 
-.quick-action-btn {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
+.tbl-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
-.quick-action-btn:hover {
-  background: var(--bg-surface-elevated);
+.tbl-btn:hover {
   color: var(--text-primary);
   border-color: var(--phase-accent);
+  transform: translateY(-1px);
 }
 
-.quick-action-btn.copy-all {
+.tbl-btn.btn-detail {
   background: var(--phase-accent-subtle);
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+
+.tbl-btn.btn-detail:hover {
+  background: var(--phase-accent);
+  color: #000;
+}
+
+.tbl-btn.btn-source {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.tbl-btn.btn-source:hover {
+  background: rgba(56, 189, 248, 0.22);
+  color: #7dd3fc;
+}
+
+.tbl-btn.btn-copy-row {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+}
+
+.tbl-btn.btn-copy-row:hover {
+  background: rgba(255, 255, 255, 0.1);
   color: var(--phase-accent);
   border-color: var(--phase-accent);
 }
 
 /* ==========================================================================
-   INSPECTOR DRAWER / MODAL
+   INSPECTOR DRAWER / MODAL (3 MODES: RIGHT, LEFT, CENTER POPUP)
    ========================================================================== */
 
+/* Drawer Mode Toggle Controls in Header */
+.drawer-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+  gap: 2px;
+  margin-right: 6px;
+}
+
+.drawer-mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+}
+
+.drawer-mode-btn:hover {
+  color: var(--text-primary);
+}
+
+.drawer-mode-btn.active {
+  background: var(--phase-accent);
+  color: #000;
+  font-weight: 700;
+}
+
+/* Base Drawer Architecture */
 .inspector-drawer {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(92vw, 480px);
   background: var(--bg-surface-glass);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border-left: 1px solid var(--border-active);
-  box-shadow: -15px 0 45px rgba(0, 0, 0, 0.7);
   z-index: 100;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform var(--transition-smooth);
+  transition: transform var(--transition-smooth), opacity var(--transition-smooth);
 }
 
-.inspector-drawer.is-open {
+/* Mode 1: Sidepanel Right (Default Desktop) */
+.inspector-drawer.drawer-mode-right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: min(92vw, 480px);
+  max-height: 100vh;
+  border-left: 1px solid var(--border-active);
+  border-right: none;
+  border-radius: 0;
+  box-shadow: -15px 0 45px rgba(0, 0, 0, 0.7);
+  transform: translateX(100%);
+  opacity: 1;
+  pointer-events: none;
+}
+
+.inspector-drawer.drawer-mode-right.is-open {
   transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Mode 2: Sidepanel Left */
+.inspector-drawer.drawer-mode-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: auto;
+  width: min(92vw, 480px);
+  max-height: 100vh;
+  border-right: 1px solid var(--border-active);
+  border-left: none;
+  border-radius: 0;
+  box-shadow: 15px 0 45px rgba(0, 0, 0, 0.7);
+  transform: translateX(-100%);
+  opacity: 1;
+  pointer-events: none;
+}
+
+.inspector-drawer.drawer-mode-left.is-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Mode 3: Popup Center Modal Dialog */
+.inspector-drawer.drawer-mode-center {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  width: min(92vw, 620px);
+  max-height: 88vh;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-active);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  transform: translate(-50%, -50%) scale(0.92);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.inspector-drawer.drawer-mode-center.is-open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .drawer-backdrop {
@@ -1310,7 +1595,7 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
   z-index: 90;
   opacity: 0;
@@ -2317,21 +2602,38 @@ body::after {
     min-width: 100%;
   }
 
-  .inspector-drawer {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-height: 85vh;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border-left: none;
-    border-top: 1px solid var(--border-active);
-    transform: translateY(100%);
+  /* Mobile is ALWAYS Popup Center Modal */
+  .inspector-drawer,
+  .inspector-drawer.drawer-mode-right,
+  .inspector-drawer.drawer-mode-left,
+  .inspector-drawer.drawer-mode-center {
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: min(94vw, 540px) !important;
+    max-height: 86vh !important;
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--border-active) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85) !important;
+    transform: translate(-50%, -50%) scale(0.92) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: transform var(--transition-smooth), opacity var(--transition-smooth) !important;
   }
 
-  .inspector-drawer.is-open {
-    transform: translateY(0);
+  .inspector-drawer.is-open,
+  .inspector-drawer.drawer-mode-right.is-open,
+  .inspector-drawer.drawer-mode-left.is-open,
+  .inspector-drawer.drawer-mode-center.is-open {
+    transform: translate(-50%, -50%) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Hide desktop mode buttons on mobile */
+  .drawer-mode-toggle {
+    display: none !important;
   }
 
   .radial-control-bar {

@@ -492,6 +492,15 @@
           </div>
 
           <div class="sheet-controls">
+            <select id="sheet-sort-select" class="ui-select sheet-sort-select" title="Urutkan Data">
+              <option value="phase_asc">Urutkan: Fase Sirkadian (05:00 - 05:00)</option>
+              <option value="type_asc">Urutkan: Jenis (Qur'an dulu)</option>
+              <option value="type_desc">Urutkan: Jenis (Hadits dulu)</option>
+              <option value="topic_asc">Urutkan: Topik (A - Z)</option>
+              <option value="topic_desc">Urutkan: Topik (Z - A)</option>
+              <option value="len_desc">Urutkan: Naskah Terpanjang</option>
+              <option value="len_asc">Urutkan: Naskah Terpendek</option>
+            </select>
             <input type="text" id="sheet-search-input" class="sheet-search-input" placeholder="Cari topik, ayat, atau hadis...">
             <button class="pane-focus-btn" id="btn-focus-data" title="Perluas Layar Data (Collapse Visual)">
               <span class="focus-icon">⤢</span>
@@ -504,16 +513,22 @@
           <table class="citations-table" id="citations-table">
             <thead>
               <tr>
-                <th style="width: 140px;">Fase Waktu</th>
-                <th style="width: 90px;">Jam</th>
-                <th style="width: 90px;">Jenis</th>
-                <th>Topik Kontemplasi</th>
-                <th style="width: 200px;">Teks Arab</th>
-                <th style="width: 170px; text-align: center;">Salin Cepat</th>
+                <th style="width: 140px;" class="th-sortable" data-sort="type" title="Klik untuk mengurutkan berdasarkan Jenis">
+                  <div class="th-content"><span>Jenis</span> <span class="sort-indicator" id="sort-ind-type">↕</span></div>
+                </th>
+                <th class="th-sortable" data-sort="topic" title="Klik untuk mengurutkan berdasarkan Topik">
+                  <div class="th-content"><span>Topik Kontemplasi</span> <span class="sort-indicator" id="sort-ind-topic">↕</span></div>
+                </th>
+                <th style="width: 250px;">
+                  <span>Teks Arab (Klik Sel untuk Salin)</span>
+                </th>
+                <th class="th-sticky-actions" style="width: 260px; text-align: center;">
+                  <span>Aksi & Sumber</span>
+                </th>
               </tr>
             </thead>
             <tbody id="citations-table-body">
-              <!-- Dynamically populated rows -->
+              <!-- Dynamically populated grouped rows -->
             </tbody>
           </table>
         </div>
@@ -525,13 +540,24 @@
     <div class="drawer-backdrop" id="drawer-backdrop"></div>
 
     <!-- Inspector Drawer / Detail Panel -->
-    <aside class="inspector-drawer" id="inspector-drawer" aria-label="Detail Sitasi">
+    <aside class="inspector-drawer drawer-mode-right" id="inspector-drawer" aria-label="Detail Sitasi">
       <div class="drawer-header">
-        <h3 id="inspector-header-title">
-          <span id="inspector-phase-badge">Phase 1</span>
-          <span id="inspector-phase-name">Pagi / Fajar</span>
-        </h3>
-        <button class="close-drawer-btn" id="close-drawer-btn" title="Tutup Panel">&times;</button>
+        <div class="drawer-header-left">
+          <h3 id="inspector-header-title">
+            <span id="inspector-phase-badge">Phase 1</span>
+            <span id="inspector-phase-name">Pagi / Fajar</span>
+          </h3>
+        </div>
+
+        <div class="drawer-header-actions">
+          <!-- Position Mode Selector (Left / Center Modal / Right) -->
+          <div class="drawer-mode-toggle" id="drawer-mode-toggle" title="Posisi Tampilan Panel Detail">
+            <button class="drawer-mode-btn" data-mode="left" title="Panel Sisi Kiri">◧ Kiri</button>
+            <button class="drawer-mode-btn" data-mode="center" title="Popup Tengah (Modal Dialog)">◫ Tengah</button>
+            <button class="drawer-mode-btn active" data-mode="right" title="Panel Sisi Kanan">◨ Kanan</button>
+          </div>
+          <button class="close-drawer-btn" id="close-drawer-btn" title="Tutup Panel">&times;</button>
+        </div>
       </div>
 
       <div class="drawer-body">
