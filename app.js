@@ -958,9 +958,11 @@
       fo.setAttribute("class", "organ-fo");
       fo.innerHTML = `
         <div class="organ-callout-pill" id="pill-slot-${phase.slot}">
-          <span class="organ-type-tag" id="pill-tag-${phase.slot}"></span>
-          <span class="organ-topic-label" id="pill-topic-${phase.slot}"></span>
-          <span class="organ-length-badge" id="pill-len-${phase.slot}"></span>
+          <div class="organ-pill-top">
+            <span class="organ-type-tag" id="pill-tag-${phase.slot}"></span>
+            <span class="organ-length-badge" id="pill-len-${phase.slot}"></span>
+          </div>
+          <div class="organ-topic-label" id="pill-topic-${phase.slot}"></div>
         </div>
       `;
       labelG.appendChild(fo);
@@ -1099,8 +1101,8 @@
 
       // Position ForeignObject Capsule at Spoke Tip
       if (fo) {
-        const foW = 270;
-        const foH = 44;
+        const foW = 210;
+        const foH = 52;
         let foX = 0;
         let foY = 0;
 
