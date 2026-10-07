@@ -1969,7 +1969,7 @@
               <div class="section-banner-title">
                 <span class="section-phase-dot" style="background: ${phase.color}; color: ${phase.color};"></span>
                 <span class="section-phase-name">${phase.icon} ${phaseName}</span>
-                <span class="section-time-pill">${phase.timeRange}</span>
+                <span class="section-time-pill">${phase.range || item.time_range}</span>
                 ${isCurrentActive ? '<span class="section-active-badge">● Fase Aktif</span>' : ''}
               </div>
               <div class="section-banner-meta">
@@ -2011,8 +2011,8 @@
           ${state.sheetSortBy !== "phase" ? `<span class="col-topic-phase-tag">${phase.icon} ${phaseName} (${item.time_range})</span>` : ""}
         </td>
 
-        <!-- Col 3: Teks Arab -->
-        <td class="cell-copyable" data-copy-type="arabic" title="Klik untuk salin teks Arab">
+        <!-- Col 3: Teks Arab (Right Aligned) -->
+        <td class="cell-copyable col-arabic-cell" data-copy-type="arabic" title="Klik untuk salin teks Arab" style="text-align: right;">
           <span class="col-arabic-preview" dir="rtl" title="${item.arabic}">${item.arabic}</span>
         </td>
 
