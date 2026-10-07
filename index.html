@@ -170,9 +170,37 @@
         <div class="pane-action-header">
           <!-- Controls Bar -->
           <div class="radial-control-bar" id="view-controls-bar">
-            <button class="control-pill active" id="toggle-labels-btn" title="Tampilkan / Sembunyikan Label">
+            <!-- Scriptural Source Toggle (All / Quran / Hadith) -->
+            <div class="source-filter-group" id="source-filter-group">
+              <button class="source-toggle-btn active" data-source="all" title="Tampilkan Seluruh Sumber (Al-Qur'an & Hadits)">
+                <span>📖 Semua</span>
+              </button>
+              <button class="source-toggle-btn" data-source="quran" title="Fokus Kalamullah (Hanya Al-Qur'an)">
+                <span>📘 Qur'an</span>
+              </button>
+              <button class="source-toggle-btn" data-source="hadith" title="Fokus Sabda Nabawi (Hanya Hadits)">
+                <span>📗 Hadits</span>
+              </button>
+            </div>
+
+            <!-- Dual-Handle Hadith Authenticity Range Slider (Shahih to Dha'if) -->
+            <div class="hadith-range-slider-wrap" id="hadith-range-slider-wrap" title="Filter Derajat Otentisitas Hadits">
+              <div class="hadith-slider-header">
+                <span class="hadith-slider-title">Derajat:</span>
+                <span class="hadith-slider-range-label" id="hadith-slider-range-label">Shahih – Dha'if</span>
+              </div>
+              <div class="hadith-range-slider-track">
+                <input type="range" id="hadith-min-slider" min="1" max="4" step="1" value="1" class="hadith-slider-input thumb-min" aria-label="Derajat Minimum">
+                <input type="range" id="hadith-max-slider" min="1" max="4" step="1" value="4" class="hadith-slider-input thumb-max" aria-label="Derajat Maksimum">
+                <div class="hadith-slider-highlight" id="hadith-slider-highlight"></div>
+              </div>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <button class="control-pill active" id="toggle-labels-btn" title="Tampilkan / Sembunyikan Label Organ">
               <span class="pill-dot"></span>
-              <span class="pill-label">Label: ON</span>
+              <span class="pill-label">Organ: ON</span>
             </button>
 
             <select class="ui-select" id="icon-mode-select" title="Tampilan Ikon">
@@ -209,7 +237,7 @@
             <div class="radial-dial-wrapper" id="radial-dial-wrapper">
               
               <!-- SVG Radar/Knob Stage -->
-              <svg class="radial-svg" id="radial-svg" viewBox="-280 -280 560 560">
+              <svg class="radial-svg" id="radial-svg" viewBox="-420 -420 840 840">
                 <defs>
                   <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
                     <feGaussianBlur stdDeviation="6" result="blur" />

@@ -43,7 +43,11 @@
     lastCircle0Angle: 0,
     // Premiere Pro Timeline
     snapEnabled: true,
-    timelineZoom: 1
+    timelineZoom: 1,
+    // Scriptural Source & Hadith Authenticity Filters
+    sourceFilter: "all",       // 'all' | 'quran' | 'hadith'
+    hadithMinGrade: 1,         // 1: Muttafaqun 'Alayh / Sahih High, 2: Sahih, 3: Hasan, 4: Dha'if
+    hadithMaxGrade: 4          // Range max grade
   };
 
   // Fixed angular positions for Mode 0 Radial Dial (laid out as real 24h clock):
@@ -103,7 +107,13 @@
       journey: document.getElementById("view-container-journey")
     },
 
-    // Radial controls
+    // Radial controls & Source / Hadith Filter
+    sourceFilterBtns: document.querySelectorAll("#source-filter-group .source-toggle-btn"),
+    hadithSliderWrap: document.getElementById("hadith-range-slider-wrap"),
+    hadithMinSlider: document.getElementById("hadith-min-slider"),
+    hadithMaxSlider: document.getElementById("hadith-max-slider"),
+    hadithSliderLabel: document.getElementById("hadith-slider-range-label"),
+    hadithSliderHighlight: document.getElementById("hadith-slider-highlight"),
     toggleLabelsBtn: document.getElementById("toggle-labels-btn"),
     iconModeSelect: document.getElementById("icon-mode-select"),
     toggleTitlesBtn: document.getElementById("toggle-titles-btn"),
@@ -264,6 +274,65 @@
   function isSlotPast(slot) {
     const baseSlot = state.isLiveMode ? state.liveSlot : state.activeSlot;
     return slot < baseSlot;
+  }
+
+  // Hadith Authenticity Grading Levels:
+  // 1: Muttafaqun 'Alayh / Sahih High (Bukhari & Muslim)
+  // 2: Sahih (Bukhari, Muslim, Sunan)
+  // 3: Hasan / Hasan Sahih
+  // 4: Dha'if
+  function getHadithGradeLevel(citation) {
+    if (!citation || citation.source_type !== "hadith" || !citation.hadith_detail) return 0;
+    const grading = (citation.hadith_detail.grading || "").toLowerCase();
+    if (grading.includes("muttafaq") || (grading.includes("sahih") && grading.includes("bukhari") && grading.includes("muslim"))) {
+      return 1;
+    }
+    if (grading.includes("hasan sahih") || grading.includes("hasan")) {
+      return 3;
+    }
+    if (grading.includes("daif") || grading.includes("dhaif") || grading.includes("lemah")) {
+      return 4;
+    }
+    if (grading.includes("sahih") || grading.includes("authentic")) {
+      return 2;
+    }
+    return 2; // Default baseline sahih
+  }
+
+  const HADITH_GRADE_NAMES = {
+    1: "Shahih Tertinggi",
+    2: "Shahih",
+    3: "Hasan",
+    4: "Dha'if"
+  };
+
+  // Evaluate if citation matches scriptural source and hadith grade filter
+  function isCitationFilterMatched(citation) {
+    if (!citation) return false;
+    
+    // 1. Scriptural source check
+    if (state.sourceFilter === "quran" && citation.source_type !== "quran") {
+      return false;
+    }
+    if (state.sourceFilter === "hadith" && citation.source_type !== "hadith") {
+      return false;
+    }
+
+    // 2. Hadith authenticity range check (if it's a hadith)
+    if (citation.source_type === "hadith") {
+      const level = getHadithGradeLevel(citation);
+      if (level < state.hadithMinGrade || level > state.hadithMaxGrade) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Calculate Text-Length Metrics (Character count of English translation)
+  function getCitationTextLength(citation) {
+    if (!citation || !citation.text_en) return 0;
+    return citation.text_en.length;
   }
 
   // Format full scholarly citation for copying
@@ -859,55 +928,42 @@
       });
     });
 
-    // 3. Static Spoke Lines & Permanently Static Horizontal Labels
+    // 3. Static Spoke Lines & Text-Length Organ Callouts (ZERO TILT, ZERO ROTATION!)
     dom.dialSpokesGroup.innerHTML = "";
     dom.dialLabelsGroup.innerHTML = "";
-    const spokeRadius = 200;
-    const labelRadius = 208;
 
     PHASES.forEach((phase) => {
-      const midAngle = FIXED_SLOT_ANGLES[phase.slot];
-      const rad = (midAngle * Math.PI) / 180;
-
-      // Spoke line
+      // Spoke Stem Line (variable length based on text length)
       const spoke = document.createElementNS("http://www.w3.org/2000/svg", "line");
       spoke.setAttribute("id", `spoke-slot-${phase.slot}`);
-      spoke.setAttribute("class", "radar-spoke-line");
-      spoke.setAttribute("x1", outerRadius * Math.cos(rad));
-      spoke.setAttribute("y1", outerRadius * Math.sin(rad));
-      spoke.setAttribute("x2", spokeRadius * Math.cos(rad));
-      spoke.setAttribute("y2", spokeRadius * Math.sin(rad));
+      spoke.setAttribute("class", "radar-spoke-line organ-spoke-stem");
       dom.dialSpokesGroup.appendChild(spoke);
 
-      // Static Horizontal Label Group (ZERO TILT, ZERO ROTATION!)
-      const lx = labelRadius * Math.cos(rad);
-      const ly = labelRadius * Math.sin(rad);
+      // Organ Tip Node Circle
+      const nodeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      nodeCircle.setAttribute("id", `organ-node-${phase.slot}`);
+      nodeCircle.setAttribute("class", "organ-spoke-node");
+      nodeCircle.setAttribute("r", "3.5");
+      dom.dialSpokesGroup.appendChild(nodeCircle);
 
-      let textAnchor = "start";
-      let offsetX = 0;
-      let offsetY = 0;
-
-      if (lx > 22) {
-        textAnchor = "start";
-        offsetX = 6;
-      } else if (lx < -22) {
-        textAnchor = "end";
-        offsetX = -6;
-      } else {
-        textAnchor = "middle";
-        offsetY = ly < 0 ? -12 : 16;
-      }
-
+      // Organ Callout Capsule Group (Horizontal, Never Tilted)
       const labelG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      labelG.setAttribute("class", "dial-label-item");
+      labelG.setAttribute("class", "dial-label-item organ-callout-item");
       labelG.setAttribute("data-slot", phase.slot);
       labelG.setAttribute("id", `label-slot-${phase.slot}`);
-      labelG.setAttribute("transform", `translate(${lx + offsetX}, ${ly + offsetY})`);
 
-      const textNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      textNode.setAttribute("class", "dial-label-text");
-      textNode.setAttribute("text-anchor", textAnchor);
-      labelG.appendChild(textNode);
+      // ForeignObject for glassmorphic HTML pill badge
+      const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+      fo.setAttribute("id", `fo-slot-${phase.slot}`);
+      fo.setAttribute("class", "organ-fo");
+      fo.innerHTML = `
+        <div class="organ-callout-pill" id="pill-slot-${phase.slot}">
+          <span class="organ-type-tag" id="pill-tag-${phase.slot}"></span>
+          <span class="organ-topic-label" id="pill-topic-${phase.slot}"></span>
+          <span class="organ-length-badge" id="pill-len-${phase.slot}"></span>
+        </div>
+      `;
+      labelG.appendChild(fo);
 
       dom.dialLabelsGroup.appendChild(labelG);
 
@@ -946,81 +1002,199 @@
       needle.style.transition = "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)";
     }
 
+    const outerRadius = 175;
+
+    // Calculate length range across current citations for organ spoke scaling
+    const lengths = currentCitations
+      .filter(c => isCitationFilterMatched(c))
+      .map(c => getCitationTextLength(c))
+      .filter(l => l > 0);
+    const minLen = lengths.length ? Math.min(...lengths) : 35;
+    const maxLen = lengths.length ? Math.max(...lengths) : 220;
+    const lenRange = Math.max(1, maxLen - minLen);
+
     PHASES.forEach((phase) => {
       const gWedge = document.getElementById(`segment-slot-${phase.slot}`);
       const spoke = document.getElementById(`spoke-slot-${phase.slot}`);
+      const organNode = document.getElementById(`organ-node-${phase.slot}`);
       const labelG = document.getElementById(`label-slot-${phase.slot}`);
+      const fo = document.getElementById(`fo-slot-${phase.slot}`);
+      const pill = document.getElementById(`pill-slot-${phase.slot}`);
+      const pillTag = document.getElementById(`pill-tag-${phase.slot}`);
+      const pillTopic = document.getElementById(`pill-topic-${phase.slot}`);
+      const pillLen = document.getElementById(`pill-len-${phase.slot}`);
       if (!gWedge || !spoke || !labelG) return;
 
       const path = gWedge.querySelector("path");
       const iconNode = gWedge.querySelector(".wedge-icon-symbol");
-      const textNode = labelG.querySelector(".dial-label-text");
       const isCurrentActive = phase.slot === state.activeSlot;
       const isVisible = isSlotZenVisible(phase.slot);
       const isPast = isSlotPast(phase.slot);
       const citation = currentCitations.find(c => c.slot === phase.slot);
+      const isFilterMatched = isCitationFilterMatched(citation);
 
       // Reset classes
-      gWedge.classList.remove("active", "is-zen-masked", "is-past");
-      spoke.classList.remove("active");
-      labelG.classList.remove("active", "is-zen-masked", "is-past");
+      gWedge.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
+      spoke.classList.remove("active", "is-filtered-out");
+      if (organNode) organNode.classList.remove("active", "is-filtered-out");
+      labelG.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
+      if (pill) pill.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
 
       if (isCurrentActive) {
         gWedge.classList.add("active");
         spoke.classList.add("active");
         labelG.classList.add("active");
-        path.setAttribute("fill", phase.color.replace(")", ", 0.28)").replace("hsl", "hsla"));
-        path.setAttribute("stroke", phase.color);
-        path.setAttribute("stroke-width", "2.5");
+        if (pill) pill.classList.add("active");
+        if (path) {
+          path.setAttribute("fill", phase.color.replace(")", ", 0.28)").replace("hsl", "hsla"));
+          path.setAttribute("stroke", phase.color);
+          path.setAttribute("stroke-width", "2.5");
+        }
       } else {
-        path.setAttribute("fill", "rgba(20, 25, 36, 0.45)");
-        path.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
-        path.setAttribute("stroke-width", "1.2");
+        if (path) {
+          path.setAttribute("fill", "rgba(20, 25, 36, 0.45)");
+          path.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
+          path.setAttribute("stroke-width", "1.2");
+        }
       }
 
       if (!isVisible && isZen) {
         gWedge.classList.add("is-zen-masked");
         labelG.classList.add("is-zen-masked");
+        if (pill) pill.classList.add("is-zen-masked");
       } else if (isPast) {
         gWedge.classList.add("is-past");
         labelG.classList.add("is-past");
       }
 
-      // Icon display
-      if (state.iconMode === "celestial") {
-        iconNode.textContent = phase.icon;
-        iconNode.style.display = "block";
-      } else if (state.iconMode === "clock") {
-        iconNode.textContent = phase.range.split("-")[0];
-        iconNode.style.display = "block";
-      } else {
-        iconNode.style.display = "none";
+      // Calculate Organ Stem Extension Radius based on English text character count
+      const textLen = citation ? getCitationTextLength(citation) : 0;
+      let ratio = 0.2;
+      if (isFilterMatched && textLen > 0) {
+        ratio = Math.max(0, Math.min(1, (textLen - minLen) / lenRange));
+      }
+      // Spoke extends from base 184px up to 238px
+      const spokeRadius = isFilterMatched ? (184 + Math.round(ratio * 54)) : 180;
+
+      const midAngle = FIXED_SLOT_ANGLES[phase.slot];
+      const rad = (midAngle * Math.PI) / 180;
+      const cosA = Math.cos(rad);
+      const sinA = Math.sin(rad);
+
+      const x1 = outerRadius * cosA;
+      const y1 = outerRadius * sinA;
+      const x2 = spokeRadius * cosA;
+      const y2 = spokeRadius * sinA;
+
+      spoke.setAttribute("x1", x1);
+      spoke.setAttribute("y1", y1);
+      spoke.setAttribute("x2", x2);
+      spoke.setAttribute("y2", y2);
+
+      if (organNode) {
+        organNode.setAttribute("cx", x2);
+        organNode.setAttribute("cy", y2);
+        organNode.setAttribute("fill", isCurrentActive ? phase.color : "rgba(255, 255, 255, 0.4)");
       }
 
-      // Static Horizontal text content
-      const phaseName = state.lang === "id" ? phase.name_id.split("/")[0].trim() : phase.name_en.split("/")[0].trim();
-      let topicPreview = "";
-      if (citation && state.showTitles) {
-        const fullTopic = state.lang === "id" ? citation.topic_id : citation.topic_en;
-        topicPreview = fullTopic.length > 18 ? fullTopic.substring(0, 16) + "…" : fullTopic;
-      }
+      // Position ForeignObject Capsule at Spoke Tip
+      if (fo) {
+        const foW = 160;
+        const foH = 32;
+        let foX = 0;
+        let foY = 0;
 
-      if (!isVisible && isZen) {
-        textNode.innerHTML = `
-          <tspan x="0" y="0" class="dial-label-title" fill="rgba(255,255,255,0.3)">···</tspan>
-          <tspan x="0" dy="13" class="dial-label-sub" fill="rgba(255,255,255,0.2)">${phase.range}</tspan>
-        `;
-      } else {
-        let titleContent = state.showLabels ? phaseName : "";
-        let subContent = phase.range;
-        if (state.showTitles && topicPreview) {
-          subContent = topicPreview;
+        if (cosA > 0.35) {
+          // East / North-East / South-East -> Pill to the right
+          foX = x2 + 6;
+          foY = y2 - foH / 2;
+        } else if (cosA < -0.35) {
+          // West / North-West / South-West -> Pill to the left
+          foX = x2 - 6 - foW;
+          foY = y2 - foH / 2;
+        } else {
+          // Siang (North) or Tengah Malam (South)
+          foX = x2 - foW / 2;
+          foY = sinA < 0 ? (y2 - foH - 6) : (y2 + 6);
         }
 
-        textNode.innerHTML = `
-          <tspan x="0" y="0" class="dial-label-title" fill="${isCurrentActive ? 'var(--phase-accent)' : 'var(--text-primary)'}">${titleContent}</tspan>
-          <tspan x="0" dy="13" class="dial-label-sub" fill="${isCurrentActive ? 'var(--text-primary)' : 'var(--text-secondary)'}">${subContent}</tspan>
-        `;
+        fo.setAttribute("x", Math.round(foX));
+        fo.setAttribute("y", Math.round(foY));
+        fo.setAttribute("width", foW);
+        fo.setAttribute("height", foH);
+      }
+
+      // Icon display
+      if (iconNode) {
+        if (state.iconMode === "celestial") {
+          iconNode.textContent = phase.icon;
+          iconNode.style.display = "block";
+        } else if (state.iconMode === "clock") {
+          iconNode.textContent = phase.range.split("-")[0];
+          iconNode.style.display = "block";
+        } else {
+          iconNode.style.display = "none";
+        }
+      }
+
+      // Organ Capsule Content
+      if (!isFilterMatched) {
+        // Ghost wireframe state
+        gWedge.classList.add("is-filtered-out");
+        spoke.classList.add("is-filtered-out");
+        if (organNode) organNode.classList.add("is-filtered-out");
+        labelG.classList.add("is-filtered-out");
+        if (pill) pill.classList.add("is-filtered-out");
+
+        if (pillTag) {
+          pillTag.className = "organ-type-tag";
+          pillTag.textContent = "TERFILTER";
+        }
+        if (pillTopic) {
+          pillTopic.textContent = state.lang === "id" ? phase.name_id : phase.name_en;
+        }
+        if (pillLen) {
+          pillLen.textContent = "—";
+        }
+      } else if (!isVisible && isZen) {
+        // Zen masked state
+        if (pillTag) {
+          pillTag.className = "organ-type-tag";
+          pillTag.textContent = "TERKUNCI";
+        }
+        if (pillTopic) {
+          pillTopic.textContent = "···";
+        }
+        if (pillLen) {
+          pillLen.textContent = phase.range;
+        }
+      } else {
+        // Normal active state with citation data
+        const isQuran = citation && citation.source_type === "quran";
+        const gradeLvl = getHadithGradeLevel(citation);
+        const gradeName = isQuran ? "QUR'AN" : (HADITH_GRADE_NAMES[gradeLvl] || "HADITS");
+
+        if (pillTag) {
+          pillTag.className = `organ-type-tag ${isQuran ? "quran" : "hadith"}`;
+          pillTag.textContent = gradeName;
+        }
+
+        if (pillTopic) {
+          const topicStr = citation 
+            ? (state.lang === "id" ? citation.topic_id : citation.topic_en)
+            : (state.lang === "id" ? phase.name_id : phase.name_en);
+          pillTopic.textContent = topicStr;
+          pillTopic.title = topicStr;
+        }
+
+        if (pillLen) {
+          pillLen.textContent = `${textLen} ch`;
+          pillLen.title = `Panjang naskah: ${textLen} karakter English`;
+        }
+      }
+
+      if (pill) {
+        pill.style.display = state.showLabels ? "inline-flex" : "none";
       }
     });
 
@@ -1710,6 +1884,9 @@
     dom.sheetTableBody.innerHTML = "";
     let rows = getCitationsForDate(state.selectedDate);
 
+    // Apply Scriptural Source & Hadith Authenticity Filter
+    rows = rows.filter(isCitationFilterMatched);
+
     if (state.searchQuery.trim()) {
       const q = state.searchQuery.toLowerCase();
       rows = rows.filter(r => 
@@ -1725,6 +1902,17 @@
 
     if (dom.sheetRowCount) {
       dom.sheetRowCount.textContent = `${rows.length} Fase`;
+    }
+
+    if (rows.length === 0) {
+      const emptyTr = document.createElement("tr");
+      emptyTr.innerHTML = `
+        <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
+          Tidak ada naskah yang cocok dengan filter "${state.sourceFilter.toUpperCase()}" dan rentang derajat saat ini.
+        </td>
+      `;
+      dom.sheetTableBody.appendChild(emptyTr);
+      return;
     }
 
     rows.forEach(item => {
@@ -1941,6 +2129,83 @@
         if (state.activeView === "calendar") renderGoogleCalendar();
       });
     });
+
+    // Scriptural Source Filter Buttons (All / Quran / Hadith)
+    dom.sourceFilterBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        dom.sourceFilterBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.sourceFilter = btn.getAttribute("data-source");
+
+        // Dynamic Hadith Range Slider visibility
+        if (state.sourceFilter === "quran") {
+          if (dom.hadithSliderWrap) dom.hadithSliderWrap.classList.add("is-hidden");
+        } else {
+          if (dom.hadithSliderWrap) dom.hadithSliderWrap.classList.remove("is-hidden");
+        }
+
+        updateRadialDialState();
+        renderDataSheet();
+        if (state.activeView === "circle0") renderCircle0();
+        if (state.activeView === "timeline") renderPremiereTimeline();
+        if (state.activeView === "calendar") renderGoogleCalendar();
+      });
+    });
+
+    // Dual-Handle Hadith Authenticity Slider
+    function updateHadithSliderUI() {
+      if (!dom.hadithMinSlider || !dom.hadithMaxSlider) return;
+      let minVal = parseInt(dom.hadithMinSlider.value);
+      let maxVal = parseInt(dom.hadithMaxSlider.value);
+      if (minVal > maxVal) {
+        const tmp = minVal;
+        minVal = maxVal;
+        maxVal = tmp;
+      }
+      state.hadithMinGrade = minVal;
+      state.hadithMaxGrade = maxVal;
+
+      // Update highlight track (1..4 maps to 0%..100%)
+      const leftPct = ((minVal - 1) / 3) * 100;
+      const rightPct = ((4 - maxVal) / 3) * 100;
+      if (dom.hadithSliderHighlight) {
+        dom.hadithSliderHighlight.style.left = `${leftPct}%`;
+        dom.hadithSliderHighlight.style.right = `${rightPct}%`;
+      }
+
+      // Update text label
+      if (dom.hadithSliderLabel) {
+        const minName = HADITH_GRADE_NAMES[minVal] || "Shahih";
+        const maxName = HADITH_GRADE_NAMES[maxVal] || "Dha'if";
+        dom.hadithSliderLabel.textContent = minVal === maxVal ? minName : `${minName} – ${maxName}`;
+      }
+
+      updateRadialDialState();
+      renderDataSheet();
+      if (state.activeView === "circle0") renderCircle0();
+      if (state.activeView === "timeline") renderPremiereTimeline();
+      if (state.activeView === "calendar") renderGoogleCalendar();
+    }
+
+    if (dom.hadithMinSlider && dom.hadithMaxSlider) {
+      dom.hadithMinSlider.addEventListener("input", () => {
+        let minVal = parseInt(dom.hadithMinSlider.value);
+        let maxVal = parseInt(dom.hadithMaxSlider.value);
+        if (minVal > maxVal) {
+          dom.hadithMaxSlider.value = minVal;
+        }
+        updateHadithSliderUI();
+      });
+
+      dom.hadithMaxSlider.addEventListener("input", () => {
+        let minVal = parseInt(dom.hadithMinSlider.value);
+        let maxVal = parseInt(dom.hadithMaxSlider.value);
+        if (maxVal < minVal) {
+          dom.hadithMinSlider.value = maxVal;
+        }
+        updateHadithSliderUI();
+      });
+    }
 
     // Theme selector
     dom.themeSelect.addEventListener("change", (e) => {

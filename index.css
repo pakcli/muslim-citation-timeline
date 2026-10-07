@@ -507,12 +507,158 @@ body::after {
   align-items: center;
   gap: 0.5rem;
   background: var(--bg-surface-glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-pill);
-  padding: 5px 12px;
+  padding: 4px 10px;
   box-shadow: var(--shadow-main);
   z-index: 20;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Tri-State Source Toggle (All / Quran / Hadith) */
+.source-filter-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+  gap: 2px;
+}
+
+.source-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.source-toggle-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.source-toggle-btn.active {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.source-toggle-btn[data-source="quran"].active {
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.source-toggle-btn[data-source="hadith"].active {
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+/* Dual-Handle Hadith Authenticity Range Slider */
+.hadith-range-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  transition: opacity 0.25s ease, transform 0.25s ease, max-width 0.25s ease;
+  max-width: 260px;
+}
+
+.hadith-range-slider-wrap.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  max-width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.hadith-slider-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.hadith-slider-title {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.hadith-slider-range-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #34d399;
+  min-width: 76px;
+}
+
+.hadith-range-slider-track {
+  position: relative;
+  width: 70px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.hadith-slider-input {
+  position: absolute;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  outline: none;
+  z-index: 3;
+}
+
+.hadith-slider-input::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.8);
+  cursor: ew-resize;
+  border: 2px solid #ffffff;
+  transition: transform 0.1s ease;
+}
+
+.hadith-slider-input::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+.hadith-slider-highlight {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(90deg, #38bdf8 0%, #34d399 50%, #eab308 100%);
+  border-radius: 2px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-subtle);
+  margin: 0 2px;
 }
 
 .control-pill {
@@ -528,6 +674,7 @@ body::after {
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .control-pill:hover {
@@ -562,8 +709,8 @@ body::after {
 
 .radial-dial-wrapper {
   position: relative;
-  width: min(94vw, 500px);
-  height: min(94vw, 500px);
+  width: min(94vw, 560px);
+  height: min(94vw, 560px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -640,11 +787,11 @@ body::after {
   opacity: 0.42;
 }
 
-/* Strictly Horizontal Radar Chart Labels (Image 2 style) */
+/* Strictly Horizontal Radar Chart Labels & Organ Callout Badges */
 .dial-label-item {
   cursor: pointer;
   user-select: none;
-  transition: transform 0.08s ease-out, opacity var(--transition-fast);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity var(--transition-fast);
 }
 
 .dial-label-item text {
@@ -652,28 +799,117 @@ body::after {
   text-rendering: geometricPrecision;
 }
 
-.dial-label-item:hover text {
-  filter: brightness(1.25);
+.dial-label-item:hover {
+  filter: brightness(1.2);
 }
 
-.dial-label-item.active text .dial-label-title {
-  fill: var(--phase-accent);
-  font-weight: 800;
+.dial-label-item.active .organ-callout-pill {
+  border-color: var(--phase-accent);
+  box-shadow: 0 0 16px var(--phase-accent-glow), 0 8px 24px rgba(0, 0, 0, 0.6);
+  transform: scale(1.04);
 }
 
 .dial-label-item.is-zen-masked {
   opacity: 0.32;
 }
 
+.dial-label-item.is-filtered-out {
+  opacity: 0.12 !important;
+  pointer-events: none;
+}
+
+.dial-segment.is-filtered-out {
+  opacity: 0.08 !important;
+  pointer-events: none;
+}
+
+.radar-spoke-line.is-filtered-out {
+  opacity: 0.08 !important;
+}
+
+/* Organ Spoke Extension (Text-Length Variable Stem) */
+.organ-spoke-stem {
+  stroke-linecap: round;
+  transition: x2 0.3s cubic-bezier(0.16, 1, 0.3, 1), y2 0.3s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.25s ease;
+}
+
+.organ-spoke-node {
+  transition: cx 0.3s cubic-bezier(0.16, 1, 0.3, 1), cy 0.3s cubic-bezier(0.16, 1, 0.3, 1), fill 0.25s ease;
+}
+
+/* Floating Organ Callout Capsule (ForeignObject HTML card inside SVG) */
+.organ-callout-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-subtle);
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.organ-callout-pill:hover {
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-active);
+}
+
+.organ-type-tag {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: var(--radius-pill);
+}
+
+.organ-type-tag.quran {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.organ-type-tag.hadith {
+  background: rgba(52, 211, 153, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.organ-topic-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.organ-length-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 5px;
+  border-radius: var(--radius-pill);
+}
+
 .dial-label-title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: -0.01em;
   fill: var(--text-primary);
 }
 
 .dial-label-sub {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 500;
   fill: var(--text-secondary);
 }
@@ -681,8 +917,8 @@ body::after {
 /* Center Valve Hub — Protected Solid Substrate Plate */
 .dial-center-hub {
   position: absolute;
-  width: 38%;
-  height: 38%;
+  width: 27%;
+  height: 27%;
   border-radius: 50%;
   background: var(--bg-surface-elevated);
   border: 2px solid var(--border-active);
@@ -692,7 +928,7 @@ body::after {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0.75rem;
+  padding: 0.45rem;
   z-index: 10;
   pointer-events: auto;
   cursor: pointer;
@@ -707,14 +943,14 @@ body::after {
 .hub-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.68rem;
+  gap: 4px;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 2px 8px;
+  padding: 1px 7px;
   border-radius: var(--radius-pill);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .hub-status-badge.live {
@@ -730,33 +966,33 @@ body::after {
 }
 
 .hub-live-clock {
-  font-size: 1.45rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   line-height: 1.1;
   background: rgba(0, 0, 0, 0.45);
-  padding: 3px 12px;
+  padding: 2px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
-  margin: 2px 0 4px 0;
+  margin: 1px 0 2px 0;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .hub-phase-title {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--phase-accent);
-  margin-top: 3px;
+  margin-top: 1px;
   white-space: nowrap;
-  max-width: 140px;
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .hub-phase-range {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
   font-weight: 500;
 }
