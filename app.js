@@ -27,7 +27,7 @@
     showLabels: true,          // Toggle text labels
     iconMode: "celestial",     // 'celestial' | 'clock' | 'none'
     showTitles: true,          // Toggle citation titles
-    theme: localStorage.getItem("mct_theme") || "auto",
+    theme: localStorage.getItem("mct_theme") || "sky",
     lang: localStorage.getItem("mct_lang") || "id",
     searchQuery: "",
     unlockedZenSlots: new Set(), // Set of slots temporarily unlocked by user
@@ -46,24 +46,19 @@
     timelineZoom: 1
   };
 
-  // Fixed angular positions for Mode 8 (Radial 8 Compass points):
-  // Slot 1 (Dawn/Pagi): Top (North, -90°)
-  // Slot 2 (Dhuha): NE (-45°)
-  // Slot 3 (Siang Terik): East (0°)
-  // Slot 4 (Sore): SE (45°)
-  // Slot 5 (Senja): South (90°)
-  // Slot 6 (Malam Awal): SW (135°)
-  // Slot 7 (Tengah Malam): West (180°)
-  // Slot 8 (Sepertiga Malam Terakhir): NW (225° / -135°)
+  // Fixed angular positions for Mode 0 Radial Dial (laid out as real 24h clock):
+  // Siang / Dzuhur (Slot 3) di posisi jam 12 (North: -90°)
+  // Tengah Malam (Slot 7) di posisi jam 6 (South: +90°)
+  // Rotasi searah jarum jam: 8 sektor × 45° = 360°
   const FIXED_SLOT_ANGLES = {
-    1: -90,
-    2: -45,
-    3: 0,
-    4: 45,
-    5: 90,
-    6: 135,
-    7: 180,
-    8: 225
+    1: 180,    // Pagi / Fajar          → Posisi Jam 9 (Barat / 06:00)
+    2: -135,   // Dhuha                 → Posisi Jam 10:30 (Barat Laut / 09:00)
+    3: -90,    // Siang Terik / Dzuhur  → Posisi Jam 12 (Utara / 12:00)
+    4: -45,    // Sore Hari / Ashar     → Posisi Jam 1:30 (Timur Laut / 15:00)
+    5: 0,      // Senja / Maghrib       → Posisi Jam 3 (Timur / 18:00)
+    6: 45,     // Malam Awal / Isya     → Posisi Jam 4:30 (Tenggara / 21:00)
+    7: 90,     // Tengah Malam          → Posisi Jam 6 (Selatan / 00:00)
+    8: 135     // Sepertiga Malam Akhir → Posisi Jam 7:30 (Barat Daya / 03:00)
   };
 
   // Premiere clip label colors matching Adobe Premiere Pro NLE color scheme
@@ -352,8 +347,52 @@
   }
 
   // ==========================================================================
-  // THEME ENGINE
+  // THEME ENGINE & DYNAMIC SKY ATMOSPHERE
   // ==========================================================================
+  // 8 Dynamic Celestial Sky & Sun Atmospheres (for "sky" theme)
+  const SKY_ATMOSPHERES = {
+    1: { // Pagi / Fajar (Dawn 05:00-08:00) - Sunrise break on eastern horizon
+      bg: "radial-gradient(ellipse 130% 90% at 20% 100%, #3a1f18 0%, #1e152d 42%, #0a0d18 100%)",
+      glow: "radial-gradient(circle 500px at 20% 95%, rgba(245, 158, 11, 0.32), transparent 70%)",
+      glass: "rgba(18, 22, 36, 0.74)"
+    },
+    2: { // Dhuha (Mid-Morning 08:00-11:00) - Morning solar gold rising
+      bg: "radial-gradient(ellipse 120% 85% at 30% 25%, #1d2c42 0%, #101c2e 50%, #090f1a 100%)",
+      glow: "radial-gradient(circle 540px at 30% 20%, rgba(234, 179, 8, 0.26), transparent 70%)",
+      glass: "rgba(16, 24, 38, 0.74)"
+    },
+    3: { // Siang Terik / Dzuhur (Noon 11:00-14:00) - High sun zenith azure
+      bg: "radial-gradient(ellipse 110% 80% at 50% 0%, #0e345c 0%, #0a213e 50%, #050f1c 100%)",
+      glow: "radial-gradient(circle 600px at 50% 5%, rgba(56, 189, 248, 0.32), transparent 70%)",
+      glass: "rgba(14, 26, 44, 0.74)"
+    },
+    4: { // Sore Hari / Ashar (Afternoon 14:00-17:00) - Slanting golden hour / terracotta
+      bg: "radial-gradient(ellipse 120% 85% at 75% 40%, #38221b 0%, #1c1526 50%, #0b0c16 100%)",
+      glow: "radial-gradient(circle 520px at 75% 40%, rgba(249, 115, 22, 0.28), transparent 70%)",
+      glass: "rgba(22, 18, 30, 0.75)"
+    },
+    5: { // Senja / Maghrib (Sunset 17:00-19:00) - Sunset dusk crimson / twilight rose
+      bg: "radial-gradient(ellipse 130% 90% at 85% 100%, #461424 0%, #22102c 45%, #0b0916 100%)",
+      glow: "radial-gradient(circle 520px at 85% 95%, rgba(244, 63, 94, 0.35), transparent 70%)",
+      glass: "rgba(24, 14, 26, 0.75)"
+    },
+    6: { // Malam Awal / Isya (Early Night 19:00-22:00) - Indigo blue hour
+      bg: "radial-gradient(ellipse 110% 90% at 50% 50%, #111738 0%, #0a0d24 55%, #050712 100%)",
+      glow: "radial-gradient(circle 480px at 50% 55%, rgba(99, 102, 241, 0.22), transparent 70%)",
+      glass: "rgba(14, 18, 34, 0.76)"
+    },
+    7: { // Tengah Malam (Midnight 22:00-02:00) - Nocturne violet stillness
+      bg: "radial-gradient(ellipse 110% 90% at 50% 75%, #140f26 0%, #0a0914 55%, #04040a 100%)",
+      glow: "radial-gradient(circle 460px at 50% 75%, rgba(168, 85, 247, 0.18), transparent 70%)",
+      glass: "rgba(14, 12, 24, 0.78)"
+    },
+    8: { // Sepertiga Malam / Tahajjud (Pre-Dawn 02:00-05:00) - Ethereal mystical teal
+      bg: "radial-gradient(ellipse 110% 90% at 30% 85%, #0c232e 0%, #06131b 50%, #03080e 100%)",
+      glow: "radial-gradient(circle 480px at 30% 85%, rgba(20, 184, 166, 0.22), transparent 70%)",
+      glass: "rgba(12, 20, 26, 0.78)"
+    }
+  };
+
   function applyTheme(themeName) {
     state.theme = themeName;
     localStorage.setItem("mct_theme", themeName);
@@ -363,13 +402,282 @@
   }
 
   function updateDynamicPhaseColor() {
-    if (state.theme !== "auto") return;
-
     const currentPhaseConfig = PHASES.find(p => p.slot === state.activeSlot) || PHASES[0];
     const accentColor = currentPhaseConfig.color;
-    document.documentElement.style.setProperty("--phase-accent", accentColor);
-    document.documentElement.style.setProperty("--phase-accent-glow", accentColor.replace(")", ", 0.35)").replace("hsl", "hsla"));
-    document.documentElement.style.setProperty("--phase-accent-subtle", accentColor.replace(")", ", 0.12)").replace("hsl", "hsla"));
+
+    // Both "sky" and "auto" themes dynamically sync accents with active circadian phase
+    if (state.theme === "sky" || state.theme === "auto") {
+      document.documentElement.style.setProperty("--phase-accent", accentColor);
+      document.documentElement.style.setProperty("--phase-accent-glow", accentColor.replace(")", ", 0.35)").replace("hsl", "hsla"));
+      document.documentElement.style.setProperty("--phase-accent-subtle", accentColor.replace(")", ", 0.12)").replace("hsl", "hsla"));
+    }
+
+    // Dynamic Celestial Sky & Sun Lighting Layer
+    if (state.theme === "sky") {
+      const sky = SKY_ATMOSPHERES[state.activeSlot] || SKY_ATMOSPHERES[1];
+      document.documentElement.style.setProperty("--sky-bg-gradient", sky.bg);
+      document.documentElement.style.setProperty("--sky-sun-glow", sky.glow);
+      document.documentElement.style.setProperty("--bg-surface-glass", sky.glass);
+    } else {
+      document.documentElement.style.removeProperty("--sky-bg-gradient");
+      document.documentElement.style.removeProperty("--sky-sun-glow");
+      document.documentElement.style.removeProperty("--bg-surface-glass");
+    }
+
+    updateLandscapeBackdrop();
+  }
+
+  // Windows XP Bliss-Style Circadian Landscape Specifications
+  const LANDSCAPE_SPECS = {
+    1: { // Pagi / Fajar (Dawn) - Sun rising from eastern horizon
+      sky: { top: "#0d1326", mid: "#281b33", bottom: "#6e3b26" },
+      hills: {
+        back: { top: "#2d342f", bottom: "#131a15" },
+        mid:  { top: "#3b483c", bottom: "#1a241c" },
+        front:{ top: "#4a5948", bottom: "#223024" }
+      },
+      celestial: {
+        type: "sun",
+        x: 240, y: 530,
+        color: "#fbbf24", glow: "rgba(251, 191, 36, 0.45)",
+        radius: 36, hasRays: true
+      },
+      starsOpacity: 0.15,
+      cloudsOpacity: 0.35,
+      hazeColor: "rgba(245, 158, 11, 0.12)"
+    },
+    2: { // Dhuha (Mid-Morning) - Morning solar gold, fresh lush green hills
+      sky: { top: "#1e3a63", mid: "#295887", bottom: "#5391bf" },
+      hills: {
+        back: { top: "#357041", bottom: "#1b4023" },
+        mid:  { top: "#468c4d", bottom: "#23542b" },
+        front:{ top: "#5ba85a", bottom: "#2c6b32" }
+      },
+      celestial: {
+        type: "sun",
+        x: 420, y: 260,
+        color: "#fef08a", glow: "rgba(250, 204, 21, 0.5)",
+        radius: 40, hasRays: true
+      },
+      starsOpacity: 0,
+      cloudsOpacity: 0.5,
+      hazeColor: "rgba(255, 255, 255, 0.08)"
+    },
+    3: { // Siang Terik / Dzuhur (High Noon) - Zenith brilliant sun, classic Bliss vibrant greens
+      sky: { top: "#104c8a", mid: "#206bb5", bottom: "#5aa5e6" },
+      hills: {
+        back: { top: "#2d753c", bottom: "#184722" },
+        mid:  { top: "#3ea34e", bottom: "#1e5e2a" },
+        front:{ top: "#52c45f", bottom: "#267533" }
+      },
+      celestial: {
+        type: "sun",
+        x: 720, y: 120,
+        color: "#ffffff", glow: "rgba(255, 255, 255, 0.65)",
+        radius: 44, hasRays: true
+      },
+      starsOpacity: 0,
+      cloudsOpacity: 0.65,
+      hazeColor: "rgba(255, 255, 255, 0.12)"
+    },
+    4: { // Sore Hari / Ashar (Late Afternoon) - Golden hour, warm amber hills
+      sky: { top: "#22314d", mid: "#463d59", bottom: "#875747" },
+      hills: {
+        back: { top: "#425c38", bottom: "#23331d" },
+        mid:  { top: "#59753e", bottom: "#2e421e" },
+        front:{ top: "#789146", bottom: "#3b5220" }
+      },
+      celestial: {
+        type: "sun",
+        x: 1040, y: 320,
+        color: "#fdba74", glow: "rgba(251, 146, 60, 0.45)",
+        radius: 42, hasRays: true
+      },
+      starsOpacity: 0,
+      cloudsOpacity: 0.45,
+      hazeColor: "rgba(249, 115, 22, 0.15)"
+    },
+    5: { // Senja / Maghrib (Sunset) - Sun sinking into hill ridge, crimson twilight
+      sky: { top: "#1b1433", mid: "#4a1939", bottom: "#943831" },
+      hills: {
+        back: { top: "#302830", bottom: "#161218" },
+        mid:  { top: "#3d2a35", bottom: "#1c141a" },
+        front:{ top: "#4d2e38", bottom: "#24151b" }
+      },
+      celestial: {
+        type: "sun",
+        x: 1200, y: 550,
+        color: "#f43f5e", glow: "rgba(244, 63, 94, 0.55)",
+        radius: 40, hasRays: false
+      },
+      starsOpacity: 0.2,
+      cloudsOpacity: 0.4,
+      hazeColor: "rgba(244, 63, 94, 0.2)"
+    },
+    6: { // Malam Awal / Isya (Early Night) - Blue hour, crescent moon rising
+      sky: { top: "#080c1d", mid: "#121a36", bottom: "#1f2a4f" },
+      hills: {
+        back: { top: "#182430", bottom: "#0c1218" },
+        mid:  { top: "#1e2e3d", bottom: "#0f171f" },
+        front:{ top: "#273a4d", bottom: "#141e26" }
+      },
+      celestial: {
+        type: "moon",
+        x: 1080, y: 220,
+        color: "#e0e7ff", glow: "rgba(199, 210, 254, 0.4)",
+        radius: 28, phase: "crescent-waxing"
+      },
+      starsOpacity: 0.75,
+      cloudsOpacity: 0.25,
+      hazeColor: "rgba(99, 102, 241, 0.08)"
+    },
+    7: { // Tengah Malam (Midnight) - Nocturne violet, full moon overhead, starry night
+      sky: { top: "#05060d", mid: "#0d0e1e", bottom: "#17152b" },
+      hills: {
+        back: { top: "#131324", bottom: "#090912" },
+        mid:  { top: "#19182e", bottom: "#0c0c17" },
+        front:{ top: "#211f3d", bottom: "#100f1f" }
+      },
+      celestial: {
+        type: "moon",
+        x: 720, y: 150,
+        color: "#f5f3ff", glow: "rgba(216, 180, 254, 0.45)",
+        radius: 32, phase: "full"
+      },
+      starsOpacity: 0.95,
+      cloudsOpacity: 0.15,
+      hazeColor: "rgba(168, 85, 247, 0.06)"
+    },
+    8: { // Sepertiga Malam Terakhir / Tahajjud (Pre-Dawn) - Mystical ethereal teal
+      sky: { top: "#040912", mid: "#091724", bottom: "#102a3a" },
+      hills: {
+        back: { top: "#10222a", bottom: "#081115" },
+        mid:  { top: "#162d38", bottom: "#0b171c" },
+        front:{ top: "#1c3a47", bottom: "#0e1d24" }
+      },
+      celestial: {
+        type: "moon",
+        x: 360, y: 280,
+        color: "#ccfbf1", glow: "rgba(94, 234, 212, 0.4)",
+        radius: 26, phase: "crescent-waning"
+      },
+      starsOpacity: 0.85,
+      cloudsOpacity: 0.2,
+      hazeColor: "rgba(20, 184, 166, 0.08)"
+    }
+  };
+
+  function initStarfield() {
+    const starG = document.getElementById("landscape-stars");
+    if (!starG || starG.children.length > 0) return;
+    for (let i = 0; i < 75; i++) {
+      const cx = (Math.random() * 1440).toFixed(1);
+      const cy = (Math.random() * 450).toFixed(1);
+      const r = (0.7 + Math.random() * 1.5).toFixed(1);
+      const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      star.setAttribute("cx", cx);
+      star.setAttribute("cy", cy);
+      star.setAttribute("r", r);
+      star.setAttribute("fill", "#ffffff");
+      star.setAttribute("opacity", (0.3 + Math.random() * 0.7).toFixed(2));
+      starG.appendChild(star);
+    }
+  }
+
+  function updateLandscapeBackdrop() {
+    const backdrop = document.getElementById("circadian-landscape-backdrop");
+    if (!backdrop) return;
+
+    if (state.theme !== "sky" && state.theme !== "auto") {
+      backdrop.style.opacity = "0.22";
+      backdrop.style.filter = "grayscale(50%)";
+      return;
+    } else {
+      backdrop.style.opacity = "1";
+      backdrop.style.filter = "none";
+    }
+
+    const spec = LANDSCAPE_SPECS[state.activeSlot] || LANDSCAPE_SPECS[1];
+
+    // 1. Sky Gradient Stops
+    const skyTop = document.getElementById("sky-stop-top");
+    const skyMid = document.getElementById("sky-stop-mid");
+    const skyBottom = document.getElementById("sky-stop-bottom");
+    if (skyTop && skyMid && skyBottom) {
+      skyTop.setAttribute("stop-color", spec.sky.top);
+      skyMid.setAttribute("stop-color", spec.sky.mid);
+      skyBottom.setAttribute("stop-color", spec.sky.bottom);
+    }
+
+    // 2. Rolling Hill Gradients
+    const setGrad = (prefix, hillObj) => {
+      const s0 = document.getElementById(`${prefix}-stop-0`);
+      const s1 = document.getElementById(`${prefix}-stop-1`);
+      if (s0 && s1) {
+        s0.setAttribute("stop-color", hillObj.top);
+        s1.setAttribute("stop-color", hillObj.bottom);
+      }
+    };
+    setGrad("hill-back", spec.hills.back);
+    setGrad("hill-mid", spec.hills.mid);
+    setGrad("hill-front", spec.hills.front);
+
+    // 3. Celestial Body (Sun or Moon) with Realistic Radiant Gradient Glow
+    const celG = document.getElementById("celestial-body-group");
+    if (celG) {
+      if (spec.celestial.type === "sun") {
+        celG.innerHTML = `
+          <!-- Deep outer atmosphere solar aura -->
+          <circle cx="${spec.celestial.x}" cy="${spec.celestial.y}" r="${spec.celestial.radius * 3.8}" fill="url(#sun-aura-grad)" filter="url(#celestial-glow)" opacity="0.85" />
+          <!-- Mid solar corona halo -->
+          <circle cx="${spec.celestial.x}" cy="${spec.celestial.y}" r="${spec.celestial.radius * 2.0}" fill="url(#sun-aura-grad)" opacity="0.95" />
+          <!-- Radiant Sun Body with highlight sphere -->
+          <circle cx="${spec.celestial.x}" cy="${spec.celestial.y}" r="${spec.celestial.radius}" fill="url(#sun-body-grad)" filter="drop-shadow(0 0 16px rgba(255, 179, 0, 0.8))" />
+          <!-- Core specular glow -->
+          <circle cx="${spec.celestial.x - spec.celestial.radius * 0.22}" cy="${spec.celestial.y - spec.celestial.radius * 0.25}" r="${spec.celestial.radius * 0.45}" fill="#ffffff" opacity="0.65" />
+          ${spec.celestial.hasRays ? `
+            <g stroke="#fff176" stroke-width="2.5" opacity="0.6" stroke-linecap="round" filter="drop-shadow(0 0 4px #ffb300)">
+              <line x1="${spec.celestial.x}" y1="${spec.celestial.y - spec.celestial.radius - 12}" x2="${spec.celestial.x}" y2="${spec.celestial.y - spec.celestial.radius - 28}" />
+              <line x1="${spec.celestial.x}" y1="${spec.celestial.y + spec.celestial.radius + 12}" x2="${spec.celestial.x}" y2="${spec.celestial.y + spec.celestial.radius + 28}" />
+              <line x1="${spec.celestial.x - spec.celestial.radius - 12}" y1="${spec.celestial.y}" x2="${spec.celestial.x - spec.celestial.radius - 28}" y2="${spec.celestial.y}" />
+              <line x1="${spec.celestial.x + spec.celestial.radius + 12}" y1="${spec.celestial.y}" x2="${spec.celestial.x + spec.celestial.radius + 28}" y2="${spec.celestial.y}" />
+            </g>
+          ` : ""}
+        `;
+      } else {
+        // Moon with Ethereal Lunar Aura
+        celG.innerHTML = `
+          <!-- Outer Lunar Ambient Halo -->
+          <circle cx="${spec.celestial.x}" cy="${spec.celestial.y}" r="${spec.celestial.radius * 3.4}" fill="url(#moon-aura-grad)" filter="url(#celestial-glow)" opacity="0.8" />
+          <!-- Mid Lunar Corona -->
+          <circle cx="${spec.celestial.x}" cy="${spec.celestial.y}" r="${spec.celestial.radius * 1.8}" fill="url(#moon-aura-grad)" opacity="0.85" />
+          ${spec.celestial.phase === "full" ? `
+            <!-- Full Moon Body -->
+            <circle cx="${spec.celestial.x}" cy="${spec.celestial.y}" r="${spec.celestial.radius}" fill="url(#moon-body-grad)" filter="drop-shadow(0 0 14px rgba(224, 231, 255, 0.75))" />
+            <!-- Soft Lunar Mare / Craters -->
+            <circle cx="${spec.celestial.x - 7}" cy="${spec.celestial.y - 6}" r="5" fill="rgba(71, 85, 105, 0.18)" />
+            <circle cx="${spec.celestial.x + 9}" cy="${spec.celestial.y + 8}" r="6.5" fill="rgba(71, 85, 105, 0.15)" />
+            <circle cx="${spec.celestial.x + 4}" cy="${spec.celestial.y - 8}" r="4" fill="rgba(71, 85, 105, 0.12)" />
+          ` : `
+            <!-- Crescent Moon with Radial Shading -->
+            <path d="M ${spec.celestial.x} ${spec.celestial.y - spec.celestial.radius} 
+                     A ${spec.celestial.radius} ${spec.celestial.radius} 0 0 0 ${spec.celestial.x} ${spec.celestial.y + spec.celestial.radius} 
+                     A ${spec.celestial.radius * 0.72} ${spec.celestial.radius} 0 0 1 ${spec.celestial.x} ${spec.celestial.y - spec.celestial.radius} Z" 
+                  fill="url(#moon-body-grad)" filter="drop-shadow(0 0 12px rgba(224, 231, 255, 0.8))" />
+          `}
+        `;
+      }
+    }
+
+    // 4. Starfield & Clouds Opacity
+    const starG = document.getElementById("landscape-stars");
+    if (starG) starG.setAttribute("opacity", spec.starsOpacity);
+
+    const clouds = document.getElementById("landscape-clouds");
+    if (clouds) clouds.setAttribute("opacity", spec.cloudsOpacity);
+
+    const haze = document.getElementById("landscape-haze");
+    if (haze) haze.setAttribute("fill", spec.hazeColor);
   }
 
   // ==========================================================================
@@ -613,7 +921,7 @@
 
     // 4. Washing Machine Selector Pointer Needle
     dom.dialPointerNeedleGroup.innerHTML = `
-      <g class="knob-pointer-needle" id="knob-pointer-needle">
+      <g class="knob-pointer-needle" id="knob-pointer-needle" style="transform-origin: 0px 0px;">
         <line x1="0" y1="0" x2="0" y2="-112" class="knob-needle-line" stroke="var(--phase-accent)" stroke-width="3.5" stroke-linecap="round" />
         <polygon points="-7,-100 0,-116 7,-100" class="knob-needle-tip" fill="var(--phase-accent)" />
         <circle cx="0" cy="-116" r="3.5" fill="#fff" />
@@ -633,6 +941,7 @@
     const needle = document.getElementById("knob-pointer-needle");
     if (needle) {
       // Offset by +90deg because line is pointing up (-90deg neutral)
+      needle.style.transformOrigin = "0px 0px";
       needle.style.transform = `rotate(${targetAngle + 90}deg)`;
       needle.style.transition = "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)";
     }
@@ -660,13 +969,13 @@
         gWedge.classList.add("active");
         spoke.classList.add("active");
         labelG.classList.add("active");
-        path.setAttribute("fill", phase.color);
-        path.setAttribute("stroke", "#ffffff");
-        path.setAttribute("stroke-width", "3");
+        path.setAttribute("fill", phase.color.replace(")", ", 0.28)").replace("hsl", "hsla"));
+        path.setAttribute("stroke", phase.color);
+        path.setAttribute("stroke-width", "2.5");
       } else {
-        path.setAttribute("fill", "rgba(20, 25, 36, 0.82)");
-        path.setAttribute("stroke", "rgba(255, 255, 255, 0.12)");
-        path.setAttribute("stroke-width", "1.5");
+        path.setAttribute("fill", "rgba(20, 25, 36, 0.45)");
+        path.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
+        path.setAttribute("stroke-width", "1.2");
       }
 
       if (!isVisible && isZen) {
@@ -698,8 +1007,8 @@
 
       if (!isVisible && isZen) {
         textNode.innerHTML = `
-          <tspan x="0" y="0" class="dial-label-title" fill="rgba(255,255,255,0.45)">🔒 •••</tspan>
-          <tspan x="0" dy="13" class="dial-label-sub" fill="rgba(255,255,255,0.3)">Terselubung</tspan>
+          <tspan x="0" y="0" class="dial-label-title" fill="rgba(255,255,255,0.3)">···</tspan>
+          <tspan x="0" dy="13" class="dial-label-sub" fill="rgba(255,255,255,0.2)">${phase.range}</tspan>
         `;
       } else {
         let titleContent = state.showLabels ? phaseName : "";
@@ -747,9 +1056,9 @@
       const rad = Math.atan2(clientY - centerY, clientX - centerX);
       let deg = (rad * 180) / Math.PI;
 
-      // Normalize so North (-90deg) is 0:
+      // Normalize so North (top/-90°) is 0, then offset by +2 slots so slot 3 maps to top
       let normalized = (deg + 90 + 360) % 360;
-      let slotIdx = Math.round(normalized / 45) % 8;
+      let slotIdx = (Math.round(normalized / 45) + 2) % 8;
       return slotIdx + 1;
     }
 
@@ -914,7 +1223,7 @@
         icon.setAttribute("dominant-baseline", "central");
         icon.setAttribute("font-size", isActive ? "11" : "8");
         icon.setAttribute("pointer-events", "none");
-        icon.textContent = isVisible ? phase.icon : "🔒";
+        icon.textContent = isVisible ? phase.icon : "···";
         nodeG.appendChild(icon);
 
         nodeG.addEventListener("click", (e) => {
@@ -1114,24 +1423,22 @@
       clip.style.background = `linear-gradient(180deg, ${colorScheme.bg} 0%, rgba(20, 20, 20, 0.95) 100%)`;
       clip.style.borderTop = `3px solid ${colorScheme.border}`;
 
-      const phaseName = state.lang === "id" ? phase.name_id.split("/")[0].trim() : phase.name_en.split("/")[0].trim();
-      const clipFileName = `${String(phase.slot).padStart(2, "0")}_${phaseName.replace(/\s+/g, "_")}_${isQuran ? "Quran" : "Hadith"}.mov`;
-      const durationTC = `${String(durationH).padStart(2, "0")}:00:00:00`;
+      const phaseName = state.lang === "id" ? phase.name_id : phase.name_en;
       let topic = citation ? (state.lang === "id" ? citation.topic_id : citation.topic_en) : "";
 
       if (!isVisible && state.zenMode) {
         clip.innerHTML = `
           <div class="pr-clip-header">
-            <span class="pr-clip-label">🔒 ${clipFileName}</span>
-            <span class="pr-clip-duration">${durationTC}</span>
+            <span class="pr-clip-label">${phase.icon} ${phaseName}</span>
+            <span class="pr-clip-duration">${phase.range}</span>
           </div>
-          <div class="pr-clip-preview" style="opacity: 0.5;">Terselubung (Zen Mode)</div>
+          <div class="pr-clip-preview" style="opacity: 0.35;">···</div>
         `;
       } else {
         clip.innerHTML = `
           <div class="pr-clip-header">
-            <span class="pr-clip-label">${phase.icon} ${clipFileName}</span>
-            <span class="pr-clip-duration">${durationTC}</span>
+            <span class="pr-clip-label">${phase.icon} ${phaseName}</span>
+            <span class="pr-clip-duration">${phase.range}</span>
           </div>
           <div class="pr-clip-preview">${topic || phase.range}</div>
         `;
@@ -1164,12 +1471,12 @@
         // Pseudo-random but deterministic waveform height based on phase
         const amp = 10 + Math.sin((i + phase.slot * 3) * 0.7) * 8 + Math.cos(i * 1.3) * 6;
         const xPos = (i / numBars) * 100;
-        waveBars += `<line x1="${xPos}%" y1="${27 - amp}" x2="${xPos}%" y2="${27 + amp}" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" />`;
+        waveBars += `<line x1="${xPos}%" y1="${27 - amp}" x2="${xPos}%" y2="${27 + amp}" stroke="var(--phase-accent)" stroke-width="1.8" stroke-linecap="round" />`;
       }
 
       audioBlock.innerHTML = `
         <svg class="pr-audio-waveform-svg" viewBox="0 0 100 54" preserveAspectRatio="none">
-          <line x1="0" y1="27" x2="100" y2="27" stroke="rgba(52, 211, 153, 0.3)" stroke-width="1" />
+          <line x1="0" y1="27" x2="100" y2="27" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1" />
           ${waveBars}
         </svg>
       `;
@@ -1336,7 +1643,7 @@
               <span>${phaseName}</span>
               ${citation ? `<span class="col-type-tag ${isQuran ? 'quran' : 'hadith'}" style="margin-left:6px;">${isQuran ? "Qur'an" : "Hadits"}</span>` : ""}
             </div>
-            <div class="cal-event-topic">${!isVisible && state.zenMode ? "🔒 Terselubung (Zen Mode)" : topicText}</div>
+            <div class="cal-event-topic">${!isVisible && state.zenMode ? "···" : topicText}</div>
           </div>
           ${!isVisible && state.zenMode ? "" : `<div class="cal-event-arabic">${arabicSnippet}</div>`}
         </div>
@@ -1726,6 +2033,7 @@
     state.liveSlot = getSlotFromHour(currentHour);
     state.activeSlot = state.liveSlot;
 
+    initStarfield();
     applyTheme(state.theme);
     dom.langSelect.value = state.lang;
 

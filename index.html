@@ -9,7 +9,101 @@
   <link rel="stylesheet" href="src/journey-dist/journey.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
 </head>
-<body data-theme="auto">
+<body data-theme="sky">
+
+  <!-- Dynamic Circadian Landscape Backdrop (Windows XP Bliss-inspired with Solar/Lunar Cycle) -->
+  <div id="circadian-landscape-backdrop" class="circadian-landscape-backdrop" aria-hidden="true">
+    <svg id="landscape-svg" class="landscape-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <!-- Dynamic Sky Gradient -->
+        <linearGradient id="sky-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop id="sky-stop-top" offset="0%" stop-color="#0e345c" />
+          <stop id="sky-stop-mid" offset="60%" stop-color="#144f80" />
+          <stop id="sky-stop-bottom" offset="100%" stop-color="#3b7fa8" />
+        </linearGradient>
+
+        <!-- Rolling Hill Gradients -->
+        <linearGradient id="hill-back-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop id="hill-back-stop-0" offset="0%" stop-color="#2d5e38" />
+          <stop id="hill-back-stop-1" offset="100%" stop-color="#183620" />
+        </linearGradient>
+        <linearGradient id="hill-mid-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop id="hill-mid-stop-0" offset="0%" stop-color="#3c7a45" />
+          <stop id="hill-mid-stop-1" offset="100%" stop-color="#1d4224" />
+        </linearGradient>
+        <linearGradient id="hill-front-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop id="hill-front-stop-0" offset="0%" stop-color="#4e9955" />
+          <stop id="hill-front-stop-1" offset="100%" stop-color="#24542a" />
+        </linearGradient>
+
+        <!-- Celestial Body Glow Filter -->
+        <filter id="celestial-glow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="28" result="blur1" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur2" />
+          <feMerge>
+            <feMergeNode in="blur1" />
+            <feMergeNode in="blur2" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- Dynamic Celestial Radial Gradients for Realistic Glowing Sun & Moon -->
+        <radialGradient id="sun-body-grad" cx="42%" cy="38%" r="62%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="35%" stop-color="#fff176" />
+          <stop offset="70%" stop-color="#ffb300" />
+          <stop offset="100%" stop-color="#f57c00" />
+        </radialGradient>
+        <radialGradient id="sun-aura-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff9c4" stop-opacity="0.9" />
+          <stop offset="35%" stop-color="#ffca28" stop-opacity="0.5" />
+          <stop offset="70%" stop-color="#ff9800" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#ff9800" stop-opacity="0" />
+        </radialGradient>
+
+        <radialGradient id="moon-body-grad" cx="40%" cy="36%" r="64%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="45%" stop-color="#f1f5f9" />
+          <stop offset="80%" stop-color="#cbd5e1" />
+          <stop offset="100%" stop-color="#94a3b8" />
+        </radialGradient>
+        <radialGradient id="moon-aura-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+          <stop offset="40%" stop-color="#e0e7ff" stop-opacity="0.4" />
+          <stop offset="75%" stop-color="#818cf8" stop-opacity="0.15" />
+          <stop offset="100%" stop-color="#818cf8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <!-- Sky Background -->
+      <rect x="0" y="0" width="1440" height="900" fill="url(#sky-gradient)" />
+
+      <!-- Starfield (Night Phases) -->
+      <g id="landscape-stars" opacity="0"></g>
+
+      <!-- Clouds Layer -->
+      <g id="landscape-clouds" opacity="0.4">
+        <path d="M 120 220 Q 180 180 260 200 Q 320 160 400 190 Q 460 170 520 220 Z" fill="rgba(255,255,255,0.22)" />
+        <path d="M 850 180 Q 920 130 1020 160 Q 1090 120 1180 150 Q 1240 140 1320 180 Z" fill="rgba(255,255,255,0.18)" />
+      </g>
+
+      <!-- Celestial Body (Sun or Moon) with Dynamic Transforms -->
+      <g id="celestial-body-group">
+        <!-- Populated dynamically via JS -->
+      </g>
+
+      <!-- Windows XP Bliss Style Rolling Green Hills -->
+      <!-- Distant Ridge -->
+      <path id="hill-back" d="M 0 580 Q 360 490 740 560 T 1440 530 L 1440 900 L 0 900 Z" fill="url(#hill-back-grad)" />
+      <!-- Middle Rolling Hill -->
+      <path id="hill-mid" d="M 0 640 Q 420 550 900 630 T 1440 590 L 1440 900 L 0 900 Z" fill="url(#hill-mid-grad)" />
+      <!-- Foreground Rolling Hill -->
+      <path id="hill-front" d="M 0 710 Q 340 620 780 690 T 1440 660 L 1440 900 L 0 900 Z" fill="url(#hill-front-grad)" />
+
+      <!-- Atmospheric Horizon Lighting / Haze -->
+      <rect id="landscape-haze" x="0" y="480" width="1440" height="420" fill="transparent" pointer-events="none" />
+    </svg>
+  </div>
 
   <div class="app-container">
     <!-- Top Header Navigation -->
@@ -30,7 +124,7 @@
         <button class="view-tab-btn" data-view="circle0" title="Mode 8: Double Ring oo (8 = dua lingkaran, 2x12jam = 24jam)">
           <span class="mode-number-pill">8</span> <span>Double Ring (oo)</span>
         </button>
-        <button class="view-tab-btn" data-view="timeline" title="Timeline Panel Premiere Pro">
+        <button class="view-tab-btn" data-view="timeline" title="Pita Waktu Sirkadian (24 Jam)">
           <span>⏱️</span> <span>Timeline</span>
         </button>
         <button class="view-tab-btn" data-view="calendar" title="Kalender Jadwal Google">
@@ -57,10 +151,11 @@
 
         <!-- Theme Preset Picker -->
         <select id="theme-select" class="ui-select" title="Tema Tampilan">
-          <option value="auto" selected>Auto (Circadian)</option>
-          <option value="sand">Desert Sand (Cream)</option>
-          <option value="medina">Medina Night (Gold)</option>
-          <option value="pomegranate">Pomegranate (Ochre)</option>
+          <option value="sky" selected>🌤️ Langit Sirkadian (Dynamic Sky)</option>
+          <option value="auto">🌑 Auto Slate (Minimal Dark)</option>
+          <option value="sand">🏜️ Desert Sand (Krem)</option>
+          <option value="medina">🏛️ Medina Night (Gold)</option>
+          <option value="pomegranate">🍷 Pomegranate (Ochre)</option>
         </select>
       </div>
     </header>
@@ -190,14 +285,6 @@
               </div>
             </div>
 
-            <!-- ===== CENTER CONNECTOR (waist of 8) ===== -->
-            <div class="ring8-waist">
-              <div class="ring8-center-badge" id="ring8-center-badge">
-                <div class="ring8-mode-number">8</div>
-              </div>
-              <div class="ring8-waist-hint">oo<br>2×12h</div>
-            </div>
-
             <!-- ===== RIGHT RING: PM (12:00 – 24:00) ===== -->
             <div class="ring8-panel pm-ring" id="ring8-pm-panel">
               <div class="ring8-header">
@@ -240,75 +327,49 @@
         <div class="visual-view-container" id="view-container-timeline">
           <div class="premiere-panel-frame" id="premiere-panel-frame">
             
-            <!-- Premiere Top Panel Tab Header -->
-            <div class="premiere-panel-tab-bar">
+            <!-- Sleek Contemplative Circadian Timeline Header -->
+            <div class="premiere-panel-tab-bar simplified">
               <div class="premiere-active-tab">
-                <span class="tab-seq-icon">🎬</span>
-                <span class="tab-seq-title">Muslim_Timeline_24h.prproj</span>
-                <span class="tab-close-x">×</span>
+                <span class="tab-seq-icon">⏳</span>
+                <span class="tab-seq-title">Pita Waktu Sirkadian (24 Jam)</span>
               </div>
-              <div class="premiere-tools-ribbon">
-                <span class="pr-tool-btn active" title="Selection Tool (V)">V</span>
-                <span class="pr-tool-btn" title="Track Select Forward (A)">A</span>
-                <span class="pr-tool-btn" title="Ripple Edit Tool (B)">B</span>
-                <span class="pr-tool-btn" title="Razor Tool (C)">C</span>
-                <span class="pr-tool-btn" title="Hand Tool (H)">H</span>
-                <span class="pr-tool-separator">|</span>
-                <button class="pr-magnet-btn active" id="pr-magnet-btn" title="Snap in Timeline (S)">🧲</button>
+              <div class="premiere-tools-ribbon simplified">
+                <button class="pr-btn pr-live-active" id="btn-tl-live" title="Ikuti Waktu Sekarang (Live)">● Waktu Sekarang</button>
+                <div class="pr-nav-arrows">
+                  <button class="pr-btn" id="btn-tl-prev" title="Fase Sebelumnya">‹</button>
+                  <button class="pr-btn" id="btn-tl-next" title="Fase Berikutnya">›</button>
+                </div>
+                <button class="pr-magnet-btn active" id="pr-magnet-btn" title="Snap ke Batas Fase">🧲 Snap</button>
               </div>
             </div>
 
-            <!-- Premiere Timecode & Transport Bar -->
-            <div class="premiere-timecode-bar">
+            <!-- Timecode & Phase Range Summary -->
+            <div class="premiere-timecode-bar simplified">
               <div class="pr-timecode-box">
-                <span class="pr-tc-digits" id="premiere-timecode-digits">00;08;24;15</span>
+                <span class="pr-tc-digits" id="premiere-timecode-digits">00:08:24</span>
               </div>
               <div class="pr-sequence-duration">
-                <span>TOTAL: 24:00:00:00</span>
-                <span class="pr-fps-badge">29.97 fps (Circadian)</span>
-              </div>
-              <div class="pr-transport-btns">
-                <button class="pr-btn" id="btn-tl-prev" title="Step Back to Prev Phase">⏮ Step</button>
-                <button class="pr-btn pr-live-active" id="btn-tl-live" title="Play Live Time">● Live CTI</button>
-                <button class="pr-btn" id="btn-tl-next" title="Step Forward to Next Phase">Step ⏭</button>
+                <span>Total 24 Jam • 8 Fase Hikmah</span>
               </div>
             </div>
 
             <!-- Premiere Timeline Work Area (Left Track Headers + Right Track Canvas) -->
             <div class="premiere-work-area" id="premiere-work-area">
               
-              <!-- Left Track Headers Column (V2, V1, A1, A2) -->
-              <div class="premiere-track-headers-col">
+              <!-- Clean Track Indicator Column -->
+              <div class="premiere-track-headers-col simplified">
                 <div class="pr-ruler-corner">
-                  <span class="pr-time-icon">⏱️</span>
+                  <span class="pr-time-icon">24h</span>
                 </div>
-                <!-- Track V2 Header -->
-                <div class="pr-header-row v-track">
-                  <span class="pr-track-btn eye" title="Toggle Track Output">👁</span>
-                  <span class="pr-track-btn lock" title="Lock Track">🔒</span>
-                  <span class="pr-track-name">V2 Overlays</span>
-                </div>
-                <!-- Track V1 Header (Sacred Citations) -->
+                <!-- Track 1: Citations (Ayat & Hadits) -->
                 <div class="pr-header-row v-track active-target">
-                  <span class="pr-track-btn eye" title="Toggle Track Output">👁</span>
-                  <span class="pr-track-btn lock" title="Lock Track">🔒</span>
-                  <span class="pr-track-target">V1</span>
-                  <span class="pr-track-name">Citations</span>
+                  <span class="pr-track-target">📖</span>
+                  <span class="pr-track-name">Sitasi Fase</span>
                 </div>
-                <!-- Video / Audio Split Divider -->
-                <div class="pr-av-divider"></div>
-                <!-- Track A1 Header (Ambient Audio) -->
+                <!-- Track 2: Ambient Tone / Audio Wave -->
                 <div class="pr-header-row a-track active-target">
-                  <span class="pr-track-btn mute" title="Mute Track">M</span>
-                  <span class="pr-track-btn solo" title="Solo Track">S</span>
-                  <span class="pr-track-target">A1</span>
-                  <span class="pr-track-name">Ambient</span>
-                </div>
-                <!-- Track A2 Header (Tafsir Voice) -->
-                <div class="pr-header-row a-track">
-                  <span class="pr-track-btn mute" title="Mute Track">M</span>
-                  <span class="pr-track-btn solo" title="Solo Track">S</span>
-                  <span class="pr-track-name">A2 Tafsir</span>
+                  <span class="pr-track-target">🔊</span>
+                  <span class="pr-track-name">Alunan</span>
                 </div>
               </div>
 
@@ -320,27 +381,14 @@
                   <!-- Renders tick marks & timestamps every 2h -->
                 </div>
 
-                <!-- Track Lane V2 -->
-                <div class="pr-lane-row v2-lane">
-                  <div class="pr-blank-track"></div>
-                </div>
-
-                <!-- Track Lane V1: Colored Premiere Pro Citation Clips -->
+                <!-- Track Lane 1: Colored Citation Clips -->
                 <div class="pr-lane-row v1-lane" id="premiere-citations-lane">
-                  <!-- 8 Premiere clips dynamically rendered -->
+                  <!-- 8 clips dynamically rendered -->
                 </div>
 
-                <!-- AV Dividing Line -->
-                <div class="pr-lane-av-divider"></div>
-
-                <!-- Track Lane A1: Audio Waveforms -->
+                <!-- Track Lane 2: Audio Waveforms -->
                 <div class="pr-lane-row a1-lane" id="premiere-ambient-lane">
                   <!-- Waveform clips dynamically rendered -->
-                </div>
-
-                <!-- Track Lane A2: Secondary Audio -->
-                <div class="pr-lane-row a2-lane">
-                  <div class="pr-blank-track"></div>
                 </div>
 
                 <!-- Adobe Premiere Blue CTI Playhead Needle -->
