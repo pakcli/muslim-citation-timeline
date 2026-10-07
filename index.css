@@ -709,12 +709,17 @@ body::after {
 
 .radial-dial-wrapper {
   position: relative;
-  width: min(94vw, 560px);
-  height: min(94vw, 560px);
+  width: min(94vw, 720px);
+  height: min(94vw, 720px);
   display: flex;
   align-items: center;
   justify-content: center;
   touch-action: none; /* Crucial: prevent vertical scroll when dragging wheel */
+}
+
+.split-workspace.focus-visual .radial-dial-wrapper {
+  width: min(94vw, 840px);
+  height: min(90vh, 840px);
 }
 
 /* SVG Wheel */
@@ -841,14 +846,14 @@ body::after {
 .organ-callout-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: var(--bg-surface-glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--border-subtle);
-  padding: 3px 8px;
+  border: 1.5px solid var(--border-subtle);
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
   cursor: pointer;
   white-space: nowrap;
   user-select: none;
@@ -858,47 +863,50 @@ body::after {
 .organ-callout-pill:hover {
   background: var(--bg-surface-elevated);
   border-color: var(--border-active);
+  transform: scale(1.03);
 }
 
 .organ-type-tag {
-  font-size: 0.6rem;
+  font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 1px 5px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
+  flex-shrink: 0;
 }
 
 .organ-type-tag.quran {
-  background: rgba(56, 189, 248, 0.18);
+  background: rgba(56, 189, 248, 0.22);
   color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.45);
 }
 
 .organ-type-tag.hadith {
-  background: rgba(52, 211, 153, 0.18);
+  background: rgba(52, 211, 153, 0.22);
   color: #34d399;
-  border: 1px solid rgba(52, 211, 153, 0.35);
+  border: 1px solid rgba(52, 211, 153, 0.45);
 }
 
 .organ-topic-label {
-  font-size: 0.72rem;
+  font-size: 16.5px;
   font-weight: 700;
   color: var(--text-primary);
-  max-width: 110px;
+  max-width: 155px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .organ-length-badge {
-  font-size: 0.6rem;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  background: rgba(0, 0, 0, 0.35);
-  padding: 1px 5px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
+  flex-shrink: 0;
 }
 
 .dial-label-title {
@@ -917,8 +925,9 @@ body::after {
 /* Center Valve Hub — Protected Solid Substrate Plate */
 .dial-center-hub {
   position: absolute;
-  width: 27%;
-  height: 27%;
+  width: 21%;
+  height: 21%;
+  aspect-ratio: 1;
   border-radius: 50%;
   background: var(--bg-surface-elevated);
   border: 2px solid var(--border-active);

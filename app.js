@@ -1099,23 +1099,23 @@
 
       // Position ForeignObject Capsule at Spoke Tip
       if (fo) {
-        const foW = 160;
-        const foH = 32;
+        const foW = 270;
+        const foH = 44;
         let foX = 0;
         let foY = 0;
 
         if (cosA > 0.35) {
           // East / North-East / South-East -> Pill to the right
-          foX = x2 + 6;
+          foX = x2 + 8;
           foY = y2 - foH / 2;
         } else if (cosA < -0.35) {
           // West / North-West / South-West -> Pill to the left
-          foX = x2 - 6 - foW;
+          foX = x2 - 8 - foW;
           foY = y2 - foH / 2;
         } else {
           // Siang (North) or Tengah Malam (South)
           foX = x2 - foW / 2;
-          foY = sinA < 0 ? (y2 - foH - 6) : (y2 + 6);
+          foY = sinA < 0 ? (y2 - foH - 8) : (y2 + 8);
         }
 
         fo.setAttribute("x", Math.round(foX));
