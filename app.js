@@ -821,6 +821,7 @@
         dom.btnFocusVisual.querySelector(".focus-text").textContent = "Kembalikan Layar";
         dom.btnFocusVisual.querySelector(".focus-icon").textContent = "⤡";
       }
+      setTimeout(updateDataPanelCompactState, 260);
     });
 
     // Focus Data Sheet Pane (Collapses Visual Instrument)
@@ -837,6 +838,7 @@
         dom.btnFocusData.querySelector(".focus-text").textContent = "Kembalikan Layar";
         dom.btnFocusData.querySelector(".focus-icon").textContent = "⤡";
       }
+      setTimeout(updateDataPanelCompactState, 260);
     });
   }
 
@@ -1892,6 +1894,7 @@
 
   function renderDataSheet() {
     if (!dom.sheetTableBody) return;
+    updateDataPanelCompactState();
     dom.sheetTableBody.innerHTML = "";
     let rows = getCitationsForDate(state.selectedDate);
 
@@ -2462,8 +2465,13 @@
   // ==========================================================================
   function updateDataPanelCompactState() {
     if (!dom.paneData) return;
-    const width = dom.paneData.clientWidth;
-    dom.paneData.classList.toggle("is-compact-actions", width < 1000);
+    const width = dom.paneData.getBoundingClientRect().width || dom.paneData.clientWidth;
+    const isCompact = width < 1000;
+    dom.paneData.classList.toggle("is-compact-actions", isCompact);
+    const table = dom.sheetTableBody ? dom.sheetTableBody.closest("table") : null;
+    if (table) {
+      table.classList.toggle("is-compact-actions", isCompact);
+    }
   }
 
   function setupDataPanelResizeObserver() {

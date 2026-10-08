@@ -1126,6 +1126,7 @@ body::after {
   flex: 1;
   overflow: auto;
   position: relative;
+  container-type: inline-size;
 }
 
 .citations-table {
@@ -1490,57 +1491,134 @@ body::after {
 /* ==========================================================================
    COMPACT ACTIONS (WHEN DATA PANEL IS LESS THAN 1000px WIDTH)
    ========================================================================== */
+/* 1. Class-based Trigger (driven by JS ResizeObserver / drag) */
+.is-compact-actions .th-sticky-actions,
 .pane-data.is-compact-actions .th-sticky-actions,
-@container datapanel (max-width: 1000px) {
+#pane-data.is-compact-actions .th-sticky-actions,
+table.is-compact-actions .th-sticky-actions {
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  padding: 10px 4px !important;
+}
+
+.is-compact-actions .col-sticky-actions,
+.pane-data.is-compact-actions .col-sticky-actions,
+#pane-data.is-compact-actions .col-sticky-actions,
+table.is-compact-actions .col-sticky-actions {
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  padding: 8px 3px !important;
+}
+
+.is-compact-actions .action-th-full,
+.pane-data.is-compact-actions .action-th-full,
+#pane-data.is-compact-actions .action-th-full,
+table.is-compact-actions .action-th-full {
+  display: none !important;
+}
+
+.is-compact-actions .action-th-short,
+.pane-data.is-compact-actions .action-th-short,
+#pane-data.is-compact-actions .action-th-short,
+table.is-compact-actions .action-th-short {
+  display: inline !important;
+}
+
+.is-compact-actions .table-actions-cluster,
+.pane-data.is-compact-actions .table-actions-cluster,
+#pane-data.is-compact-actions .table-actions-cluster,
+table.is-compact-actions .table-actions-cluster {
+  gap: 2px !important;
+}
+
+.is-compact-actions .tbl-btn,
+.pane-data.is-compact-actions .tbl-btn,
+#pane-data.is-compact-actions .tbl-btn,
+table.is-compact-actions .tbl-btn {
+  padding: 4px 6px !important;
+  font-size: 0.85rem !important;
+}
+
+.is-compact-actions .tbl-btn .btn-label,
+.pane-data.is-compact-actions .tbl-btn .btn-label,
+#pane-data.is-compact-actions .tbl-btn .btn-label,
+table.is-compact-actions .tbl-btn .btn-label {
+  display: none !important;
+}
+
+/* 2. Container Query Trigger (native CSS container query) */
+@container (max-width: 1000px) {
   .th-sticky-actions {
-    width: 110px !important;
-    min-width: 110px !important;
-    max-width: 110px !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
     padding: 10px 4px !important;
   }
-}
 
-.pane-data.is-compact-actions .col-sticky-actions,
-@container datapanel (max-width: 1000px) {
   .col-sticky-actions {
-    width: 110px !important;
-    min-width: 110px !important;
-    max-width: 110px !important;
-    padding: 8px 4px !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    padding: 8px 3px !important;
   }
-}
 
-.pane-data.is-compact-actions .action-th-full,
-@container datapanel (max-width: 1000px) {
   .action-th-full {
+    display: none !important;
+  }
+
+  .action-th-short {
+    display: inline !important;
+  }
+
+  .table-actions-cluster {
+    gap: 2px !important;
+  }
+
+  .tbl-btn {
+    padding: 4px 6px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .tbl-btn .btn-label {
     display: none !important;
   }
 }
 
-.pane-data.is-compact-actions .action-th-short,
-@container datapanel (max-width: 1000px) {
+/* 3. Media Query Fallback (for smaller screens) */
+@media (max-width: 1000px) {
+  .th-sticky-actions {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    padding: 10px 4px !important;
+  }
+
+  .col-sticky-actions {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    padding: 8px 3px !important;
+  }
+
+  .action-th-full {
+    display: none !important;
+  }
+
   .action-th-short {
     display: inline !important;
   }
-}
 
-.pane-data.is-compact-actions .table-actions-cluster,
-@container datapanel (max-width: 1000px) {
   .table-actions-cluster {
-    gap: 3px !important;
+    gap: 2px !important;
   }
-}
 
-.pane-data.is-compact-actions .tbl-btn,
-@container datapanel (max-width: 1000px) {
   .tbl-btn {
     padding: 4px 6px !important;
-    font-size: 0.78rem !important;
+    font-size: 0.85rem !important;
   }
-}
 
-.pane-data.is-compact-actions .tbl-btn .btn-label,
-@container datapanel (max-width: 1000px) {
   .tbl-btn .btn-label {
     display: none !important;
   }
