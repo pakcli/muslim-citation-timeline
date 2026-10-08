@@ -412,6 +412,8 @@ body::after {
   border-left: 1px solid var(--border-subtle);
   overflow: hidden;
   transition: flex 0.25s ease-out;
+  container-type: inline-size;
+  container-name: datapanel;
 }
 
 /* Pane Action Header */
@@ -1180,6 +1182,7 @@ body::after {
 
 /* Sticky Action Column Freeze (Far Right) */
 .th-sticky-actions {
+  width: 250px;
   position: sticky;
   right: 0;
   background: var(--bg-surface-glass) !important;
@@ -1188,9 +1191,12 @@ body::after {
   border-left: 1px solid var(--border-subtle);
   z-index: 10;
   box-shadow: -6px 0 12px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  transition: width var(--transition-fast), padding var(--transition-fast);
 }
 
 .col-sticky-actions {
+  width: 250px;
   position: sticky;
   right: 0;
   background: var(--bg-surface);
@@ -1199,6 +1205,14 @@ body::after {
   box-shadow: -6px 0 12px rgba(0, 0, 0, 0.35);
   text-align: center;
   white-space: nowrap;
+  transition: width var(--transition-fast), padding var(--transition-fast);
+}
+
+.action-th-short {
+  display: none;
+}
+.action-th-full {
+  display: inline;
 }
 
 .citations-table td {
@@ -1471,6 +1485,65 @@ body::after {
   background: rgba(255, 255, 255, 0.1);
   color: var(--phase-accent);
   border-color: var(--phase-accent);
+}
+
+/* ==========================================================================
+   COMPACT ACTIONS (WHEN DATA PANEL IS LESS THAN 1000px WIDTH)
+   ========================================================================== */
+.pane-data.is-compact-actions .th-sticky-actions,
+@container datapanel (max-width: 1000px) {
+  .th-sticky-actions {
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
+    padding: 10px 4px !important;
+  }
+}
+
+.pane-data.is-compact-actions .col-sticky-actions,
+@container datapanel (max-width: 1000px) {
+  .col-sticky-actions {
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
+    padding: 8px 4px !important;
+  }
+}
+
+.pane-data.is-compact-actions .action-th-full,
+@container datapanel (max-width: 1000px) {
+  .action-th-full {
+    display: none !important;
+  }
+}
+
+.pane-data.is-compact-actions .action-th-short,
+@container datapanel (max-width: 1000px) {
+  .action-th-short {
+    display: inline !important;
+  }
+}
+
+.pane-data.is-compact-actions .table-actions-cluster,
+@container datapanel (max-width: 1000px) {
+  .table-actions-cluster {
+    gap: 3px !important;
+  }
+}
+
+.pane-data.is-compact-actions .tbl-btn,
+@container datapanel (max-width: 1000px) {
+  .tbl-btn {
+    padding: 4px 6px !important;
+    font-size: 0.78rem !important;
+  }
+}
+
+.pane-data.is-compact-actions .tbl-btn .btn-label,
+@container datapanel (max-width: 1000px) {
+  .tbl-btn .btn-label {
+    display: none !important;
+  }
 }
 
 /* ==========================================================================

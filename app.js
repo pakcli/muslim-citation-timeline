@@ -2019,13 +2019,13 @@
         <td class="col-sticky-actions">
           <div class="table-actions-cluster">
             <button class="tbl-btn btn-detail" title="Buka Detail di Panel Inspector">
-              <span>🔍 Detail</span>
+              <span class="btn-icon">🔍</span><span class="btn-label"> Detail</span>
             </button>
             <button class="tbl-btn btn-copy-row" title="Salin Seluruh Baris Ini (Format Lengkap)">
-              <span>📋 Salin Baris</span>
+              <span class="btn-icon">📋</span><span class="btn-label"> Salin</span>
             </button>
             <a href="${item.source_url}" target="_blank" rel="noopener noreferrer" class="tbl-btn btn-source" title="Buka Sumber Asli">
-              <span>↗ Sumber</span>
+              <span class="btn-icon">↗</span><span class="btn-label"> Sumber</span>
             </a>
           </div>
         </td>
@@ -2206,6 +2206,7 @@
         dom.paneVisual.style.flex = `0 0 ${percentage}%`;
         localStorage.setItem("mct_divider_x", percentage);
       }
+      updateDataPanelCompactState();
     }
 
     function onDividerUp() {
@@ -2457,6 +2458,27 @@
   // ==========================================================================
   // BOOTSTRAP APPLICATION
   // ==========================================================================
+  // COMPACT DATA PANEL ACTIONS (< 1000px WIDTH)
+  // ==========================================================================
+  function updateDataPanelCompactState() {
+    if (!dom.paneData) return;
+    const width = dom.paneData.clientWidth;
+    dom.paneData.classList.toggle("is-compact-actions", width < 1000);
+  }
+
+  function setupDataPanelResizeObserver() {
+    if (!dom.paneData) return;
+    updateDataPanelCompactState();
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(() => updateDataPanelCompactState());
+      ro.observe(dom.paneData);
+    }
+    window.addEventListener("resize", updateDataPanelCompactState);
+  }
+
+  // ==========================================================================
+  // BOOTSTRAP APPLICATION
+  // ==========================================================================
   function init() {
     const currentHour = new Date().getHours();
     state.liveSlot = getSlotFromHour(currentHour);
@@ -2479,6 +2501,7 @@
     setupCircle0Gestures();
     setupPremiereTimelineGestures();
     setupDraggableDivider();
+    setupDataPanelResizeObserver();
     setupEventListeners();
 
     // Initial Live Sync
