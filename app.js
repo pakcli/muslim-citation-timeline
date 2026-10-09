@@ -12,18 +12,21 @@
   // ==========================================================================
   const CITATIONS = window.CITATIONS_DATA || [];
   const PHASES = window.PHASES_CONFIG || [];
+  const PRAYER_FIQH = window.PRAYER_FIQH_DATA || {};
+  const EVENT_TIMELINE = window.EVENT_TIMELINE_DATA || [];
 
   // ==========================================================================
   // STATE MANAGEMENT
   // ==========================================================================
   const state = {
+    mainMode: "daily",         // 'daily' (Daily Pray / 5 Shalat) | 'events' (Event Timeline / Kiamat & Akhirat)
     selectedDate: "2026-10-05", // Default: Today (Seed center)
     activeSlot: 1,             // Currently selected or focused slot (1-8)
     liveSlot: 1,               // Real-time circadian slot based on device clock
     isLiveMode: true,          // True if following live clock, false if scrubbed
-    activeView: localStorage.getItem("mct_active_view") || "radial", // 'radial' (Mode 0: O shape) | 'circle0' (Mode 8: oo shape) | 'timeline' | 'calendar'
+    activeView: localStorage.getItem("mct_active_view") || "radial", // 'radial' | 'circle0' | 'timeline' | 'calendar' | 'journey'
     focusMode: null,           // null | 'visual' | 'data'
-    zenMode: true,             // Default: ON ("no spoilers" rule)
+    zenMode: false,            // Default: OFF (Toggled off per user preference)
     showLabels: true,          // Toggle text labels
     iconMode: "celestial",     // 'celestial' | 'clock' | 'none'
     showTitles: true,          // Toggle citation titles
@@ -55,20 +58,58 @@
     drawerMode: localStorage.getItem("mct_drawer_mode") || "right"
   };
 
-  // Fixed angular positions for Mode 0 Radial Dial (laid out as real 24h clock):
-  // Siang / Dzuhur (Slot 3) di posisi jam 12 (North: -90°)
-  // Tengah Malam (Slot 7) di posisi jam 6 (South: +90°)
-  // Rotasi searah jarum jam: 8 sektor × 45° = 360°
+  // Fixed angular positions for Mode 0 Radial Dial (laid out as real 24h clock with 12 sides):
+  // Siang / Dzuhur (Slot 3) di Utara (-75° / Posisi Sektor 12:00)
+  // Tengah Malam (Slot 7) di Selatan (+105° / Posisi Sektor 00:00)
+  // Rotasi searah jarum jam: 12 sektor × 30° = 360°
   const FIXED_SLOT_ANGLES = {
-    1: 180,    // Pagi / Fajar          → Posisi Jam 9 (Barat / 06:00)
-    2: -135,   // Dhuha                 → Posisi Jam 10:30 (Barat Laut / 09:00)
-    3: -90,    // Siang Terik / Dzuhur  → Posisi Jam 12 (Utara / 12:00)
-    4: -45,    // Sore Hari / Ashar     → Posisi Jam 1:30 (Timur Laut / 15:00)
-    5: 0,      // Senja / Maghrib       → Posisi Jam 3 (Timur / 18:00)
-    6: 45,     // Malam Awal / Isya     → Posisi Jam 4:30 (Tenggara / 21:00)
-    7: 90,     // Tengah Malam          → Posisi Jam 6 (Selatan / 00:00)
-    8: 135     // Sepertiga Malam Akhir → Posisi Jam 7:30 (Barat Daya / 03:00)
+    1: 165,    // Pagi / Fajar          → Sektor 3 (04:00–06:00, Barat)
+    2: -135,   // Dhuha                 → Sektor 5 (08:00–10:00, Barat Laut)
+    3: -75,    // Siang Terik / Dzuhur  → Sektor 7 (12:00–14:00, Utara)
+    4: -15,    // Sore Hari / Ashar     → Sektor 9 (16:00–18:00, Timur Laut)
+    5: 15,     // Senja / Maghrib       → Sektor 10 (18:00–20:00, Timur)
+    6: 45,     // Malam Awal / Isya     → Sektor 11 (20:00–22:00, Tenggara)
+    7: 105,    // Tengah Malam          → Sektor 1 (00:00–02:00, Selatan)
+    8: 135     // Sepertiga Malam Akhir → Sektor 2 (02:00–04:00, Barat Daya)
   };
+
+  // Mode 0: Single Radial 12 Sisi (1 Lingkaran Penuh 360°, 12 Sektor × 30°)
+  // Representasi 24 Jam sirkadian dibagi ke dalam 12 sisi geometri radial
+  const RADIAL_12_SECTORS = [
+    { id: 1,  slot: 7, startH: 0,  endH: 2,  angle: 105,  name_id: "Tengah Malam", name_en: "Midnight",       icon: "🌌", prayer: "Tahajjud Awal", tag: "00-02" },
+    { id: 2,  slot: 8, startH: 2,  endH: 4,  angle: 135,  name_id: "Sepertiga Akhir", name_en: "Pre-Dawn",    icon: "✨", prayer: "Tahajjud / Sahur", tag: "02-04" },
+    { id: 3,  slot: 1, startH: 4,  endH: 6,  angle: 165,  name_id: "Fajar / Subuh", name_en: "Dawn / Fajr",    icon: "🌅", prayer: "Shalat Subuh", tag: "04-06" },
+    { id: 4,  slot: 2, startH: 6,  endH: 8,  angle: 195,  name_id: "Syuruq",        name_en: "Sunrise",        icon: "☀️", prayer: "Dhuha Awal", tag: "06-08" },
+    { id: 5,  slot: 2, startH: 8,  endH: 10, angle: 225,  name_id: "Dhuha Pagi",    name_en: "Forenoon",       icon: "🌤️", prayer: "Shalat Dhuha", tag: "08-10" },
+    { id: 6,  slot: 2, startH: 10, endH: 12, angle: 255,  name_id: "Qailulah",      name_en: "Pre-Noon",       icon: "☀️", prayer: "Istirahat Qailulah", tag: "10-12" },
+    { id: 7,  slot: 3, startH: 12, endH: 14, angle: -75,  name_id: "Dzuhur",        name_en: "Noon / Dhuhr",   icon: "☀️", prayer: "Shalat Dzuhur", tag: "12-14" },
+    { id: 8,  slot: 3, startH: 14, endH: 16, angle: -45,  name_id: "Ba'da Dzuhur",  name_en: "Afternoon",      icon: "⛅", prayer: "Qabliyah Ashar", tag: "14-16" },
+    { id: 9,  slot: 4, startH: 16, endH: 18, angle: -15,  name_id: "Ashar",         name_en: "Late Afternoon", icon: "🌇", prayer: "Shalat Ashar", tag: "16-18" },
+    { id: 10, slot: 5, startH: 18, endH: 20, angle: 15,   name_id: "Maghrib",       name_en: "Sunset / Maghrib", icon: "🌆", prayer: "Shalat Maghrib", tag: "18-20" },
+    { id: 11, slot: 6, startH: 20, endH: 22, angle: 45,   name_id: "Isya",          name_en: "Nightfall / Isha", icon: "🌙", prayer: "Shalat Isya", tag: "20-22" },
+    { id: 12, slot: 7, startH: 22, endH: 24, angle: 75,   name_id: "Malam Rehat",   name_en: "Deep Night",     icon: "💤", prayer: "Witir & Rehat", tag: "22-24" }
+  ];
+
+  // Mode 8: Double Radial 6 Sisi × 2 Lingkaran (AM & PM 360°, 6 Sektor × 60° tiap lingkaran)
+  // AM Ring (00:00 - 12:00)
+  const RING8_AM_6_SECTORS = [
+    { id: 1, slot: 7, startH: 0,  endH: 2,  angle: -60, name_id: "Tengah Malam", name_en: "Midnight", icon: "🌌", prayer: "Tahajjud Awal", tag: "00-02" },
+    { id: 2, slot: 8, startH: 2,  endH: 4,  angle: 0,   name_id: "Tahajjud",    name_en: "Pre-Dawn",  icon: "✨", prayer: "Tahajjud / Sahur", tag: "02-04" },
+    { id: 3, slot: 1, startH: 4,  endH: 6,  angle: 60,  name_id: "Subuh",       name_en: "Fajr",      icon: "🌅", prayer: "Shalat Subuh", tag: "04-06" },
+    { id: 4, slot: 2, startH: 6,  endH: 8,  angle: 120, name_id: "Syuruq",      name_en: "Sunrise",   icon: "☀️", prayer: "Dhuha Awal", tag: "06-08" },
+    { id: 5, slot: 2, startH: 8,  endH: 10, angle: 180, name_id: "Dhuha",       name_en: "Forenoon",  icon: "🌤️", prayer: "Shalat Dhuha", tag: "08-10" },
+    { id: 6, slot: 2, startH: 10, endH: 12, angle: 240, name_id: "Qailulah",    name_en: "Pre-Noon",  icon: "☀️", prayer: "Qailulah", tag: "10-12" }
+  ];
+
+  // PM Ring (12:00 - 24:00)
+  const RING8_PM_6_SECTORS = [
+    { id: 1, slot: 3, startH: 12, endH: 14, angle: -60, name_id: "Dzuhur",      name_en: "Dhuhr",     icon: "☀️", prayer: "Shalat Dzuhur", tag: "12-14" },
+    { id: 2, slot: 3, startH: 14, endH: 16, angle: 0,   name_id: "Ba'da Dzuhur",name_en: "Afternoon", icon: "⛅", prayer: "Qabliyah Ashar", tag: "14-16" },
+    { id: 3, slot: 4, startH: 16, endH: 18, angle: 60,  name_id: "Ashar",       name_en: "Asr",       icon: "🌇", prayer: "Shalat Ashar", tag: "16-18" },
+    { id: 4, slot: 5, startH: 18, endH: 20, angle: 120, name_id: "Maghrib",     name_en: "Sunset",    icon: "🌆", prayer: "Shalat Maghrib", tag: "18-20" },
+    { id: 5, slot: 6, startH: 20, endH: 22, angle: 180, name_id: "Isya",        name_en: "Isha",      icon: "🌙", prayer: "Shalat Isya", tag: "20-22" },
+    { id: 6, slot: 7, startH: 22, endH: 24, angle: 240, name_id: "Malam Rehat", name_en: "Night",     icon: "💤", prayer: "Witir & Istirahat", tag: "22-24" }
+  ];
 
   // Premiere clip label colors matching Adobe Premiere Pro NLE color scheme
   const PREMIERE_CLIP_COLORS = {
@@ -93,6 +134,8 @@
     splitDivider: document.getElementById("split-divider"),
     
     // Header controls
+    mainModeSelect: document.getElementById("main-mode-select"),
+    mainModeSubtitle: document.getElementById("main-mode-subtitle"),
     viewSwitcherBtns: document.querySelectorAll("#view-switcher .view-tab-btn"),
     dateButtons: document.querySelectorAll("#date-selector-group .date-btn"),
     langSelect: document.getElementById("lang-select"),
@@ -171,6 +214,7 @@
     calTodayTitle: document.getElementById("cal-today-title"),
 
     // Sheet elements
+    sheetTitleText: document.getElementById("sheet-title-text"),
     sheetSearchInput: document.getElementById("sheet-search-input"),
     sheetSortSelect: document.getElementById("sheet-sort-select"),
     sheetTableBody: document.getElementById("citations-table-body"),
@@ -192,6 +236,27 @@
     inspectorMetaType: document.getElementById("inspector-meta-type"),
     inspectorMetaTime: document.getElementById("inspector-meta-time"),
     inspectorMetaGrading: document.getElementById("inspector-meta-grading"),
+
+    // Inspector Prayer Fiqih Elements
+    inspectorPrayerSection: document.getElementById("inspector-prayer-section"),
+    inspectorPrayerIcon: document.getElementById("inspector-prayer-icon"),
+    inspectorPrayerName: document.getElementById("inspector-prayer-name"),
+    inspectorPrayerStatus: document.getElementById("inspector-prayer-status"),
+    inspectorPrayerRakaat: document.getElementById("inspector-prayer-rakaat"),
+    inspectorPrayerTime: document.getElementById("inspector-prayer-time"),
+    inspectorPrayerJahr: document.getElementById("inspector-prayer-jahr"),
+    inspectorPrayerTasyahhud: document.getElementById("inspector-prayer-tasyahhud"),
+    inspectorPrayerVirtue: document.getElementById("inspector-prayer-virtue"),
+    inspectorPrayerSteps: document.getElementById("inspector-prayer-steps"),
+    inspectorPrayerDzikir: document.getElementById("inspector-prayer-dzikir"),
+
+    // Inspector Event Prep Elements
+    inspectorPrepSection: document.getElementById("inspector-prep-section"),
+    inspectorPrepStage: document.getElementById("inspector-prep-stage"),
+    inspectorPrepTitle: document.getElementById("inspector-prep-title"),
+    inspectorEventWhat: document.getElementById("inspector-event-what"),
+    inspectorEventPrep: document.getElementById("inspector-event-prep"),
+
     inspectorTextId: document.getElementById("inspector-text-id"),
     inspectorTextEn: document.getElementById("inspector-text-en"),
     inspectorCredit: document.getElementById("inspector-credit"),
@@ -804,6 +869,49 @@
         window.MCTJourney.mount(document.getElementById("journey-root"));
       }
     }
+
+    // Synchronize Main Mode dropdown with view
+    if (viewName === "journey" && state.mainMode !== "events") {
+      setMainMode("events", false);
+    } else if (viewName !== "journey" && state.mainMode === "events") {
+      setMainMode("daily", false);
+    }
+  }
+
+  // ==========================================================================
+  // MAIN MODE SWITCHER (DAILY PRAY vs EVENT TIMELINE)
+  // ==========================================================================
+  function setMainMode(mode, triggerViewSwitch = true) {
+    if (!["daily", "events"].includes(mode)) mode = "daily";
+    state.mainMode = mode;
+
+    if (dom.mainModeSelect) {
+      dom.mainModeSelect.value = mode;
+    }
+
+    if (mode === "events") {
+      if (dom.mainModeSubtitle) {
+        dom.mainModeSubtitle.textContent = "Katalog Tanda Kiamat & Kronologi Perjalanan Akhirat";
+      }
+      if (dom.sheetTitleText) {
+        dom.sheetTitleText.textContent = "Data Lens: Event Timeline (Kronologi Akhirat)";
+      }
+      if (triggerViewSwitch && state.activeView !== "journey") {
+        switchView("journey");
+      }
+    } else {
+      if (dom.mainModeSubtitle) {
+        dom.mainModeSubtitle.textContent = "Circadian 24h & 5 Waktu Shalat Fardhu";
+      }
+      if (dom.sheetTitleText) {
+        dom.sheetTitleText.textContent = "Data Lens Sirkadian (5 Waktu Shalat)";
+      }
+      if (triggerViewSwitch && state.activeView === "journey") {
+        switchView("radial");
+      }
+    }
+
+    renderDataSheet();
   }
 
   function setupSplitFocusToggles() {
@@ -868,14 +976,14 @@
       dom.radarGridGroup.appendChild(circle);
     });
 
-    // 2. Static 8 Wedges (Fixed compass positions: N, NE, E, SE, S, SW, W, NW)
+    // 2. Static 12 Wedges (12 Sisi, 1 Lingkaran, 30° tiap sektor)
     dom.dialWedgesGroup.innerHTML = "";
     const outerRadius = 175;
     const innerRadius = 115;
-    const segmentAngle = 360 / 8; // 45°
+    const segmentAngle = 360 / 12; // 30°
 
-    PHASES.forEach((phase) => {
-      const midAngle = FIXED_SLOT_ANGLES[phase.slot];
+    RADIAL_12_SECTORS.forEach((sector) => {
+      const midAngle = sector.angle;
       const startAngle = midAngle - segmentAngle / 2;
       const endAngle = midAngle + segmentAngle / 2;
 
@@ -902,8 +1010,9 @@
 
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.setAttribute("class", "dial-segment");
-      g.setAttribute("data-slot", phase.slot);
-      g.setAttribute("id", `segment-slot-${phase.slot}`);
+      g.setAttribute("data-slot", sector.slot);
+      g.setAttribute("data-sector-id", sector.id);
+      g.setAttribute("id", `segment-sector-${sector.id}`);
 
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", pathData);
@@ -924,9 +1033,9 @@
       iconNode.setAttribute("text-anchor", "middle");
       iconNode.setAttribute("dominant-baseline", "central");
       iconNode.setAttribute("class", "wedge-icon-symbol");
-      iconNode.setAttribute("font-size", "15");
+      iconNode.setAttribute("font-size", "14");
       iconNode.setAttribute("pointer-events", "none");
-      iconNode.textContent = phase.icon;
+      iconNode.textContent = sector.icon;
       g.appendChild(iconNode);
 
       dom.dialWedgesGroup.appendChild(g);
@@ -935,7 +1044,7 @@
       g.addEventListener("click", (e) => {
         e.stopPropagation();
         if (state.hasMovedDial) return;
-        handleSegmentClick(phase.slot);
+        handleSegmentClick(sector.slot);
       });
     });
 
@@ -1026,38 +1135,23 @@
     const maxLen = lengths.length ? Math.max(...lengths) : 220;
     const lenRange = Math.max(1, maxLen - minLen);
 
-    PHASES.forEach((phase) => {
-      const gWedge = document.getElementById(`segment-slot-${phase.slot}`);
-      const spoke = document.getElementById(`spoke-slot-${phase.slot}`);
-      const organNode = document.getElementById(`organ-node-${phase.slot}`);
-      const labelG = document.getElementById(`label-slot-${phase.slot}`);
-      const fo = document.getElementById(`fo-slot-${phase.slot}`);
-      const pill = document.getElementById(`pill-slot-${phase.slot}`);
-      const pillTag = document.getElementById(`pill-tag-${phase.slot}`);
-      const pillTopic = document.getElementById(`pill-topic-${phase.slot}`);
-      const pillLen = document.getElementById(`pill-len-${phase.slot}`);
-      if (!gWedge || !spoke || !labelG) return;
-
+    // Update 12 static wedges (12 sides, 1 circle)
+    RADIAL_12_SECTORS.forEach((sector) => {
+      const gWedge = document.getElementById(`segment-sector-${sector.id}`);
+      if (!gWedge) return;
       const path = gWedge.querySelector("path");
       const iconNode = gWedge.querySelector(".wedge-icon-symbol");
-      const isCurrentActive = phase.slot === state.activeSlot;
-      const isVisible = isSlotZenVisible(phase.slot);
-      const isPast = isSlotPast(phase.slot);
-      const citation = currentCitations.find(c => c.slot === phase.slot);
+      const phase = PHASES.find(p => p.slot === sector.slot) || PHASES[0];
+      const isCurrentActive = sector.slot === state.activeSlot;
+      const isVisible = isSlotZenVisible(sector.slot);
+      const isPast = isSlotPast(sector.slot);
+      const citation = currentCitations.find(c => c.slot === sector.slot);
       const isFilterMatched = isCitationFilterMatched(citation);
 
-      // Reset classes
       gWedge.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
-      spoke.classList.remove("active", "is-filtered-out");
-      if (organNode) organNode.classList.remove("active", "is-filtered-out");
-      labelG.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
-      if (pill) pill.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
 
       if (isCurrentActive) {
         gWedge.classList.add("active");
-        spoke.classList.add("active");
-        labelG.classList.add("active");
-        if (pill) pill.classList.add("active");
         if (path) {
           path.setAttribute("fill", phase.color.replace(")", ", 0.28)").replace("hsl", "hsla"));
           path.setAttribute("stroke", phase.color);
@@ -1073,10 +1167,60 @@
 
       if (!isVisible && isZen) {
         gWedge.classList.add("is-zen-masked");
+      } else if (isPast) {
+        gWedge.classList.add("is-past");
+      }
+
+      if (!isFilterMatched) {
+        gWedge.classList.add("is-filtered-out");
+      }
+
+      if (iconNode) {
+        if (state.iconMode === "celestial") {
+          iconNode.textContent = sector.icon;
+          iconNode.style.display = "block";
+        } else if (state.iconMode === "clock") {
+          iconNode.textContent = sector.tag;
+          iconNode.style.display = "block";
+        } else {
+          iconNode.style.display = "none";
+        }
+      }
+    });
+
+    PHASES.forEach((phase) => {
+      const spoke = document.getElementById(`spoke-slot-${phase.slot}`);
+      const organNode = document.getElementById(`organ-node-${phase.slot}`);
+      const labelG = document.getElementById(`label-slot-${phase.slot}`);
+      const fo = document.getElementById(`fo-slot-${phase.slot}`);
+      const pill = document.getElementById(`pill-slot-${phase.slot}`);
+      const pillTag = document.getElementById(`pill-tag-${phase.slot}`);
+      const pillTopic = document.getElementById(`pill-topic-${phase.slot}`);
+      const pillLen = document.getElementById(`pill-len-${phase.slot}`);
+      if (!spoke || !labelG) return;
+
+      const isCurrentActive = phase.slot === state.activeSlot;
+      const isVisible = isSlotZenVisible(phase.slot);
+      const isPast = isSlotPast(phase.slot);
+      const citation = currentCitations.find(c => c.slot === phase.slot);
+      const isFilterMatched = isCitationFilterMatched(citation);
+
+      // Reset classes
+      spoke.classList.remove("active", "is-filtered-out");
+      if (organNode) organNode.classList.remove("active", "is-filtered-out");
+      labelG.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
+      if (pill) pill.classList.remove("active", "is-zen-masked", "is-past", "is-filtered-out");
+
+      if (isCurrentActive) {
+        spoke.classList.add("active");
+        labelG.classList.add("active");
+        if (pill) pill.classList.add("active");
+      }
+
+      if (!isVisible && isZen) {
         labelG.classList.add("is-zen-masked");
         if (pill) pill.classList.add("is-zen-masked");
       } else if (isPast) {
-        gWedge.classList.add("is-past");
         labelG.classList.add("is-past");
       }
 
@@ -1292,165 +1436,220 @@
   // Kedua ring dirender SEKALIGUS di layar — bukan bergantian.
   // ==========================================================================
   function renderCircle0() {
-    const amSvg  = document.getElementById("ring8-am-svg");
-    const pmSvg  = document.getElementById("ring8-pm-svg");
+    const amSvg = document.getElementById("ring8-am-svg");
+    const pmSvg = document.getElementById("ring8-pm-svg");
     if (!amSvg || !pmSvg) return;
 
-    const currentCitations = getCitationsForDate(state.selectedDate);
-    const R = 110;   // ring radius
-    const TICK_OUT = 124;
-    const TICK_IN  = 116;
-
-    // ---- Helper: render one 12-hour ring into an SVG ----
     function renderOneRing(svg, isAM) {
-      const ticksG  = svg.querySelector("g:nth-child(1)");
-      const nodesG  = svg.querySelector("g:nth-child(2)");
-      const handG   = svg.querySelector("g:nth-child(3)");
-      if (!ticksG || !nodesG || !handG) return;
-      ticksG.innerHTML = "";
-      nodesG.innerHTML = "";
-      handG.innerHTML  = "";
+      const radarG  = document.getElementById(isAM ? "ring8-am-radar" : "ring8-pm-radar");
+      const wedgesG = document.getElementById(isAM ? "ring8-am-wedges" : "ring8-pm-wedges");
+      const spokesG = document.getElementById(isAM ? "ring8-am-spokes" : "ring8-pm-spokes");
+      const ticksG  = document.getElementById(isAM ? "ring8-am-ticks" : "ring8-pm-ticks");
+      const nodesG  = document.getElementById(isAM ? "ring8-am-nodes" : "ring8-pm-nodes");
+      const handG   = document.getElementById(isAM ? "ring8-am-hand" : "ring8-pm-hand");
 
-      // Background track circle
-      const track = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      track.setAttribute("cx", "0"); track.setAttribute("cy", "0");
-      track.setAttribute("r", R);
-      track.setAttribute("fill", "none");
-      track.setAttribute("stroke", isAM ? "rgba(255,200,80,0.25)" : "rgba(120,160,255,0.22)");
-      track.setAttribute("stroke-width", "18");
-      ticksG.appendChild(track);
+      if (!wedgesG) return;
+      if (radarG)  radarG.innerHTML = "";
+      if (wedgesG) wedgesG.innerHTML = "";
+      if (spokesG) spokesG.innerHTML = "";
+      if (ticksG)  ticksG.innerHTML = "";
+      if (nodesG)  nodesG.innerHTML = "";
+      if (handG)   handG.innerHTML = "";
 
-      // Subtle inner fill glow
-      const fill = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      fill.setAttribute("cx", "0"); fill.setAttribute("cy", "0");
-      fill.setAttribute("r", R - 12);
-      fill.setAttribute("fill", isAM ? "rgba(255,200,80,0.04)" : "rgba(100,140,255,0.04)");
-      ticksG.appendChild(fill);
+      const outerRadius = 175;
+      const innerRadius = 105;
+      const segmentAngle = 360 / 6; // 60°
+      const sectors = isAM ? RING8_AM_6_SECTORS : RING8_PM_6_SECTORS;
 
-      // Hour ticks + labels (12 positions on each ring)
-      for (let h = 0; h < 12; h++) {
-        const deg = h * 30;
-        const rad = ((deg - 90) * Math.PI) / 180;
-        const isCard = deg % 90 === 0; // cardinal tick
-
-        // Tick mark
-        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        tick.setAttribute("x1", (isCard ? TICK_IN - 4 : TICK_IN) * Math.cos(rad));
-        tick.setAttribute("y1", (isCard ? TICK_IN - 4 : TICK_IN) * Math.sin(rad));
-        tick.setAttribute("x2", TICK_OUT * Math.cos(rad));
-        tick.setAttribute("y2", TICK_OUT * Math.sin(rad));
-        tick.setAttribute("stroke", isCard ? (isAM ? "#ffc840" : "#8ab0ff") : "rgba(255,255,255,0.28)");
-        tick.setAttribute("stroke-width", isCard ? "2.5" : "1.2");
-        ticksG.appendChild(tick);
-
-        // Hour label (AM: 12,1,2..11 → PM: 12,13,14..23)
-        const hourNum = h === 0 ? 12 : h;
-        const label   = isAM ? `${hourNum}` : `${h === 0 ? "24" : h + 12}`;
-        const lRad = rad;
-        const lx = 96 * Math.cos(lRad);
-        const ly = 96 * Math.sin(lRad);
-        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        txt.setAttribute("x", lx); txt.setAttribute("y", ly);
-        txt.setAttribute("text-anchor", "middle");
-        txt.setAttribute("dominant-baseline", "central");
-        txt.setAttribute("fill", isCard ? (isAM ? "#ffc840" : "#8ab0ff") : "rgba(255,255,255,0.55)");
-        txt.setAttribute("font-size", isCard ? "13" : "10");
-        txt.setAttribute("font-weight", isCard ? "800" : "600");
-        txt.setAttribute("font-family", "var(--font-ui)");
-        txt.textContent = label;
-        ticksG.appendChild(txt);
+      // 1. Radar Grid Circles (radial styling)
+      if (radarG) {
+        const gridRadii = [65, 105, 140, 175, 210];
+        gridRadii.forEach((r, idx) => {
+          const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          circle.setAttribute("cx", "0");
+          circle.setAttribute("cy", "0");
+          circle.setAttribute("r", r);
+          circle.setAttribute("fill", "none");
+          circle.setAttribute("stroke", isAM ? "rgba(255, 200, 80, 0.12)" : "rgba(120, 160, 255, 0.12)");
+          circle.setAttribute("stroke-width", idx === 1 ? "1.5" : "1");
+          if (idx === gridRadii.length - 1) {
+            circle.setAttribute("stroke-dasharray", "3 4");
+            circle.setAttribute("stroke", "rgba(255, 255, 255, 0.16)");
+          }
+          radarG.appendChild(circle);
+        });
       }
 
-      // Citation nodes — only phases belonging to this ring
-      PHASES.forEach(phase => {
-        // Which ring does this phase belong to?
-        const belongsAM = (phase.slot === 1 || phase.slot === 2 || phase.slot === 8);
-        const belongsPM = (phase.slot === 3 || phase.slot === 4 || phase.slot === 5 || phase.slot === 6 || phase.slot === 7);
-        if (isAM && !belongsAM) return;
-        if (!isAM && !belongsPM) return;
+      // 2. 6 Wedged Sectors (6 Sides of 60° each)
+      sectors.forEach((sector) => {
+        const midAngle = sector.angle;
+        const startAngle = midAngle - segmentAngle / 2;
+        const endAngle = midAngle + segmentAngle / 2;
 
-        const isActive  = phase.slot === state.activeSlot;
-        const isVisible = isSlotZenVisible(phase.slot);
+        const startRad = (startAngle * Math.PI) / 180;
+        const endRad = (endAngle * Math.PI) / 180;
 
-        // Convert phase time to angle on 12h ring
-        let midH = phase.slot === 7
-          ? (isAM ? 0 : 23.5)   // Midnight near 12 on PM ring (23:30)
-          : (phase.startHour + phase.endHour) / 2;
+        const x1 = outerRadius * Math.cos(startRad);
+        const y1 = outerRadius * Math.sin(startRad);
+        const x2 = outerRadius * Math.cos(endRad);
+        const y2 = outerRadius * Math.sin(endRad);
 
-        // Slot 3 (Dzuhur) starts PM: clamp to PM ring
-        if (phase.slot === 3) midH = Math.max(midH, 12); // ensure it's on PM ring
+        const x3 = innerRadius * Math.cos(endRad);
+        const y3 = innerRadius * Math.sin(endRad);
+        const x4 = innerRadius * Math.cos(startRad);
+        const y4 = innerRadius * Math.sin(startRad);
 
-        const hour12 = midH % 12;
-        const nodeDeg = hour12 * 30;
-        const nodeRad = ((nodeDeg - 90) * Math.PI) / 180;
-        const nx = R * Math.cos(nodeRad);
-        const ny = R * Math.sin(nodeRad);
+        const pathData = [
+          `M ${x1} ${y1}`,
+          `A ${outerRadius} ${outerRadius} 0 0 1 ${x2} ${y2}`,
+          `L ${x3} ${y3}`,
+          `A ${innerRadius} ${innerRadius} 0 0 0 ${x4} ${y4}`,
+          `Z`
+        ].join(" ");
 
-        const nodeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        nodeG.setAttribute("class", `ring8-node ${isActive ? "ring8-node-active" : ""}`);
-        nodeG.setAttribute("data-slot", phase.slot);
-        nodeG.style.cursor = "pointer";
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "dial-segment ring8-segment");
+        g.setAttribute("data-slot", sector.slot);
+        g.setAttribute("data-sector-id", sector.id);
+        g.setAttribute("id", `${isAM ? "ring8-am-seg-" : "ring8-pm-seg-"}${sector.id}`);
 
-        // Outer halo
-        const halo = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        halo.setAttribute("cx", nx); halo.setAttribute("cy", ny);
-        halo.setAttribute("r", isActive ? "15" : "10");
-        halo.setAttribute("fill", phase.color);
-        halo.setAttribute("opacity", isActive ? "0.95" : "0.58");
-        if (isActive) {
-          halo.setAttribute("stroke", "#ffffff");
-          halo.setAttribute("stroke-width", "2");
-        }
-        nodeG.appendChild(halo);
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("class", "ring8-wedge-path");
+        path.setAttribute("fill", "rgba(20, 25, 36, 0.85)");
+        path.setAttribute("stroke", "rgba(255, 255, 255, 0.14)");
+        path.setAttribute("stroke-width", "1.5");
+        g.appendChild(path);
 
-        // Icon
-        const icon = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        icon.setAttribute("x", nx); icon.setAttribute("y", ny);
-        icon.setAttribute("text-anchor", "middle");
-        icon.setAttribute("dominant-baseline", "central");
-        icon.setAttribute("font-size", isActive ? "11" : "8");
-        icon.setAttribute("pointer-events", "none");
-        icon.textContent = isVisible ? phase.icon : "···";
-        nodeG.appendChild(icon);
+        // Icon inside wedge
+        const midRad = (midAngle * Math.PI) / 180;
+        const iconRadius = (outerRadius + innerRadius) / 2;
+        const ix = iconRadius * Math.cos(midRad);
+        const iy = iconRadius * Math.sin(midRad);
 
-        nodeG.addEventListener("click", (e) => {
+        const iconNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        iconNode.setAttribute("x", ix);
+        iconNode.setAttribute("y", iy - 7);
+        iconNode.setAttribute("class", "ring8-wedge-icon");
+        iconNode.textContent = sector.icon;
+        g.appendChild(iconNode);
+
+        // Tag inside wedge (e.g. "04-06")
+        const tagNode = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        tagNode.setAttribute("x", ix);
+        tagNode.setAttribute("y", iy + 13);
+        tagNode.setAttribute("class", "ring8-wedge-tag");
+        tagNode.textContent = sector.tag;
+        g.appendChild(tagNode);
+
+        wedgesG.appendChild(g);
+
+        // Click handler
+        g.addEventListener("click", (e) => {
           e.stopPropagation();
-          handleSegmentClick(phase.slot);
+          handleSegmentClick(sector.slot);
           updateMode8DualRingState();
         });
-
-        nodesG.appendChild(nodeG);
       });
 
-      // Rotating hand — point to current time for this ring
-      const now = new Date();
-      const h   = now.getHours();
-      const m   = now.getMinutes();
-      // AM ring: active when h<12; PM ring: active when h>=12
-      const ringIsActive = isAM ? (h < 12) : (h >= 12);
-      const hand12H = isAM
-        ? (h < 12 ? h + m / 60 : 0)
-        : (h >= 12 ? (h - 12) + m / 60 : 0);
-      const handAngle = hand12H * 30;
-      const handRad = ((handAngle - 90) * Math.PI) / 180;
-      const handTipX = (R - 10) * Math.cos(handRad);
-      const handTipY = (R - 10) * Math.sin(handRad);
+      // 3. Spoke lines at the 6 sector boundaries
+      if (spokesG) {
+        [-90, -30, 30, 90, 150, 210].forEach(deg => {
+          const rad = (deg * Math.PI) / 180;
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", 105 * Math.cos(rad));
+          line.setAttribute("y1", 105 * Math.sin(rad));
+          line.setAttribute("x2", 185 * Math.cos(rad));
+          line.setAttribute("y2", 185 * Math.sin(rad));
+          line.setAttribute("stroke", "rgba(255, 255, 255, 0.16)");
+          line.setAttribute("stroke-width", "1.5");
+          line.setAttribute("stroke-dasharray", "2 3");
+          spokesG.appendChild(line);
+        });
+      }
 
-      const handColor = isAM ? "#ffc840" : "#8ab0ff";
-      handG.innerHTML = `
-        <circle cx="0" cy="0" r="7" fill="${handColor}" opacity="${ringIsActive ? "0.9" : "0.25"}" />
-        <circle cx="0" cy="0" r="3.5" fill="#fff" />
-        <line x1="0" y1="0" x2="${handTipX}" y2="${handTipY}"
-          stroke="${handColor}" stroke-width="${ringIsActive ? 3 : 1.5}"
-          stroke-linecap="round"
-          opacity="${ringIsActive ? 1 : 0.3}"
-        />
-        <circle cx="${handTipX}" cy="${handTipY}" r="${ringIsActive ? 4 : 2}"
-          fill="${handColor}" opacity="${ringIsActive ? 0.9 : 0.25}" />
-      `;
+      // 4. Hour Ticks & Labels
+      if (ticksG) {
+        const ticksList = isAM 
+          ? [ { h: "12", a: -90 }, { h: "2", a: -30 }, { h: "4", a: 30 }, { h: "6", a: 90 }, { h: "8", a: 150 }, { h: "10", a: 210 } ]
+          : [ { h: "12", a: -90 }, { h: "14", a: -30 }, { h: "16", a: 30 }, { h: "18", a: 90 }, { h: "20", a: 150 }, { h: "22", a: 210 } ];
+
+        ticksList.forEach(t => {
+          const rad = (t.a * Math.PI) / 180;
+          const lx = 200 * Math.cos(rad);
+          const ly = 200 * Math.sin(rad);
+          const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          txt.setAttribute("x", lx);
+          txt.setAttribute("y", ly);
+          txt.setAttribute("text-anchor", "middle");
+          txt.setAttribute("dominant-baseline", "central");
+          txt.setAttribute("fill", isAM ? "#ffc840" : "#8ab0ff");
+          txt.setAttribute("font-size", "12");
+          txt.setAttribute("font-weight", "800");
+          txt.setAttribute("font-family", "var(--font-ui)");
+          txt.textContent = t.h;
+          ticksG.appendChild(txt);
+        });
+      }
+
+      // 5. Outer Prayer Indicator Nodes
+      if (nodesG) {
+        PHASES.forEach(phase => {
+          const belongsAM = (phase.slot === 1 || phase.slot === 2 || phase.slot === 8);
+          const belongsPM = (phase.slot === 3 || phase.slot === 4 || phase.slot === 5 || phase.slot === 6 || phase.slot === 7);
+          if (isAM && !belongsAM) return;
+          if (!isAM && !belongsPM) return;
+
+          let midH = phase.slot === 7
+            ? (isAM ? 0 : 23.5)
+            : (phase.startHour + phase.endHour) / 2;
+          if (phase.slot === 3) midH = Math.max(midH, 12);
+
+          const hour12 = midH % 12;
+          const nodeDeg = (hour12 / 12) * 360 - 90;
+          const nodeRad = (nodeDeg * Math.PI) / 180;
+          const nx = 180 * Math.cos(nodeRad);
+          const ny = 180 * Math.sin(nodeRad);
+
+          const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          circle.setAttribute("cx", nx);
+          circle.setAttribute("cy", ny);
+          circle.setAttribute("r", phase.slot === state.activeSlot ? "7" : "4.5");
+          circle.setAttribute("fill", phase.color);
+          circle.setAttribute("stroke", "#fff");
+          circle.setAttribute("stroke-width", "1.5");
+          circle.setAttribute("id", `${isAM ? "ring8-am-node-" : "ring8-pm-node-"}${phase.slot}`);
+          nodesG.appendChild(circle);
+        });
+      }
+
+      // 6. Rotating Pointer Hand / Needle
+      if (handG) {
+        const now = new Date();
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const ringIsActive = isAM ? (h < 12) : (h >= 12);
+        const hours12 = isAM ? (h % 12) + m / 60 : ((h >= 12 ? h - 12 : h) + m / 60);
+        const handDeg = (hours12 / 12) * 360 - 90;
+        const handRad = (handDeg * Math.PI) / 180;
+        const tipX = 145 * Math.cos(handRad);
+        const tipY = 145 * Math.sin(handRad);
+        const handColor = isAM ? "#ffc840" : "#8ab0ff";
+
+        handG.innerHTML = `
+          <g id="${isAM ? "ring8-am-hand-g" : "ring8-pm-hand-g"}">
+            <line x1="0" y1="0" x2="${tipX}" y2="${tipY}"
+              stroke="${handColor}" stroke-width="${ringIsActive ? 3.5 : 2}"
+              stroke-linecap="round" opacity="${ringIsActive ? 1 : 0.4}" />
+            <circle cx="${tipX}" cy="${tipY}" r="${ringIsActive ? 5 : 3.5}"
+              fill="${handColor}" />
+            <circle cx="0" cy="0" r="7" fill="${handColor}" opacity="${ringIsActive ? 0.9 : 0.3}" />
+            <circle cx="0" cy="0" r="3.5" fill="#fff" />
+          </g>
+        `;
+      }
     }
 
-    // Render both rings simultaneously
     renderOneRing(amSvg, true);
     renderOneRing(pmSvg, false);
 
@@ -1481,20 +1680,17 @@
 
     if (state.isLiveMode) {
       if (h < 12) {
-        // Live: AM is now
         if (amTimeEl) amTimeEl.textContent = `${String(h).padStart(2,"0")}:${mm}`;
         if (amPhaseEl) amPhaseEl.textContent = `${activePhase.icon} ${phaseName}`;
         if (pmTimeEl) pmTimeEl.textContent = "—";
         if (pmPhaseEl) pmPhaseEl.textContent = "Waktu PM";
       } else {
-        // Live: PM is now
         if (pmTimeEl) pmTimeEl.textContent = `${String(h).padStart(2,"0")}:${mm}`;
         if (pmPhaseEl) pmPhaseEl.textContent = `${activePhase.icon} ${phaseName}`;
         if (amTimeEl) amTimeEl.textContent = "—";
         if (amPhaseEl) amPhaseEl.textContent = "Waktu AM";
       }
     } else {
-      // Scrub mode: show active phase on correct ring
       const belongsAM = (activePhase.slot === 1 || activePhase.slot === 2 || activePhase.slot === 8);
       if (belongsAM) {
         if (amTimeEl) amTimeEl.textContent = activePhase.range.split("-")[0].trim();
@@ -1509,10 +1705,52 @@
       }
     }
 
-    // Highlight which ring is "now"
-    const nowIsAM = new Date().getHours() < 12;
+    // Highlight active ring panel
+    const nowIsAM = h < 12;
     if (amPanel) amPanel.classList.toggle("is-active-ring", nowIsAM);
     if (pmPanel) pmPanel.classList.toggle("is-active-ring", !nowIsAM);
+
+    // Update wedges active styling in AM ring
+    RING8_AM_6_SECTORS.forEach(sec => {
+      const g = document.getElementById(`ring8-am-seg-${sec.id}`);
+      if (!g) return;
+      const path = g.querySelector("path");
+      const isActive = sec.slot === state.activeSlot;
+      g.classList.toggle("active", isActive);
+      if (path) {
+        path.classList.toggle("is-active-wedge", isActive);
+        if (isActive) {
+          path.setAttribute("fill", activePhase.color.replace(")", ", 0.28)").replace("hsl", "hsla"));
+          path.setAttribute("stroke", activePhase.color);
+          path.setAttribute("stroke-width", "2.5");
+        } else {
+          path.setAttribute("fill", "rgba(20, 25, 36, 0.85)");
+          path.setAttribute("stroke", "rgba(255, 255, 255, 0.14)");
+          path.setAttribute("stroke-width", "1.5");
+        }
+      }
+    });
+
+    // Update wedges active styling in PM ring
+    RING8_PM_6_SECTORS.forEach(sec => {
+      const g = document.getElementById(`ring8-pm-seg-${sec.id}`);
+      if (!g) return;
+      const path = g.querySelector("path");
+      const isActive = sec.slot === state.activeSlot;
+      g.classList.toggle("active", isActive);
+      if (path) {
+        path.classList.toggle("is-active-wedge", isActive);
+        if (isActive) {
+          path.setAttribute("fill", activePhase.color.replace(")", ", 0.28)").replace("hsl", "hsla"));
+          path.setAttribute("stroke", activePhase.color);
+          path.setAttribute("stroke-width", "2.5");
+        } else {
+          path.setAttribute("fill", "rgba(20, 25, 36, 0.85)");
+          path.setAttribute("stroke", "rgba(255, 255, 255, 0.14)");
+          path.setAttribute("stroke-width", "1.5");
+        }
+      }
+    });
   }
 
   // Click on either ring SVG background to scrub
@@ -1896,6 +2134,18 @@
     if (!dom.sheetTableBody) return;
     updateDataPanelCompactState();
     dom.sheetTableBody.innerHTML = "";
+
+    if (state.mainMode === "events") {
+      renderEventTimelineSheet();
+    } else {
+      renderDailyPraySheet();
+    }
+  }
+
+  // ==========================================================================
+  // MODE 1: DAILY PRAY SHEET (5 WAKTU SHALAT FARDHU & SUNNAH)
+  // ==========================================================================
+  function renderDailyPraySheet() {
     let rows = getCitationsForDate(state.selectedDate);
 
     // Apply Scriptural Source & Hadith Authenticity Filter
@@ -1915,7 +2165,7 @@
     }
 
     if (dom.sheetRowCount) {
-      dom.sheetRowCount.textContent = `${rows.length} Data Sitasi`;
+      dom.sheetRowCount.textContent = `${rows.length} Fase (5 Waktu Shalat)`;
     }
 
     if (rows.length === 0) {
@@ -1932,7 +2182,7 @@
     // Sort rows according to state.sheetSortBy and state.sheetSortOrder
     rows.sort((a, b) => {
       let cmp = 0;
-      if (state.sheetSortBy === "phase") {
+      if (state.sheetSortBy === "phase" || state.sheetSortBy === "stage") {
         cmp = a.slot - b.slot;
       } else if (state.sheetSortBy === "type") {
         cmp = a.source_type.localeCompare(b.source_type);
@@ -1962,7 +2212,7 @@
       const typeLabel = isQuran ? "Al-Qur'an" : "Hadits";
 
       // If sorting by phase, render section header banner row for each phase group
-      if (state.sheetSortBy === "phase" && currentPhaseSlot !== item.slot) {
+      if ((state.sheetSortBy === "phase" || state.sheetSortBy === "stage") && currentPhaseSlot !== item.slot) {
         currentPhaseSlot = item.slot;
         const groupTr = document.createElement("tr");
         groupTr.className = "section-group-row";
@@ -1972,6 +2222,7 @@
               <div class="section-banner-title">
                 <span class="section-phase-name">${phase.icon} ${phaseName}</span>
                 <span class="section-time-pill">${phase.range || item.time_range}</span>
+                <span class="prayer-time-badge ${phase.prayer_type}">🕌 ${phase.prayer_name} • ${phase.rakaat} Rakaat</span>
                 ${isCurrentActive ? '<span class="section-active-badge">● Fase Aktif</span>' : ''}
               </div>
               <div class="section-banner-meta">
@@ -1998,8 +2249,8 @@
       tr.setAttribute("data-slot", item.slot);
 
       tr.innerHTML = `
-        <!-- Col 1: Jenis -->
-        <td class="cell-copyable" data-copy-type="type" title="Klik untuk salin jenis & referensi">
+        <!-- Col 1: Jenis (18%) -->
+        <td class="cell-copyable col-jenis-cell" data-copy-type="type" title="Klik untuk salin jenis & referensi">
           <div class="col-type-wrap">
             <span class="col-type-tag ${typeTagClass}">${typeLabel}</span>
             <span class="col-type-ref">${refSnippet}</span>
@@ -2007,28 +2258,29 @@
           </div>
         </td>
 
-        <!-- Col 2: Topik Kontemplasi -->
-        <td class="cell-copyable" data-copy-type="topic" title="Klik untuk salin topik kontemplasi">
+        <!-- Col 2: Topik Kontemplasi & Shalat (35%) -->
+        <td class="cell-copyable col-topic-cell" data-copy-type="topic" title="Klik untuk salin topik kontemplasi">
           <span class="col-topic">${topicText}</span>
+          <span class="prayer-time-badge ${phase.prayer_type}">🕌 ${phase.prayer_name} (${phase.rakaat} Rakaat)</span>
           ${state.sheetSortBy !== "phase" ? `<span class="col-topic-phase-tag">${phase.icon} ${phaseName} (${item.time_range})</span>` : ""}
         </td>
 
-        <!-- Col 3: Teks Arab (Right Aligned) -->
+        <!-- Col 3: Teks Arab (40%, Right Aligned) -->
         <td class="cell-copyable col-arabic-cell" data-copy-type="arabic" title="Klik untuk salin teks Arab" style="text-align: right;">
           <span class="col-arabic-preview" dir="rtl" title="${item.arabic}">${item.arabic}</span>
         </td>
 
-        <!-- Col 4: Sticky Action Column Freeze (Far Right) -->
-        <td class="col-sticky-actions">
+        <!-- Col 4: Sticky Action Buttons (7%, Stacks vertically when narrow) -->
+        <td class="col-sticky-actions col-actions-cell">
           <div class="table-actions-cluster">
-            <button class="tbl-btn btn-detail" title="Buka Detail di Panel Inspector">
-              <span class="btn-icon">🔍</span><span class="btn-label"> Detail</span>
+            <button class="tbl-btn btn-detail" title="Buka Detail & Panduan Fiqih Shalat">
+              <span class="btn-icon">🔍</span>
             </button>
-            <button class="tbl-btn btn-copy-row" title="Salin Seluruh Baris Ini (Format Lengkap)">
-              <span class="btn-icon">📋</span><span class="btn-label"> Salin</span>
+            <button class="tbl-btn btn-copy-row" title="Salin Seluruh Baris Ini">
+              <span class="btn-icon">📋</span>
             </button>
             <a href="${item.source_url}" target="_blank" rel="noopener noreferrer" class="tbl-btn btn-source" title="Buka Sumber Asli">
-              <span class="btn-icon">↗</span><span class="btn-label"> Sumber</span>
+              <span class="btn-icon">↗</span>
             </a>
           </div>
         </td>
@@ -2044,7 +2296,7 @@
             const copyContent = `${typeLabel} (${refSnippet}${item.hadith_detail ? ', ' + item.hadith_detail.grading : ''})`;
             copyToClipboard(copyContent, "📋 Jenis & referensi berhasil disalin!");
           } else if (copyType === "topic") {
-            copyToClipboard(topicText, "📋 Topik kontemplasi berhasil disalin!");
+            copyToClipboard(`${topicText} [${phase.prayer_name} • ${phase.rakaat} Rakaat]`, "📋 Topik kontemplasi & info shalat berhasil disalin!");
           } else if (copyType === "arabic") {
             copyToClipboard(item.arabic, "📋 Teks Arab berhasil disalin!");
           }
@@ -2066,7 +2318,7 @@
         btnCopyRow.addEventListener("click", (e) => {
           e.stopPropagation();
           const trText = state.lang === "id" ? item.text_id : item.text_en;
-          const fullRowText = `[Fase ${item.slot}: ${phaseName} (${item.time_range})] ${typeLabel} - ${refSnippet}\nTopik: ${topicText}\nArab: ${item.arabic}\nTerjemahan: "${trText}"\nSumber: ${item.source_url}`;
+          const fullRowText = `[Fase ${item.slot}: ${phaseName} (${item.time_range}) | ${phase.prayer_name} ${phase.rakaat} Rakaat] ${typeLabel} - ${refSnippet}\nTopik: ${topicText}\nArab: ${item.arabic}\nTerjemahan: "${trText}"\nSumber: ${item.source_url}`;
           copyToClipboard(fullRowText, "📋 Seluruh baris berhasil disalin!");
         });
       }
@@ -2076,18 +2328,237 @@
   }
 
   // ==========================================================================
-  // INSPECTOR DRAWER / DETAIL PANEL
+  // MODE 2: EVENT TIMELINE SHEET (KRONOLOGI AKHIRAT & TANDA KIAMAT)
+  // Resolves Chronology Ambiguity: Minor Signs nested A-Z, 10 Major Signs, Grand Judgment
   // ==========================================================================
-  function openInspector(slot) {
+  function renderEventTimelineSheet() {
+    let rows = [...EVENT_TIMELINE];
+
+    // Filter by scriptural source
+    if (state.sourceFilter === "quran") {
+      rows = rows.filter(r => r.source_type === "quran");
+    } else if (state.sourceFilter === "hadith") {
+      rows = rows.filter(r => r.source_type === "hadith");
+    }
+
+    // Filter by search query
+    if (state.searchQuery.trim()) {
+      const q = state.searchQuery.toLowerCase();
+      rows = rows.filter(r =>
+        (r.event_name && r.event_name.toLowerCase().includes(q)) ||
+        (r.stage_title && r.stage_title.toLowerCase().includes(q)) ||
+        (r.arabic && r.arabic.toLowerCase().includes(q)) ||
+        (r.translation && r.translation.toLowerCase().includes(q)) ||
+        (r.what_happens && r.what_happens.toLowerCase().includes(q)) ||
+        (r.preparation_guide && r.preparation_guide.toLowerCase().includes(q)) ||
+        (r.reference && r.reference.toLowerCase().includes(q))
+      );
+    }
+
+    if (dom.sheetRowCount) {
+      dom.sheetRowCount.textContent = `${rows.length} Peristiwa Akhirat`;
+    }
+
+    if (rows.length === 0) {
+      const emptyTr = document.createElement("tr");
+      emptyTr.innerHTML = `
+        <td colspan="4" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
+          Tidak ada peristiwa akhirat yang cocok dengan pencarian / filter saat ini.
+        </td>
+      `;
+      dom.sheetTableBody.appendChild(emptyTr);
+      return;
+    }
+
+    // Sort rows
+    rows.sort((a, b) => {
+      let cmp = 0;
+      if (state.sheetSortBy === "phase" || state.sheetSortBy === "stage") {
+        cmp = a.stage_num - b.stage_num || a.id.localeCompare(b.id);
+      } else if (state.sheetSortBy === "type") {
+        cmp = a.source_type.localeCompare(b.source_type);
+      } else if (state.sheetSortBy === "topic") {
+        cmp = a.event_name.localeCompare(b.event_name);
+      } else if (state.sheetSortBy === "len") {
+        const lenA = (a.arabic || "").length + (a.translation || "").length;
+        const lenB = (b.arabic || "").length + (b.translation || "").length;
+        cmp = lenA - lenB;
+      }
+      return state.sheetSortOrder === "desc" ? -cmp : cmp;
+    });
+
+    let currentStageNum = null;
+
+    rows.forEach(item => {
+      const isQuran = item.source_type === "quran";
+      const typeTagClass = isQuran ? "quran" : "hadith";
+      const typeLabel = isQuran ? "Al-Qur'an" : "Hadits";
+
+      // Render Stage Section Header Banner
+      if ((state.sheetSortBy === "phase" || state.sheetSortBy === "stage") && currentStageNum !== item.stage_num) {
+        currentStageNum = item.stage_num;
+        const stageTr = document.createElement("tr");
+        stageTr.className = "section-group-row";
+        stageTr.innerHTML = `
+          <td colspan="4" class="section-stage-banner">
+            <div class="stage-banner-title">
+              <span class="stage-banner-pill">Tahap ${item.stage_num}</span>
+              <span>${item.stage_title}</span>
+              ${item.stage_num === 1 ? '<span class="stage-banner-note">(Ambiguity Solved: Katalog A-Z)</span>' : ''}
+            </div>
+          </td>
+        `;
+        dom.sheetTableBody.appendChild(stageTr);
+      }
+
+      const tr = document.createElement("tr");
+      tr.className = "citation-row event-row";
+      tr.setAttribute("data-event-id", item.id);
+
+      tr.innerHTML = `
+        <!-- Col 1: Jenis & Referensi (18%) -->
+        <td class="cell-copyable col-jenis-cell" data-copy-type="type" title="Klik untuk salin jenis & referensi">
+          <div class="col-type-wrap">
+            <span class="col-type-tag ${typeTagClass}">${typeLabel}</span>
+            <span class="col-type-ref">${item.reference}</span>
+            <span class="col-grading-badge">${item.grading}</span>
+          </div>
+        </td>
+
+        <!-- Col 2: Event, What Happens & Bekal Persiapan (35%) -->
+        <td class="cell-copyable col-topic-cell" data-copy-type="event" title="Klik untuk salin peristiwa & bekal">
+          <div class="col-topic">
+            <span class="event-code-pill">${item.event_code}</span>
+            <strong>${item.event_name}</strong>
+          </div>
+          <div class="col-desc-snippet" style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 3px; line-height: 1.4;">
+            ${item.what_happens}
+          </div>
+          <div class="col-prep-preview">
+            <span>🛡️ <strong>Bekal:</strong> ${item.preparation_guide}</span>
+          </div>
+        </td>
+
+        <!-- Col 3: Teks Arab (40%, Right Aligned) -->
+        <td class="cell-copyable col-arabic-cell" data-copy-type="arabic" title="Klik untuk salin teks Arab" style="text-align: right;">
+          <span class="col-arabic-preview" dir="rtl" title="${item.arabic}">${item.arabic}</span>
+        </td>
+
+        <!-- Col 4: Sticky Action Buttons (7%, Stacks vertically when narrow) -->
+        <td class="col-sticky-actions col-actions-cell">
+          <div class="table-actions-cluster">
+            <button class="tbl-btn btn-detail" title="Buka Detail & Bekal Amalan">
+              <span class="btn-icon">🔍</span>
+            </button>
+            <button class="tbl-btn btn-copy-row" title="Salin Baris Peristiwa Ini">
+              <span class="btn-icon">📋</span>
+            </button>
+            <a href="${item.source_url}" target="_blank" rel="noopener noreferrer" class="tbl-btn btn-source" title="Buka Sumber Dalil">
+              <span class="btn-icon">↗</span>
+            </a>
+          </div>
+        </td>
+      `;
+
+      // Cell-level copy listeners
+      const copyableCells = tr.querySelectorAll(".cell-copyable");
+      copyableCells.forEach(cell => {
+        cell.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const copyType = cell.getAttribute("data-copy-type");
+          if (copyType === "type") {
+            copyToClipboard(`${typeLabel} (${item.reference}, ${item.grading})`, "📋 Jenis & referensi berhasil disalin!");
+          } else if (copyType === "event") {
+            copyToClipboard(`${item.event_name}\nPeristiwa: ${item.what_happens}\nBekal: ${item.preparation_guide}`, "📋 Detail peristiwa & bekal berhasil disalin!");
+          } else if (copyType === "arabic") {
+            copyToClipboard(item.arabic, "📋 Teks Arab berhasil disalin!");
+          }
+        });
+      });
+
+      // Sticky Action Buttons
+      const btnDetail = tr.querySelector(".btn-detail");
+      if (btnDetail) {
+        btnDetail.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openInspector(item);
+        });
+      }
+
+      const btnCopyRow = tr.querySelector(".btn-copy-row");
+      if (btnCopyRow) {
+        btnCopyRow.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const fullRowText = `[${item.stage_title}] ${item.event_name}\nDalil: ${item.reference} (${item.grading})\nArab: ${item.arabic}\nTerjemahan: "${item.translation}"\nPeristiwa: ${item.what_happens}\nBekal Penyelamat: ${item.preparation_guide}\nSumber: ${item.source_url}`;
+          copyToClipboard(fullRowText, "📋 Seluruh peristiwa & amalan penyelamat berhasil disalin!");
+        });
+      }
+
+      dom.sheetTableBody.appendChild(tr);
+    });
+  }
+
+  // ==========================================================================
+  // INSPECTOR DRAWER / DETAIL PANEL
+  // Supports Daily Pray (with Fiqih Shalat Guide) & Event Timeline (with Preparation Guide)
+  // ==========================================================================
+  function openInspector(target) {
+    // Branch 1: Event Timeline Item
+    if (typeof target === "object" && target !== null && (target.stage_id || target.what_happens)) {
+      populateEventInspector(target);
+      dom.inspectorDrawer.classList.add("is-open");
+      dom.drawerBackdrop.classList.add("is-visible");
+      return;
+    }
+
+    // Branch 2: Daily Pray Slot (Slot Number 1-8 or Citation Object)
+    const slot = typeof target === "number" ? target : (target && target.slot ? target.slot : 1);
+    populatePrayerInspector(slot);
+    dom.inspectorDrawer.classList.add("is-open");
+    dom.drawerBackdrop.classList.add("is-visible");
+  }
+
+  function populatePrayerInspector(slot) {
     const currentCitations = getCitationsForDate(state.selectedDate);
-    const citation = currentCitations.find(c => c.slot === slot);
-    if (!citation) return;
-
+    const citation = currentCitations.find(c => c.slot === slot) || CITATIONS[0];
     const phase = PHASES.find(p => p.slot === slot) || PHASES[0];
-    const isQuran = citation.source_type === "quran";
+    const fiqh = PRAYER_FIQH[slot] || {};
+    const isQuran = citation && citation.source_type === "quran";
 
+    // Show Prayer Section, Hide Event Prep Section
+    if (dom.inspectorPrayerSection) dom.inspectorPrayerSection.style.display = "flex";
+    if (dom.inspectorPrepSection) dom.inspectorPrepSection.style.display = "none";
+
+    // Populate Prayer Card
+    if (dom.inspectorPrayerIcon) dom.inspectorPrayerIcon.textContent = phase.icon || "🕋";
+    if (dom.inspectorPrayerName) dom.inspectorPrayerName.textContent = fiqh.name || phase.prayer_name;
+    if (dom.inspectorPrayerStatus) dom.inspectorPrayerStatus.textContent = fiqh.status || "Fardhu 'Ain (Wajib)";
+    if (dom.inspectorPrayerRakaat) dom.inspectorPrayerRakaat.textContent = `${fiqh.rakaat || phase.rakaat} Rakaat`;
+    if (dom.inspectorPrayerTime) dom.inspectorPrayerTime.textContent = fiqh.waktu_masuk || phase.range;
+    if (dom.inspectorPrayerJahr) dom.inspectorPrayerJahr.textContent = fiqh.bacaan_jahr || "Sirr (Pelan/Lirih)";
+    if (dom.inspectorPrayerTasyahhud) dom.inspectorPrayerTasyahhud.textContent = fiqh.tasyahhud || "1 Kali";
+    if (dom.inspectorPrayerVirtue) dom.inspectorPrayerVirtue.textContent = fiqh.keutamaan || "";
+
+    // Steps list
+    if (dom.inspectorPrayerSteps) {
+      dom.inspectorPrayerSteps.innerHTML = "";
+      if (fiqh.how_to_pray && Array.isArray(fiqh.how_to_pray)) {
+        fiqh.how_to_pray.forEach(step => {
+          const li = document.createElement("li");
+          li.textContent = step;
+          dom.inspectorPrayerSteps.appendChild(li);
+        });
+      }
+    }
+
+    // Dzikir ba'da shalat
+    if (dom.inspectorPrayerDzikir) {
+      dom.inspectorPrayerDzikir.textContent = fiqh.dzikir_after || "Dzikir bakda shalat fardhu (Istighfar 3x, Ayat Kursi, Tasbih 33x, Tahmid 33x, Takbir 33x).";
+    }
+
+    // Header & Meta
     dom.inspectorPhaseBadge.textContent = `Fase ${citation.slot}`;
-    dom.inspectorPhaseName.textContent = state.lang === "id" ? phase.name_id : phase.name_en;
+    dom.inspectorPhaseName.textContent = `${phase.icon} ${state.lang === "id" ? phase.name_id : phase.name_en} (${phase.prayer_name})`;
     dom.inspectorArabicText.textContent = citation.arabic;
     
     if (isQuran && citation.quran_detail) {
@@ -2128,9 +2599,57 @@
       const formatted = formatScholarlyCitation(citation);
       copyToClipboard(formatted, "✓ Sitasi ilmiah lengkap berhasil disalin!");
     };
+  }
 
-    dom.inspectorDrawer.classList.add("is-open");
-    dom.drawerBackdrop.classList.add("is-visible");
+  function populateEventInspector(eventItem) {
+    // Show Prep Section, Hide Prayer Section
+    if (dom.inspectorPrayerSection) dom.inspectorPrayerSection.style.display = "none";
+    if (dom.inspectorPrepSection) dom.inspectorPrepSection.style.display = "flex";
+
+    // Populate Prep Card
+    if (dom.inspectorPrepStage) dom.inspectorPrepStage.textContent = eventItem.stage_title;
+    if (dom.inspectorPrepTitle) dom.inspectorPrepTitle.textContent = `${eventItem.event_code}. ${eventItem.event_name}`;
+    if (dom.inspectorEventWhat) dom.inspectorEventWhat.textContent = eventItem.what_happens;
+    if (dom.inspectorEventPrep) {
+      dom.inspectorEventPrep.innerHTML = `<strong>Amalan Penyelamat:</strong><br>${eventItem.preparation_guide}`;
+    }
+
+    // Header & Meta
+    dom.inspectorPhaseBadge.textContent = `Tahap ${eventItem.stage_num}`;
+    dom.inspectorPhaseName.textContent = eventItem.event_name;
+    dom.inspectorArabicText.textContent = eventItem.arabic;
+    dom.inspectorSourceLabel.textContent = eventItem.reference;
+    
+    dom.inspectorMetaType.textContent = eventItem.source_type === "quran" ? "Al-Qur'an Al-Karim" : "Hadits Nabawi";
+    dom.inspectorMetaType.className = "meta-pill highlight";
+    dom.inspectorMetaGrading.style.display = "inline-block";
+    dom.inspectorMetaGrading.textContent = `Derajat: ${eventItem.grading}`;
+
+    dom.inspectorMetaTime.textContent = `Kode: [${eventItem.event_code}]`;
+    dom.inspectorTextId.textContent = eventItem.translation;
+    dom.inspectorTextEn.textContent = "";
+    dom.inspectorCredit.textContent = "Sumber Rujukan Terverifikasi";
+
+    dom.inspectorExplainId.textContent = eventItem.what_happens;
+    dom.inspectorExplainEn.textContent = `Bekal Penyelamat: ${eventItem.preparation_guide}`;
+
+    dom.inspectorTagsContainer.innerHTML = "";
+    if (eventItem.tags) {
+      eventItem.tags.forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "meta-pill";
+        span.textContent = `#${tag}`;
+        dom.inspectorTagsContainer.appendChild(span);
+      });
+    }
+
+    dom.inspectorSourceLink.href = eventItem.source_url;
+    dom.inspectorSourceLink.textContent = eventItem.source_type === "quran" ? "🔗 Verifikasi di Quran.com" : "🔗 Verifikasi di Sunnah.com";
+
+    dom.inspectorCopyBtn.onclick = () => {
+      const copyText = `[${eventItem.stage_title}] ${eventItem.event_name}\nDalil: ${eventItem.reference} (${eventItem.grading})\n\nArab:\n${eventItem.arabic}\n\nArtinya:\n"${eventItem.translation}"\n\nPeristiwa:\n${eventItem.what_happens}\n\nBekal Penyelamat:\n${eventItem.preparation_guide}\n\nSumber: ${eventItem.source_url}`;
+      copyToClipboard(copyText, "✓ Sitasi & bekal persiapan berhasil disalin!");
+    };
   }
 
   function closeInspector() {
@@ -2241,19 +2760,28 @@
   // EVENT LISTENERS & INITIALIZATION
   // ==========================================================================
   function setupEventListeners() {
-    // Date selector buttons
-    dom.dateButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        dom.dateButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.selectedDate = btn.getAttribute("data-date");
-        updateRadialDialState();
-        renderDataSheet();
-        if (state.activeView === "circle0") renderCircle0();
-        if (state.activeView === "timeline") renderPremiereTimeline();
-        if (state.activeView === "calendar") renderGoogleCalendar();
+    // Main Mode Switcher Dropdown (Daily Pray | Event Timeline)
+    if (dom.mainModeSelect) {
+      dom.mainModeSelect.addEventListener("change", (e) => {
+        setMainMode(e.target.value);
       });
-    });
+    }
+
+    // Date selector buttons (if present)
+    if (dom.dateButtons && dom.dateButtons.length > 0) {
+      dom.dateButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          dom.dateButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.selectedDate = btn.getAttribute("data-date");
+          updateRadialDialState();
+          renderDataSheet();
+          if (state.activeView === "circle0") renderCircle0();
+          if (state.activeView === "timeline") renderPremiereTimeline();
+          if (state.activeView === "calendar") renderGoogleCalendar();
+        });
+      });
+    }
 
     // Scriptural Source Filter Buttons (All / Quran / Hadith)
     dom.sourceFilterBtns.forEach(btn => {
@@ -2498,9 +3026,16 @@
     setDrawerMode(state.drawerMode);
     updateSortHeaderIndicators();
 
-    // Render Views
+    // Render Views & Setup Mode
     renderRadialDial();
-    renderDataSheet();
+    setMainMode(state.mainMode, false);
+
+    // Sync Zen Mode Toggle Button
+    if (dom.toggleZenBtn) {
+      dom.toggleZenBtn.classList.toggle("active", state.zenMode);
+      const pillLabel = dom.toggleZenBtn.querySelector(".pill-label");
+      if (pillLabel) pillLabel.textContent = `Zen: ${state.zenMode ? "ON" : "OFF"}`;
+    }
 
     // Setup Components & Interactions
     setupViewSwitcher();

@@ -639,14 +639,553 @@ window.CITATIONS_DATA = [
   }
 ];
 
-// Phase metadata dictionary
+// Phase metadata dictionary with 5 Fardhu Prayer & Sunnah times
 window.PHASES_CONFIG = [
-  { id: "p1_dawn", slot: 1, name_en: "Dawn / Fajr", name_id: "Pagi / Fajar", range: "05:00-08:00", startHour: 5, endHour: 8, color: "hsl(42, 92%, 55%)", icon: "🌅" },
-  { id: "p2_morning", slot: 2, name_en: "Mid-Morning", name_id: "Dhuha / Menjelang Siang", range: "08:00-11:00", startHour: 8, endHour: 11, color: "hsl(48, 96%, 53%)", icon: "☀️" },
-  { id: "p3_noon", slot: 3, name_en: "High Noon / Dhuhr", name_id: "Siang Terik / Dzuhur", range: "11:00-14:00", startHour: 11, endHour: 14, color: "hsl(198, 88%, 48%)", icon: "🌞" },
-  { id: "p4_afternoon", slot: 4, name_en: "Late Afternoon / Asr", name_id: "Sore Hari / Ashar", range: "14:00-17:00", startHour: 14, endHour: 17, color: "hsl(24, 85%, 52%)", icon: "🌤️" },
-  { id: "p5_sunset", slot: 5, name_en: "Sunset / Maghrib", name_id: "Senja / Maghrib", range: "17:00-19:00", startHour: 17, endHour: 19, color: "hsl(340, 75%, 56%)", icon: "🌇" },
-  { id: "p6_evening", slot: 6, name_en: "Early Night / Isha", name_id: "Malam Awal / Isya", range: "19:00-22:00", startHour: 19, endHour: 22, color: "hsl(228, 62%, 54%)", icon: "🌌" },
-  { id: "p7_midnight", slot: 7, name_en: "Midnight / Deep Night", name_id: "Tengah Malam", range: "22:00-02:00", startHour: 22, endHour: 2, color: "hsl(265, 50%, 48%)", icon: "🌙" },
-  { id: "p8_predawn", slot: 8, name_en: "Pre-Dawn / Tahajjud", name_id: "Sepertiga Malam Terakhir", range: "02:00-05:00", startHour: 2, endHour: 5, color: "hsl(182, 70%, 46%)", icon: "✨" }
+  { id: "p1_dawn", slot: 1, name_en: "Dawn / Fajr", name_id: "Pagi / Fajar", range: "05:00-08:00", startHour: 5, endHour: 8, color: "hsl(42, 92%, 55%)", icon: "🌅", prayer_name: "Shalat Subuh", prayer_type: "fardhu", rakaat: 2, tasyahhud: 1 },
+  { id: "p2_morning", slot: 2, name_en: "Mid-Morning", name_id: "Dhuha / Menjelang Siang", range: "08:00-11:00", startHour: 8, endHour: 11, color: "hsl(48, 96%, 53%)", icon: "☀️", prayer_name: "Shalat Dhuha", prayer_type: "sunnah", rakaat: "2–8", tasyahhud: 1 },
+  { id: "p3_noon", slot: 3, name_en: "High Noon / Dhuhr", name_id: "Siang Terik / Dzuhur", range: "11:00-14:00", startHour: 11, endHour: 14, color: "hsl(198, 88%, 48%)", icon: "🌞", prayer_name: "Shalat Dzuhur", prayer_type: "fardhu", rakaat: 4, tasyahhud: 2 },
+  { id: "p4_afternoon", slot: 4, name_en: "Late Afternoon / Asr", name_id: "Sore Hari / Ashar", range: "14:00-17:00", startHour: 14, endHour: 17, color: "hsl(24, 85%, 52%)", icon: "🌤️", prayer_name: "Shalat Ashar", prayer_type: "fardhu", rakaat: 4, tasyahhud: 2 },
+  { id: "p5_sunset", slot: 5, name_en: "Sunset / Maghrib", name_id: "Senja / Maghrib", range: "17:00-19:00", startHour: 17, endHour: 19, color: "hsl(340, 75%, 56%)", icon: "🌇", prayer_name: "Shalat Maghrib", prayer_type: "fardhu", rakaat: 3, tasyahhud: 2 },
+  { id: "p6_evening", slot: 6, name_en: "Early Night / Isha", name_id: "Malam Awal / Isya", range: "19:00-22:00", startHour: 19, endHour: 22, color: "hsl(228, 62%, 54%)", icon: "🌌", prayer_name: "Shalat Isya", prayer_type: "fardhu", rakaat: 4, tasyahhud: 2 },
+  { id: "p7_midnight", slot: 7, name_en: "Midnight / Deep Night", name_id: "Tengah Malam", range: "22:00-02:00", startHour: 22, endHour: 2, color: "hsl(265, 50%, 48%)", icon: "🌙", prayer_name: "Shalat Witir", prayer_type: "sunnah", rakaat: "1–3", tasyahhud: 1 },
+  { id: "p8_predawn", slot: 8, name_en: "Pre-Dawn / Tahajjud", name_id: "Sepertiga Malam Terakhir", range: "02:00-05:00", startHour: 2, endHour: 5, color: "hsl(182, 70%, 46%)", icon: "✨", prayer_name: "Shalat Tahajjud", prayer_type: "sunnah", rakaat: "2–11", tasyahhud: 1 }
 ];
+
+// ============================================================================
+// PRAYER FIQH GUIDE (TATA CARA & PANDUAN LENGKAP 5 WAKTU FARDHU & SUNNAH)
+// ============================================================================
+window.PRAYER_FIQH_DATA = {
+  1: {
+    slot: 1,
+    name: "Shalat Subuh",
+    status: "Fardhu 'Ain (Wajib)",
+    rakaat: "2 Rakaat",
+    tasyahhud: "1 Kali (Tasyahhud Akhir pada rakaat kedua)",
+    bacaan_jahr: "Ya (Ayat dibaca lantang/nyaring pada rakaat 1 & 2)",
+    waktu_masuk: "Terbit fajar shadiq hingga sesaat sebelum terbit piringan matahari (Syuruq).",
+    keutamaan: "Dua rakaat fajar lebih baik dari dunia dan seisinya (HR. Muslim 725). Shalat Subuh berjamaah mendapat jaminan perlindungan Allah sepanjang hari.",
+    how_to_pray: [
+      "1. Niat ikhlas karena Allah & Takbiratul Ihram ('Allāhu Akbar').",
+      "2. Berdiri membaca Doa Iftitah, Surah Al-Fatihah (Wajib), dan surah Al-Qur'an pilihan secara lantang (jahr).",
+      "3. Ruku' dengan thuma'ninah (Tasbih: Subhāna Rabbiyal 'Azhīmi wa bihamdih 3x).",
+      "4. I'tidal dengan thuma'ninah (Sami'allāhu liman hamidah... Rabbanā lakal hamd...). Mazhab Syafi'i mensunnahkan Doa Qunut Subuh pada i'tidal rakaat ke-2.",
+      "5. Sujud dua kali dengan thuma'ninah (Subhāna Rabbiyal A'lā wa bihamdih 3x) diselingi duduk antara dua sujud.",
+      "6. Bangkit untuk rakaat kedua, ulangi membaca Al-Fatihah, surah, ruku', i'tidal, dan sujud.",
+      "7. Duduk Tasyahhud Akhir membaca Tasyahhud dan Shalawat Ibrahimiyah.",
+      "8. Mengucapkan Salam ke kanan dan ke kiri."
+    ],
+    dzikir_after: "Istighfar 3x, Allāhumma antas salām..., membaca Ayat Kursi, Al-Ikhlas, Al-Falaq, An-Nas, Tasbih, Tahmid, Takbir 33x."
+  },
+  2: {
+    slot: 2,
+    name: "Shalat Dhuha",
+    status: "Sunnah Mu'akkadah",
+    rakaat: "2 hingga 8 Rakaat (Tiap 2 rakaat satu salam)",
+    tasyahhud: "1 Kali tiap 2 rakaat",
+    bacaan_jahr: "Tidak (Dibaca pelan / sirr)",
+    waktu_masuk: "Matahari naik setinggi satu tombak (sekitar 15-20 menit setelah Syuruq) hingga menjelang waktu Dzuhur (Zawal).",
+    keutamaan: "Menggugurkan kewajiban sedekah atas 360 persendian tubuh setiap hari (HR. Muslim 720) dan mengundang keberkahan rezeki.",
+    how_to_pray: [
+      "1. Niat shalat sunnah Dhuha dua rakaat karena Allah & Takbiratul Ihram.",
+      "2. Membaca Al-Fatihah dan surah pendek (misal: Asy-Syams / Ad-Dhuha) secara lirih (sirr).",
+      "3. Ruku', I'tidal, dan Sujud dua kali dengan thuma'ninah.",
+      "4. Bangkit untuk rakaat kedua, ulangi rukun lalu duduk Tasyahhud Akhir.",
+      "5. Salam. Jika menambah rakaat, ulangi rangkaian dua rakaat salam berikutnya."
+    ],
+    dzikir_after: "Membaca doa Dhuha: Allāhumma innad dhuhā'a dhuhā'uk, wal bahā'a bahā'uk, wal quwwata quwwatuk..."
+  },
+  3: {
+    slot: 3,
+    name: "Shalat Dzuhur",
+    status: "Fardhu 'Ain (Wajib)",
+    rakaat: "4 Rakaat",
+    tasyahhud: "2 Kali (Tasyahhud Awal di rakaat ke-2 & Tasyahhud Akhir di rakaat ke-4)",
+    bacaan_jahr: "Tidak (Dibaca sirr/lirih pada seluruh 4 rakaat)",
+    waktu_masuk: "Tergelincirnya matahari ke arah barat (Zawal) hingga panjang bayangan sama dengan panjang benda aslinya.",
+    keutamaan: "Waktu dibukanya pintu-pintu langit di mana amal saleh diangkat ke hadapan Allah (HR. Tirmidzi 478).",
+    how_to_pray: [
+      "1. Niat shalat fardhu Dzuhur 4 rakaat & Takbiratul Ihram.",
+      "2. Rakaat 1 & 2: Membaca Iftitah, Al-Fatihah, dan surah pilihan secara lirih (sirr), lalu ruku', i'tidal, dan sujud dua kali.",
+      "3. Setelah sujud kedua di rakaat ke-2, duduk Tasyahhud Awal (membaca Attahiyyatul Mubarakatus...).",
+      "4. Bangkit berdiri untuk rakaat ke-3 dan ke-4: Hanya membaca Surah Al-Fatihah (tanpa surah tambahan).",
+      "5. Ruku', i'tidal, sujud dua kali pada rakaat ke-4, lalu duduk Tasyahhud Akhir membaca Tasyahhud dan Shalawat Ibrahimiyah.",
+      "6. Mengucapkan Salam ke kanan dan ke kiri."
+    ],
+    dzikir_after: "Istighfar 3x, zikir tauhid, tasbih 33x, tahmid 33x, takbir 33x, diakhiri laa ilaaha illallaah..."
+  },
+  4: {
+    slot: 4,
+    name: "Shalat Ashar (Ash-Shalatul Wustha)",
+    status: "Fardhu 'Ain (Wajib Mu'akkad)",
+    rakaat: "4 Rakaat",
+    tasyahhud: "2 Kali (Tasyahhud Awal di rakaat ke-2 & Tasyahhud Akhir di rakaat ke-4)",
+    bacaan_jahr: "Tidak (Dibaca sirr/lirih)",
+    waktu_masuk: "Panjang bayangan melebihi panjang benda aslinya hingga menjelang matahari terbenam (sangat makruh menunda sampai matahari menguning).",
+    keutamaan: "Shalat yang dijuluki Shalat Wustha dalam Al-Qur'an (QS. Al-Baqarah: 238). Siapa meninggalkannya, amalnya gugur (HR. Bukhari 553).",
+    how_to_pray: [
+      "1. Niat shalat fardhu Ashar 4 rakaat & Takbiratul Ihram.",
+      "2. Pelaksanaan sama persis dengan Shalat Dzuhur (4 rakaat sirr dengan dua tasyahhud).",
+      "3. Disunnahkan menjaga konsentrasi tinggi karena waktu pergantian malaikat siang dan malam.",
+      "4. Duduk Tasyahhud Akhir dan mengucapkan Salam."
+    ],
+    dzikir_after: "Dzikir bakda shalat fardhu dan dilanjutkan dengan Dzikir Petang (Al-Ma'tsurat / doa perlindungan malam)."
+  },
+  5: {
+    slot: 5,
+    name: "Shalat Maghrib",
+    status: "Fardhu 'Ain (Wajib)",
+    rakaat: "3 Rakaat",
+    tasyahhud: "2 Kali (Tasyahhud Awal di rakaat ke-2 & Tasyahhud Akhir di rakaat ke-3)",
+    bacaan_jahr: "Ya (Jahr/lantang pada rakaat 1 & 2, sirr/lirih pada rakaat ke-3)",
+    waktu_masuk: "Terbenamnya piringan matahari sempurna hingga hilangnya mega merah (syafaqul ahmar) di ufuk barat.",
+    keutamaan: "Waktu mustajab pergantian hari hijriyah baru; menyambut datangnya malam dengan penghambaan yang khusyuk.",
+    how_to_pray: [
+      "1. Niat shalat fardhu Maghrib 3 rakaat & Takbiratul Ihram.",
+      "2. Rakaat 1 & 2: Membaca Al-Fatihah dan surah pendek secara jahr (nyaring), lalu ruku', i'tidal, sujud dua kali.",
+      "3. Setelah sujud kedua di rakaat ke-2, duduk Tasyahhud Awal.",
+      "4. Bangkit untuk rakaat ke-3: Hanya membaca Al-Fatihah secara sirr (lirih), ruku', i'tidal, sujud dua kali.",
+      "5. Duduk Tasyahhud Akhir membaca shalawat lengkap, lalu Salam."
+    ],
+    dzikir_after: "Istighfar, zikir bakda shalat, disunnahkan melaksanakan 2 rakaat Ba'diyah Maghrib."
+  },
+  6: {
+    slot: 6,
+    name: "Shalat Isya",
+    status: "Fardhu 'Ain (Wajib)",
+    rakaat: "4 Rakaat",
+    tasyahhud: "2 Kali (Tasyahhud Awal di rakaat ke-2 & Tasyahhud Akhir di rakaat ke-4)",
+    bacaan_jahr: "Ya (Jahr/lantang pada rakaat 1 & 2, sirr pada rakaat 3 & 4)",
+    waktu_masuk: "Hilangnya mega merah hingga sepertiga malam pertama (batas darurat: terbit fajar Subuh).",
+    keutamaan: "Shalat Isya berjamaah diganjar pahala laksana shalat setengah malam suntuk (HR. Muslim 656).",
+    how_to_pray: [
+      "1. Niat shalat fardhu Isya 4 rakaat & Takbiratul Ihram.",
+      "2. Rakaat 1 & 2: Membaca Al-Fatihah dan surah secara nyaring (jahr), ruku', i'tidal, sujud.",
+      "3. Duduk Tasyahhud Awal pada rakaat ke-2.",
+      "4. Rakaat 3 & 4: Hanya membaca Al-Fatihah secara lirih (sirr), ruku', i'tidal, sujud.",
+      "5. Duduk Tasyahhud Akhir dan mengucapkan Salam."
+    ],
+    dzikir_after: "Dzikir bakda shalat, disunnahkan Shalat Ba'diyah Isya 2 rakaat."
+  },
+  7: {
+    slot: 7,
+    name: "Shalat Witir",
+    status: "Sunnah Mu'akkadah",
+    rakaat: "1 hingga 3 Rakaat (Ganjil)",
+    tasyahhud: "Bisa 2 rakaat salam + 1 rakaat salam, atau 3 rakaat langsung 1 tasyahhud",
+    bacaan_jahr: "Boleh jahr jika dilakukan di malam hari",
+    waktu_masuk: "Setelah shalat Isya hingga menjelang fajar Subuh (penutup shalat malam).",
+    keutamaan: "'Jadikanlah akhir shalat kalian di malam hari adalah shalat witir' (HR. Bukhari 998).",
+    how_to_pray: [
+      "1. Jika 3 rakaat: Shalat 2 rakaat salam (Al-A'la & Al-Kafirun), lalu berdiri shalat 1 rakaat witir (Al-Ikhlas, Al-Falaq, An-Nas).",
+      "2. Pada separuh akhir Ramadhan, disunnahkan membaca Doa Qunut Witir pada i'tidal rakaat terakhir.",
+      "3. Duduk Tasyahhud Akhir dan Salam."
+    ],
+    dzikir_after: "Membaca: Subhāna Malikil Quddūs (3x, dipanjangkan pada ketiga), Rabbil malā'ikati war rūh."
+  },
+  8: {
+    slot: 8,
+    name: "Shalat Tahajjud (Qiyamul Lail)",
+    status: "Sunnah Mu'akkadah (Sangat Dianjurkan)",
+    rakaat: "Minimal 2 Rakaat (Optimal 8 hingga 11 rakaat bersama Witir)",
+    tasyahhud: "Tiap 2 rakaat satu salam",
+    bacaan_jahr: "Boleh jahr sedang / lirih khusyuk",
+    waktu_masuk: "Sepertiga malam terakhir (sekitar pukul 02:00 - 04:30) setelah bangun dari tidur.",
+    keutamaan: "Mendapat kedudukan terpuji (Maqaman Mahmuda, QS. Al-Isra: 79). Waktu mustajab saat Allah turun ke langit dunia mengijabah doa (HR. Bukhari 1145).",
+    how_to_pray: [
+      "1. Bangun tidur, bersiwak, berwudhu, membaca 10 ayat terakhir Surah Ali 'Imran.",
+      "2. Memulai dengan 2 rakaat ringan (Shalat Iftitah).",
+      "3. Melanjutkan shalat 2 rakaat demi 2 rakaat dengan bacaan panjang, ruku' dan sujud yang khusyuk.",
+      "4. Memperbanyak istighfar (Sayyidul Istighfar) di waktu Sahur menjelang Subuh.",
+      "5. Ditutup dengan shalat Witir jika belum witir di awal malam."
+    ],
+    dzikir_after: "Istighfar sebanyak-banyaknya di waktu Sahur (wabil ash-hāri hum yastaghfirūn)."
+  }
+};
+
+// ============================================================================
+// EVENT TIMELINE DATASET: KRONOLOGI AKHIRAT & TANDA KIAMAT
+// Structured Chronology: Minor Signs (A-Z) -> 10 Major Signs -> Judgment Day
+// Equipped with What Happens, Citations, and "How to Prepare with It"
+// ============================================================================
+window.EVENT_TIMELINE_DATA = [
+  // --------------------------------------------------------------------------
+  // STAGE 1: TANDA-TANDA KIAMAT SHUGHRA (MINOR SIGNS — NESTED A-Z)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_minor_a",
+    stage_id: "s1_minor",
+    stage_num: 1,
+    stage_title: "1. Tanda Kiamat Shughra (Kecil) — Katalog A-Z",
+    event_code: "A",
+    event_name: "A. Diutus & Wafatnya Rasulullah ﷺ",
+    source_type: "hadith",
+    reference: "HR. Al-Bukhari No. 6504 & Muslim No. 2951",
+    grading: "Sahih (Muttafaqun 'Alayh)",
+    arabic: "بُعِثْتُ أَنَا وَالسَّاعَةُ كَهَاتَيْنِ ، وَأَشَارَ بِإِصْبَعَيْهِ السَّبَّابَةِ وَالْوُسْطَى",
+    translation: "Aku diutus bersamaan dengan hari Kiamat laksana dua jari ini (beliau berisyarat dengan jari telunjuk dan jari tengahnya).",
+    what_happens: "Rasulullah ﷺ adalah Nabi akhir zaman dan penutup para Nabi. Sejak diutusnya beliau, waktu bergulirnya alam semesta telah memasuki fase paling akhir dalam sejarah umat manusia.",
+    preparation_guide: "Berpegang teguh pada Sunnah Nabi ﷺ dan Al-Qur'an, meneladani akhlak beliau, serta memperbanyak shalawat agar mendapat syafa'at di hari kiamat.",
+    source_url: "https://sunnah.com/bukhari:6504",
+    tags: ["minor_sign", "prophet", "beginning"]
+  },
+  {
+    id: "evt_minor_b",
+    stage_id: "s1_minor",
+    stage_num: 1,
+    stage_title: "1. Tanda Kiamat Shughra (Kecil) — Katalog A-Z",
+    event_code: "B",
+    event_name: "B. Hilangnya Amanah & Jabatan Diberikan Bukan Ahlinya",
+    source_type: "hadith",
+    reference: "HR. Al-Bukhari No. 6496",
+    grading: "Sahih",
+    arabic: "إِذَا ضُيِّعَتِ الأَمَانَةُ فَانْتَظِرِ السَّاعَةَ ... إِذَا وُسِّدَ الأَمْرُ إِلَى غَيْرِ أَهْلِهِ فَانْتَظِرِ السَّاعَةَ",
+    translation: "Jika amanah telah disia-siakan, maka tunggulah hari Kiamat... Jika urusan diserahkan kepada yang bukan ahlinya, maka tunggulah hari Kiamat.",
+    what_happens: "Integritas moral merosot drastis. Kepemimpinan, kehakiman, dan fatwa agama dipegang oleh orang-orang yang mengejar kepentingan pribadi tanpa ilmu dan takwa.",
+    preparation_guide: "Menjaga amanah sekecil apa pun dalam pekerjaan dan keluarga, tidak rakus meminta jabatan publik, serta menuntut ilmu syar'i agar tidak tersesat oleh pemimpin bodoh.",
+    source_url: "https://sunnah.com/bukhari:6496",
+    tags: ["minor_sign", "trust", "leadership"]
+  },
+  {
+    id: "evt_minor_c",
+    stage_id: "s1_minor",
+    stage_num: 1,
+    stage_title: "1. Tanda Kiamat Shughra (Kecil) — Katalog A-Z",
+    event_code: "C",
+    event_name: "C. Perlombaan Membangun Gedung Tinggi",
+    source_type: "hadith",
+    reference: "HR. Muslim No. 8 (Hadits Jibril)",
+    grading: "Sahih",
+    arabic: "وَأَنْ تَرَى الْحُفَاةَ الْعُرَاةَ الْعَالَةَ رِعَاءَ الشَّاءِ يَتَطَاوَلُونَ فِي الْبُنْيَانِ",
+    translation: "Dan engkau menyaksikan orang-orang yang tidak beralas kaki, telanjang, miskin, dan penggembala domba saling berlomba-lomba meninggikan gedung-gedung.",
+    what_happens: "Masyarakat yang dahulunya miskin dan sederhana tiba-tiba berlimpah harta duniawi lalu saling berbangga-bangga membangun menara dan pencakar langit megah.",
+    preparation_guide: "Zuhud terhadap kemewahan materi, tidak membangga-banggakan harta, dan menginvestasikan kelebihan rezeki untuk sedekah jariyah dan bekal akhirat.",
+    source_url: "https://sunnah.com/muslim:8",
+    tags: ["minor_sign", "buildings", "materialism"]
+  },
+  {
+    id: "evt_minor_d",
+    stage_id: "s1_minor",
+    stage_num: 1,
+    stage_title: "1. Tanda Kiamat Shughra (Kecil) — Katalog A-Z",
+    event_code: "D",
+    event_name: "D. Waktu Terasa Sangat Singkat & Cepat",
+    source_type: "hadith",
+    reference: "HR. At-Tirmidzi No. 2332",
+    grading: "Sahih",
+    arabic: "لاَ تَقُومُ السَّاعَةُ حَتَّى يَتَقَارَبَ الزَّمَانُ فَتَكُونَ السَّنَةُ كَالشَّهْرِ وَالشَّهْرُ كَالْجُمُعَةِ",
+    translation: "Kiamat tidak akan terjadi sampai waktu terasa saling berdekatan (singkat), sehingga satu tahun terasa bagai sebulan, sebulan bagai sepekan, dan sepekan bagai sehari.",
+    what_happens: "Hilangnya keberkahan waktu. Hari-hari berlalu begitu cepat tanpa disadari, sementara manusia lalai dari mengumpulkan amal kebajikan.",
+    preparation_guide: "Disiplin manajemen waktu, menjaga shalat tepat waktu sebagai jangkar harian, dan menghindari kesia-siaan (distraksi media sosial yang membuang umur).",
+    source_url: "https://sunnah.com/tirmidhi:2332",
+    tags: ["minor_sign", "time", "urgency"]
+  },
+  {
+    id: "evt_minor_e",
+    stage_id: "s1_minor",
+    stage_num: 1,
+    stage_title: "1. Tanda Kiamat Shughra (Kecil) — Katalog A-Z",
+    event_code: "E",
+    event_name: "E. Maraknya Pembunuhan Tanpa Alasan Jelas (Al-Harj)",
+    source_type: "hadith",
+    reference: "HR. Muslim No. 157",
+    grading: "Sahih",
+    arabic: "وَالَّذِي نَفْسِي بِيَدِهِ لاَ تَذْهَبُ الدُّنْيَا حَتَّى يَأْتِيَ عَلَى النَّاسِ يَوْمٌ لاَ يَدْرِي الْقَاتِلُ فِيمَ قَتَلَ وَلاَ الْمَقْتُولُ فِيمَ قُتِلَ",
+    translation: "Demi Dzat yang jiwaku berada di tangan-Nya, dunia tidak akan lenyap hingga datang suatu masa di mana pembunuh tidak tahu mengapa ia membunuh, dan yang dibunuh tidak tahu mengapa ia dibunuh.",
+    what_happens: "Kekacauan sosial parah dan darah manusia menjadi sangat murah, kekerasan terjadi semata-mata karena dorongan fitnah dan kebencian.",
+    preparation_guide: "Menahan tangan dan lisan dari menumpahkan darah atau menyebarkan kebencian, menjauhi lingkaran fitnah (uzlah jika diperlukan), dan menjaga keselamatan keluarga.",
+    source_url: "https://sunnah.com/muslim:157",
+    tags: ["minor_sign", "violence", "peace"]
+  },
+  {
+    id: "evt_minor_f",
+    stage_id: "s1_minor",
+    stage_num: 1,
+    stage_title: "1. Tanda Kiamat Shughra (Kecil) — Katalog A-Z",
+    event_code: "F",
+    event_name: "F. Jazirah Arab Menghijau Penuh Sungai",
+    source_type: "hadith",
+    reference: "HR. Muslim No. 157",
+    grading: "Sahih",
+    arabic: "لاَ تَقُومُ السَّاعَةُ حَتَّى تَعُودَ أَرْضُ الْعَرَبِ مُرُوجًا وَأَنْهَارًا",
+    translation: "Kiamat tidak akan terjadi sampai tanah Arab kembali menjadi padang rumput yang hijau dan dialiri sungai-sungai.",
+    what_happens: "Gurun tandus di semenanjung Arab berubah iklimnya menjadi subur, bervegetasi hijau, dan dipenuhi aliran air alami.",
+    preparation_guide: "Menyadari kebenaran mukjizat sabda Nabi ﷺ, memperbaharui taubat, dan tidak terlena dengan perubahan alam duniawi.",
+    source_url: "https://sunnah.com/muslim:157",
+    tags: ["minor_sign", "arabia", "nature"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 2: TANDA-TANDA KIAMAT KUBRA (10 TANDA BESAR BERURUTAN)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_major_1",
+    stage_id: "s2_major",
+    stage_num: 2,
+    stage_title: "2. Tanda Kiamat Kubra (Besar) — 10 Tanda Dahsyat",
+    event_code: "1",
+    event_name: "1. Ad-Dukhan (Kabut Asap Tebal 40 Hari)",
+    source_type: "quran",
+    reference: "QS. Ad-Dukhan: 10-11",
+    grading: "Kalamullah (Al-Qur'an Al-Karim)",
+    arabic: "فَارْتَقِبْ يَوْمَ تَأْتِي السَّمَاءُ بِدُخَانٍ مُّبِينٍ • يَغْشَى النَّاسَ ۖ هَٰذَا عَذَابٌ أَلِيمٌ",
+    translation: "Maka tunggulah hari ketika langit membawa kabut yang tampak jelas, yang meliputi manusia. Inilah azab yang pedih.",
+    what_happens: "Kabut asap pekat menyelimuti seantero bumi selama 40 hari. Bagi orang beriman asap ini hanya menimbulkan efek seperti flu ringan, namun bagi orang kafir asap ini membuat tubuh mereka kepanasan dan menderita.",
+    preparation_guide: "Membiasakan dzikir perlindungan, memperkuat keimanan batin agar tidak goncang saat teknologi dan cahaya matahari terhalang kabut tebal.",
+    source_url: "https://quran.com/44/10",
+    tags: ["major_sign", "dukhan", "smoke"]
+  },
+  {
+    id: "evt_major_2",
+    stage_id: "s2_major",
+    stage_num: 2,
+    stage_title: "2. Tanda Kiamat Kubra (Besar) — 10 Tanda Dahsyat",
+    event_code: "2",
+    event_name: "2. Munculnya Al-Masih Ad-Dajjal",
+    source_type: "hadith",
+    reference: "HR. Muslim No. 2937",
+    grading: "Sahih",
+    arabic: "مَا بَيْنَ خَلْقِ آدَمَ إِلَى قِيَامِ السَّاعَةِ خَلْقٌ أَكْبَرُ مِنَ الدَّجَّالِ",
+    translation: "Tidak ada fitnah sejak penciptaan Adam hingga hari Kiamat yang lebih besar daripada fitnah Dajjal.",
+    what_happens: "Sosok pendusta terbesar keluar membawa tipuan dahsyat: menghidupkan ilusi surga dan neraka, menurunkan hujan, dan menjelajahi seluruh pelosok bumi dalam 40 hari kecuali Mekkah dan Madinah.",
+    preparation_guide: "1. Menghafal 10 ayat pertama Surah Al-Kahfi. 2. Membaca doa perlindungan fitnah Dajjal di setiap tasyahhud akhir sebelum salam (Allāhumma innī a'ūdzu bika min 'adzābi jahannam... wa min fitnatil masīhid dajjāl).",
+    source_url: "https://sunnah.com/muslim:2937",
+    tags: ["major_sign", "dajjal", "protection"]
+  },
+  {
+    id: "evt_major_3",
+    stage_id: "s2_major",
+    stage_num: 2,
+    stage_title: "2. Tanda Kiamat Kubra (Besar) — 10 Tanda Dahsyat",
+    event_code: "3",
+    event_name: "3. Turunnya Nabi Isa AS Putra Maryam",
+    source_type: "hadith",
+    reference: "HR. Muslim No. 2937 & Al-Bukhari No. 2222",
+    grading: "Sahih (Muttafaqun 'Alayh)",
+    arabic: "فَيَنْزِلُ عِنْدَ الْمَنَارَةِ الْبَيْضَاءِ شَرْقِيَّ دِمَشْقَ ... فَيَطْلُبُهُ حَتَّى يُدْرِكَهُ بِبَابِ لُدٍّ فَيَقْتُلُهُ",
+    translation: "Nabi Isa AS turun di menara putih sebelah timur Damaskus... lalu mencari Dajjal hingga menemukannya di pintu Ludd (Palestina) dan membunuhnya.",
+    what_happens: "Nabi Isa AS turun memimpin dengan syariat Nabi Muhammad ﷺ, membunuh Dajjal, mematahkan salib, menghapus jizyah, dan menciptakan era kedamaian dan keadilan sempurna di bumi.",
+    preparation_guide: "Memperkuat akidah tauhid yang murni, mencintai seluruh Nabi Allah, dan senantiasa berada di barisan orang-orang beriman.",
+    source_url: "https://sunnah.com/muslim:2937",
+    tags: ["major_sign", "isa", "victory"]
+  },
+  {
+    id: "evt_major_4",
+    stage_id: "s2_major",
+    stage_num: 2,
+    stage_title: "2. Tanda Kiamat Kubra (Besar) — 10 Tanda Dahsyat",
+    event_code: "4",
+    event_name: "4. Keluarnya Ya'juj dan Ma'juj",
+    source_type: "quran",
+    reference: "QS. Al-Anbiya: 96-97",
+    grading: "Kalamullah (Al-Qur'an Al-Karim)",
+    arabic: "حَتَّىٰ إِذَا فُتِحَتْ يَأْجُوجُ وَمَأْجُوجُ وَهُم مِّن كُلِّ حَدَبٍ يَنسِلُونَ • وَاقْتَرَبَ الْوَعْدُ الْحَقُّ",
+    translation: "Hingga apabila (tembok) Ya'juj dan Ma'juj dibuka, dan mereka turun dengan cepat dari seluruh bukit. Dan telah dekatlah janji yang benar (Kiamat).",
+    what_happens: "Kaum perusak berjumlah luar biasa besar menjebol dinding pembatas, meminum habis air danau Thabariyah, hingga Allah membinasakan mereka melalui ulat di leher atas doa Nabi Isa AS.",
+    preparation_guide: "Berlindung kepada Allah dari kehancuran massal, menjaga tawakal teguh saat menghadapi fitnah yang tak dapat dilawan dengan kekuatan fisik.",
+    source_url: "https://quran.com/21/96",
+    tags: ["major_sign", "yajuj_majuj", "destruction"]
+  },
+  {
+    id: "evt_major_5",
+    stage_id: "s2_major",
+    stage_num: 2,
+    stage_title: "2. Tanda Kiamat Kubra (Besar) — 10 Tanda Dahsyat",
+    event_code: "5",
+    event_name: "5. Terbitnya Matahari dari Barat (Taubat Ditutup)",
+    source_type: "quran",
+    reference: "QS. Al-An'am: 158 & HR. Bukhari 4635",
+    grading: "Kalamullah / Sahih",
+    arabic: "يَوْمَ يَأْتِي بَعْضُ آيَاتِ رَبِّكَ لَا يَنفَعُ نَفْسًا إِيمَانُهَا لَمْ تَكُنْ آمَنَتْ مِن قَبْلُ أَوْ كَسَبَتْ فِي إِيمَانِهَا خَيْرًا",
+    translation: "Pada hari datangnya sebagian tanda kekuasaan Tuhanmu, tidak berguna lagi iman seseorang yang belum beriman sebelum itu atau belum berbuat kebajikan dalam masa imannya.",
+    what_happens: "Hukum alam berbalik. Matahari terbit dari arah tenggelamnya. Pada saat itu, pintu taubat dikunci rapat oleh Allah untuk selamanya.",
+    preparation_guide: "BERSEGERA TAUBAT NASHUHA SEKARANG JUGA! Jangan menunda taubat dan amal saleh karena jika matahari terbit dari barat, penyesalan tak berguna lagi.",
+    source_url: "https://quran.com/6/158",
+    tags: ["major_sign", "sunrise_west", "repentance"]
+  },
+  {
+    id: "evt_major_6",
+    stage_id: "s2_major",
+    stage_num: 2,
+    stage_title: "2. Tanda Kiamat Kubra (Besar) — 10 Tanda Dahsyat",
+    event_code: "6",
+    event_name: "6. Keluarnya Dabbatul Ardh (Binatang Melata)",
+    source_type: "quran",
+    reference: "QS. An-Naml: 82",
+    grading: "Kalamullah (Al-Qur'an Al-Karim)",
+    arabic: "وَإِذَا وَقَعَ الْقَوْلُ عَلَيْهِمْ أَخْرَجْنَا لَهُمْ دَابَّةً مِّنَ الْأَرْضِ تُكَلِّمُهُمْ أَنَّ النَّاسَ كَانُوا بِآيَاتِنَا لَا يُوقِنُونَ",
+    translation: "Dan apabila perkataan (ketetapan azab) telah jatuh atas mereka, Kami keluarkan bagi mereka binatang melata dari bumi yang akan berbicara kepada mereka bahwa sesungguhnya manusia dahulu tidak yakin pada ayat-ayat Kami.",
+    what_happens: "Muncul binatang ajaib dari tanah yang membawa tongkat Nabi Musa AS dan cincin Nabi Sulaiman AS, menandai wajah orang beriman menjadi bercahaya dan wajah orang kafir menjadi hitam legam.",
+    preparation_guide: "Memurnikan hati dari nifaq (kemunafikan), menjaga keikhlasan amal agar terstempel sebagai golongan mukmin yang bercahaya.",
+    source_url: "https://quran.com/27/82",
+    tags: ["major_sign", "dabbah", "identity"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 3: TIUPAN SANGKAKALA (AS-SHUR)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_shur",
+    stage_id: "s3_shur",
+    stage_num: 3,
+    stage_title: "3. Tiupan Sangkakala (As-Shur)",
+    event_code: "SANGKAKALA",
+    event_name: "Tiupan Kematian (Sha'iq) & Tiupan Kebangkitan (Ba'ats)",
+    source_type: "quran",
+    reference: "QS. Az-Zumar: 68",
+    grading: "Kalamullah (Al-Qur'an Al-Karim)",
+    arabic: "وَنُفِخَ فِي الصُّورِ فَصَعِقَ مَن فِي السَّمَاوَاتِ وَمَن فِي الْأَرْضِ إِلَّا مَن شَاءَ اللَّهُ ۖ ثُمَّ نُفِخَ فِيهِ أُخْرَىٰ فَإِذَا هُمْ قِيَامٌ يَنظُرُونَ",
+    translation: "Dan ditiuplah sangkakala, maka matilah siapa yang di langit dan di bumi kecuali siapa yang dikehendaki Allah. Kemudian ditiup sangkakala itu sekali lagi, maka tiba-tiba mereka bangun berdiri menunggu (putusan).",
+    what_happens: "Malaikat Israfil meniup sangkakala pertama: hancurlah tata surya dan seluruh makhluk binasa. Setelah jeda 40 (masa), sangkakala ditiup kedua kali: arwah kembali ke jasad dan manusia bangkit dari kubur.",
+    preparation_guide: "Menyiapkan bekal tauhid murni laa ilaaha illallaah saat sakaratul maut, memperbanyak doa husnul khatimah agar dibangkitkan dalam keadaan diridhai.",
+    source_url: "https://quran.com/39/68",
+    tags: ["resurrection", "horn", "israfil"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 4: PADANG MAHSYAR (AL-HASYR)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_mahsyar",
+    stage_id: "s4_mahsyar",
+    stage_num: 4,
+    stage_title: "4. Padang Mahsyar (Al-Hasyr)",
+    event_code: "MAHSYAR",
+    event_name: "Penantian Dahsyat & 7 Golongan Dinaungi Arsy",
+    source_type: "hadith",
+    reference: "HR. Al-Bukhari No. 660 & Muslim No. 1031",
+    grading: "Sahih (Muttafaqun 'Alayh)",
+    arabic: "سَبْعَةٌ يُظِلُّهُمُ اللَّهُ فِي ظِلِّهِ يَوْمَ لاَ ظِلَّ إِلاَّ ظِلُّهُ: الإِمَامُ الْعَادِلُ، وَشَابٌّ نَشَأَ فِي عِبَادَةِ رَبِّهِ...",
+    translation: "Tujuh golongan yang akan dinaungi Allah di bawah naungan-Nya pada hari tiada naungan selain naungan-Nya: pemimpin yang adil, pemuda yang tumbuh dalam ibadah kepada Tuhannya...",
+    what_happens: "Seluruh manusia dikumpulkan di bumi yang rata putih bersih tanpa alas kaki dan tanpa busana. Matahari didekatkan hanya 1 mil sehingga manusia tenggelam dalam keringat sesuai kadar dosanya.",
+    preparation_guide: "Mengejar sifat 7 golongan yang dinaungi Arsy: 1. Pemimpin adil. 2. Pemuda taat ibadah. 3. Hati tertambat di masjid. 4. Mencintai karena Allah. 5. Menolak zina karena takut Allah. 6. Sedekah sembunyi-sembunyi. 7. Menangis mengingat Allah saat sendiri.",
+    source_url: "https://sunnah.com/bukhari:660",
+    tags: ["mahsyar", "shade", "arsy", "sweat"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 5: SYAFA'AT 'UZHMA
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_syafaat",
+    stage_id: "s5_syafaat",
+    stage_num: 5,
+    stage_title: "5. Syafa'at 'Uzhma (Al-Maqam Al-Mahmud)",
+    event_code: "SYAFAAT",
+    event_name: "Sujud Rasulullah ﷺ Membuka Pengadilan Ilahi",
+    source_type: "hadith",
+    reference: "HR. Al-Bukhari No. 4712 & Muslim No. 194",
+    grading: "Sahih (Muttafaqun 'Alayh)",
+    arabic: "أَنَا سَيِّدُ النَّاسِ يَوْمَ الْقِيَامَةِ ... فَأَسْجُدُ تَحْتَ الْعَرْشِ فَيَفْتَحُ اللَّهُ عَلَيَّ مِنْ مَحَامِدِهِ",
+    translation: "Aku adalah penghulu manusia pada hari kiamat... Maka aku bersujud di bawah Arsy, lalu Allah membukakan bagiku pujian-pujian yang belum pernah diajarkan sebelumnya.",
+    what_happens: "Dalam keputusasaan penantian ribuan tahun di Mahsyar, manusia memohon syafa'at kepada Nabi Adam, Nuh, Ibrahim, Musa, dan Isa AS, namun semua menolak hingga mereka datang kepada Nabi Muhammad ﷺ yang bersujud memohon dimulainya hisab.",
+    preparation_guide: "Memperbanyak shalawat kepada Nabi ﷺ setiap hari (minimal 100x), membaca doa setelah azan memohon Al-Wasilah dan Al-Fadhilah, serta mengamalkan Sunnah beliau.",
+    source_url: "https://sunnah.com/bukhari:4712",
+    tags: ["syafaat", "prophet", "intercession"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 6: AL-HISAB & PEMBAGIAN KITAB
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_hisab",
+    stage_id: "s6_hisab",
+    stage_num: 6,
+    stage_title: "6. Al-Hisab & Pembagian Kitab Amal",
+    event_code: "HISAB",
+    event_name: "Pemeriksaan Amal & Kitab Catatan Terbuka",
+    source_type: "quran",
+    reference: "QS. Al-Insyiqaq: 7-11",
+    grading: "Kalamullah (Al-Qur'an Al-Karim)",
+    arabic: "فَأَمَّا مَنْ أُوتِيَ كِتَابَهُ بِيَمِينِهِ • فَسَوْفَ يُحَاسَبُ حِسَابًا يَسِيرًا • وَيَنقَلِبُ إِلَىٰ أَهْلِهِ مَسْرُورًا",
+    translation: "Adapun orang yang diberikan kitabnya dari sebelah kanannya, maka dia akan dihisab dengan hisab yang mudah, dan dia akan kembali kepada kaumnya dengan gembira.",
+    what_happens: "Setiap helai daun amal diperlihatkan. Orang beriman dihisab secara tertutup (Ar-Rakhmah) dan dosanya diampuni. Orang celaka menerima kitab dari sebelah kiri atau belakang punggungnya.",
+    preparation_guide: "Melakukan hisab diri (muhasabah) setiap malam sebelum tidur, menutupi aib sesama muslim di dunia agar Allah menutupi aib kita di hadapan mahkamah Mahsyar.",
+    source_url: "https://quran.com/84/7",
+    tags: ["hisab", "books", "record"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 7: AL-MIZAN (TIMBANGAN AMAL)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_mizan",
+    stage_id: "s7_mizan",
+    stage_num: 7,
+    stage_title: "7. Al-Mizan (Timbangan Hakiki)",
+    event_code: "MIZAN",
+    event_name: "Penimbangan Amal Kebaikan vs Keburukan",
+    source_type: "quran",
+    reference: "QS. Al-Anbiya: 47 & HR. Bukhari 6682",
+    grading: "Kalamullah / Sahih",
+    arabic: "كَلِمَتَانِ حَبِيبَتَانِ إِلَى الرَّحْمَنِ خَفِيفَتَانِ عَلَى اللِّسَانِ ثَقِيلَتَانِ فِي الْمِيزَانِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ",
+    translation: "Dua kalimat yang dicintai Ar-Rahman, ringan di lisan, namun sangat berat di timbangan Mizan: 'Subhānallāhi wa bihamdih, Subhānallāhil 'Azhīm'.",
+    what_happens: "Timbangan hakiki berskala raksasa dengan dua daun timbangan didirikan. Amal saleh berwujud indah menimbang kebaikan, sedangkan dosa memberatkan sisi keburukan.",
+    preparation_guide: "Memperbanyak zikir penimbat mizan (Subhanallah wa bihamdihi Subhanallahil 'Azhim), menjaga akhlak mulia (Husnul Khuluq adalah amalan terberat di mizan), dan bersedekah.",
+    source_url: "https://sunnah.com/bukhari:6682",
+    tags: ["mizan", "scale", "deeds"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 8: AL-HAUDH (TELAGA AL-KAUTSAR)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_haudh",
+    stage_id: "s8_haudh",
+    stage_num: 8,
+    stage_title: "8. Al-Haudh (Telaga Al-Kautsar)",
+    event_code: "HAUDH",
+    event_name: "Air Sejuk yang Memadamkan Dahaga Selamanya",
+    source_type: "hadith",
+    reference: "HR. Al-Bukhari No. 6579 & Muslim No. 2292",
+    grading: "Sahih (Muttafaqun 'Alayh)",
+    arabic: "حَوْضِي مَسِيرَةُ شَهْرٍ، مَاؤُهُ أَبْيَضُ مِنَ اللَّبَنِ، وَرِيحُهُ أَطْيَبُ مِنَ الْمِسْكِ، وَكِيزَانُهُ كَنُجُومِ السَّمَاءِ، مَنْ شَرِبَ مِنْهَا فَلاَ يَظْمَأُ أَبَدًا",
+    translation: "Telagaku seluas perjalanan sebulan, airnya lebih putih dari susu, aromanya lebih harum dari kesturi, bejananya sebanyak bintang di langit. Siapa meminumnya takkan haus selamanya.",
+    what_happens: "Rasulullah ﷺ menunggu umatnya di tepi telaga. Orang-orang yang istiqamah meminum air telaga dari tangan mulia beliau. Orang-orang yang murtad atau mengada-adakan bid'ah diusir dari telaga.",
+    preparation_guide: "Menjaga kemurnian ajaran Islam tanpa menambah atau mengurangi syariat, istiqamah beramal sunnah, dan memberi minum orang yang kehausan di dunia.",
+    source_url: "https://sunnah.com/bukhari:6579",
+    tags: ["haudh", "kautsar", "water"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 9: ASH-SHIRATH (JEMBATAN DI ATAS JAHANNAM)
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_sirat",
+    stage_id: "s9_sirat",
+    stage_num: 9,
+    stage_title: "9. Ash-Shirath (Jembatan Di Atas Jahannam)",
+    event_code: "SHIRATH",
+    event_name: "Jembatan Setajam Pedang & Kecepatan Cahaya Iman",
+    source_type: "hadith",
+    reference: "HR. Muslim No. 195",
+    grading: "Sahih",
+    arabic: "فَيَمُرُّ أَوَّلُكُمْ كَالْبَرْقِ ... ثُمَّ كَمَرِّ الرِّيحِ ، ثُمَّ كَمَرِّ الطَّيْرِ ... حَتَّى تَجِيءَ أَعْمَالُ الْعِبَادِ فَيَجِيءُ الرَّجُلُ فَلاَ يَسْتَطِيعُ السَّيْرَ إِلاَّ زَحْفًا",
+    translation: "Orang pertama dari kalian menyeberang secepat kilat... lalu secepat angin, lalu secepat burung... hingga amal manusia melemah, ada yang menyeberang dengan merangkak.",
+    what_happens: "Jembatan dibentangkan di atas Neraka Jahannam yang menyala-nyala. Di sampingnya terdapat besi-besi pencakar (kalalib). Kecepatan dan keselamatan melintas ditentukan 100% oleh cahaya iman dan amal di dunia.",
+    preparation_guide: "Menjaga shalat fardhu berjamaah di masjid terutama Subuh dan Isya ('cahaya sempurna di hari kiamat'), menolong kesulitan sesama muslim, dan mempermudah urusan orang lain.",
+    source_url: "https://sunnah.com/muslim:195",
+    tags: ["shirath", "bridge", "light"]
+  },
+
+  // --------------------------------------------------------------------------
+  // STAGE 10: AL-QANTHARAH & MUARA ABADI
+  // --------------------------------------------------------------------------
+  {
+    id: "evt_stage_final",
+    stage_id: "s10_final",
+    stage_num: 10,
+    stage_title: "10. Al-Qantharah & Muara Abadi (Surga / Neraka)",
+    event_code: "SURGA",
+    event_name: "Pembersihan Hati & Pintu Kenikmatan Abadi",
+    source_type: "hadith",
+    reference: "HR. Al-Bukhari No. 6535",
+    grading: "Sahih",
+    arabic: "يَخْلُصُ الْمُؤْمِنُونَ مِنَ النَّارِ فَيُحْبَسُونَ عَلَى قَنْطَرَةٍ بَيْنَ الْجَنَّةِ وَالنَّارِ فَيُقْتَصُّ لِبَعْضِهِمْ مِنْ بَعْضٍ مَظَالِمُ",
+    translation: "Orang-orang beriman selamat dari neraka, lalu ditahan di jembatan (Qantharah) antara surga dan neraka, lalu diselesaikan kezaliman di antara mereka sampai bersih murni masuk surga.",
+    what_happens: "Hati orang beriman dibersihkan dari sisa kedengkian. Pintu-pintu Surga dibuka menyambut mereka dengan salam kedamaian, kekal dalam kenikmatan abadi melihat Wajah Allah Ta'ala.",
+    preparation_guide: "Saling memaafkan sebelum ajal tiba, melunasi hutang, ridha atas ketentuan takdir, dan memohon Surga Firdaus (Allāhumma innī as'alukal jannah wa a'ūdzu bika minan nār).",
+    source_url: "https://sunnah.com/bukhari:6535",
+    tags: ["qantharah", "paradise", "eternity"]
+  }
+];
+

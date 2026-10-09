@@ -111,8 +111,14 @@
       <div class="brand-section">
         <div class="brand-symbol" id="brand-symbol">۞</div>
         <div class="brand-title-wrap">
-          <h1>Muslim Citation Timeline</h1>
-          <div class="brand-subtitle">Circadian Sacred Text Instrument</div>
+          <div class="brand-title-row">
+            <span class="brand-title-prefix">Muslim</span>
+            <select id="main-mode-select" class="main-mode-dropdown" aria-label="Pilih Mode Aplikasi">
+              <option value="daily" selected>Daily Pray</option>
+              <option value="events">Event Timeline</option>
+            </select>
+          </div>
+          <div class="brand-subtitle" id="main-mode-subtitle">Circadian 24h & 5 Waktu Shalat Fardhu</div>
         </div>
       </div>
 
@@ -136,13 +142,6 @@
       </nav>
 
       <div class="header-actions">
-        <!-- Date Selector -->
-        <div class="date-badge" id="date-selector-group">
-          <button class="date-btn" data-date="2026-10-04">Kemarin</button>
-          <button class="date-btn active" data-date="2026-10-05">Hari Ini</button>
-          <button class="date-btn" data-date="2026-10-06">Besok</button>
-        </div>
-
         <!-- Language Preference -->
         <select id="lang-select" class="ui-select" title="Pilihan Bahasa">
           <option value="id" selected>ID (Bahasa)</option>
@@ -214,9 +213,9 @@
               <span class="pill-label">Topik: ON</span>
             </button>
 
-            <button class="control-pill active" id="toggle-zen-btn" title="Zen Mode: No Spoilers (Hanya Sekarang & 6 Jam ke Depan)">
+            <button class="control-pill" id="toggle-zen-btn" title="Zen Mode: No Spoilers (Hanya Sekarang & 6 Jam ke Depan)">
               <span class="pill-dot"></span>
-              <span class="pill-label">Zen: ON</span>
+              <span class="pill-label">Zen: OFF</span>
             </button>
           </div>
 
@@ -301,7 +300,10 @@
                 <span class="ring8-subrange">00:00 – 12:00</span>
               </div>
               <div class="ring8-svg-wrap">
-                <svg class="ring8-svg" id="ring8-am-svg" viewBox="-130 -130 260 260">
+                <svg class="ring8-svg" id="ring8-am-svg" viewBox="-240 -240 480 480">
+                  <g id="ring8-am-radar"></g>
+                  <g id="ring8-am-wedges"></g>
+                  <g id="ring8-am-spokes"></g>
                   <g id="ring8-am-ticks"></g>
                   <g id="ring8-am-nodes"></g>
                   <g id="ring8-am-hand"></g>
@@ -317,10 +319,13 @@
             <div class="ring8-panel pm-ring" id="ring8-pm-panel">
               <div class="ring8-header">
                 <span class="ring8-label">🌙 PM</span>
-                <span class="ring8-subrange">12:00 – 24:00</span>
+                <span class="ring8-subrange">12:00 – 24:00 (6 Sisi)</span>
               </div>
               <div class="ring8-svg-wrap">
-                <svg class="ring8-svg" id="ring8-pm-svg" viewBox="-130 -130 260 260">
+                <svg class="ring8-svg" id="ring8-pm-svg" viewBox="-240 -240 480 480">
+                  <g id="ring8-pm-radar"></g>
+                  <g id="ring8-pm-wedges"></g>
+                  <g id="ring8-pm-spokes"></g>
                   <g id="ring8-pm-ticks"></g>
                   <g id="ring8-pm-nodes"></g>
                   <g id="ring8-pm-hand"></g>
@@ -342,7 +347,7 @@
 
           <!-- Footer -->
           <div class="instrument-footer">
-            <span>8️⃣ <strong>Mode 8 (oo = dua cincin berdampingan):</strong> o kiri ☀️ AM (00:00–12:00) &amp; o kanan 🌙 PM (12:00–24:00) — klik node untuk memilih fase</span>
+            <span>8️⃣ <strong>Mode 8 (Double Radial 6 Sisi × 2 Lingkaran):</strong> ☀️ AM (6 Sisi, 00:00–12:00) &amp; 🌙 PM (6 Sisi, 12:00–24:00) — Layout radial dengan sektor wedged &amp; jarum waktu</span>
           </div>
         </div>
 
@@ -486,7 +491,7 @@
         <div class="sheet-header-bar">
           <div class="sheet-title-group">
             <h2>
-              <span>Data Lens (Citations Sheet)</span>
+              <span id="sheet-title-text">Data Lens (Citations Sheet)</span>
               <span class="sheet-badge" id="sheet-row-count">8 Fase / Hari</span>
             </h2>
           </div>
@@ -494,6 +499,7 @@
           <div class="sheet-controls">
             <select id="sheet-sort-select" class="ui-select sheet-sort-select" title="Urutkan Data">
               <option value="phase_asc">Urutkan: Fase Sirkadian (05:00 - 05:00)</option>
+              <option value="stage_asc">Urutkan: Tahap & Kronologi (A-Z / 1-10)</option>
               <option value="type_asc">Urutkan: Jenis (Qur'an dulu)</option>
               <option value="type_desc">Urutkan: Jenis (Hadits dulu)</option>
               <option value="topic_asc">Urutkan: Topik (A - Z)</option>
@@ -511,18 +517,24 @@
 
         <div class="sheet-table-wrap">
           <table class="citations-table" id="citations-table">
+            <colgroup>
+              <col class="col-spec-jenis" style="width: 18%;">
+              <col class="col-spec-topic" style="width: 35%;">
+              <col class="col-spec-arabic" style="width: 40%;">
+              <col class="col-spec-actions" style="width: 7%;">
+            </colgroup>
             <thead>
               <tr>
-                <th style="width: 140px;" class="th-sortable" data-sort="type" title="Klik untuk mengurutkan berdasarkan Jenis">
+                <th style="width: 18%;" class="th-col-jenis th-sortable" data-sort="type" title="Klik untuk mengurutkan berdasarkan Jenis">
                   <div class="th-content"><span>Jenis</span> <span class="sort-indicator" id="sort-ind-type">↕</span></div>
                 </th>
-                <th class="th-sortable" data-sort="topic" title="Klik untuk mengurutkan berdasarkan Topik">
+                <th style="width: 35%;" class="th-col-topic th-sortable" data-sort="topic" title="Klik untuk mengurutkan berdasarkan Topik">
                   <div class="th-content"><span>Topik Kontemplasi</span> <span class="sort-indicator" id="sort-ind-topic">↕</span></div>
                 </th>
-                <th class="th-arabic" style="width: 280px; text-align: right;">
+                <th style="width: 40%; text-align: right;" class="th-col-arabic th-arabic">
                   <span>Teks Arab (Klik Sel untuk Salin)</span>
                 </th>
-                <th class="th-sticky-actions">
+                <th style="width: 7%;" class="th-col-actions th-sticky-actions">
                   <span class="action-th-full">Aksi & Sumber</span>
                   <span class="action-th-short">Aksi</span>
                 </th>
@@ -576,6 +588,70 @@
           <span class="meta-pill highlight" id="inspector-meta-type">Al-Qur'an</span>
           <span class="meta-pill" id="inspector-meta-time">05:00 - 08:00</span>
           <span class="meta-pill" id="inspector-meta-grading" style="display: none;">Sahih</span>
+        </div>
+
+        <!-- Dedicated Fiqih & Shalat Guide (Shown for Daily Pray slots) -->
+        <div class="inspector-card-section inspector-prayer-card" id="inspector-prayer-section" style="display: none;">
+          <div class="prayer-card-header">
+            <div class="prayer-title-group">
+              <span class="prayer-badge-icon" id="inspector-prayer-icon">🕋</span>
+              <div>
+                <h4 id="inspector-prayer-name" class="prayer-main-title">Shalat Subuh</h4>
+                <div class="prayer-meta-subtitle" id="inspector-prayer-status">Fardhu 'Ain (Wajib)</div>
+              </div>
+            </div>
+            <div class="prayer-rakaat-badge" id="inspector-prayer-rakaat">2 Rakaat</div>
+          </div>
+
+          <div class="prayer-details-grid">
+            <div class="prayer-info-cell">
+              <span class="info-label">⏱️ Waktu Masuk</span>
+              <span class="info-val" id="inspector-prayer-time">Terbit fajar shadiq hingga terbit matahari</span>
+            </div>
+            <div class="prayer-info-cell">
+              <span class="info-label">📖 Bacaan Surah</span>
+              <span class="info-val" id="inspector-prayer-jahr">Jahr (Lantang pada rakaat 1 & 2)</span>
+            </div>
+            <div class="prayer-info-cell">
+              <span class="info-label">🧎 Duduk Tasyahhud</span>
+              <span class="info-val" id="inspector-prayer-tasyahhud">1 Kali (Tasyahhud Akhir)</span>
+            </div>
+          </div>
+
+          <div class="prayer-virtue-box" id="inspector-prayer-virtue-box">
+            <span class="virtue-icon">✨</span>
+            <div class="virtue-text" id="inspector-prayer-virtue">Dua rakaat fajar lebih baik dari dunia dan seisinya (HR. Muslim 725).</div>
+          </div>
+
+          <div class="prayer-section-block">
+            <h5 class="prayer-section-subhead">📋 Tata Cara & Rukun Shalat (Langkah Demi Langkah):</h5>
+            <ol class="prayer-step-list" id="inspector-prayer-steps">
+              <!-- Dynamically populated steps -->
+            </ol>
+          </div>
+
+          <div class="prayer-section-block">
+            <h5 class="prayer-section-subhead">📿 Dzikir & Doa Ba'da Shalat:</h5>
+            <p class="prayer-dzikir-text" id="inspector-prayer-dzikir"></p>
+          </div>
+        </div>
+
+        <!-- Dedicated Event & Preparation Guide (Shown for Event Timeline items) -->
+        <div class="inspector-card-section inspector-prep-card" id="inspector-prep-section" style="display: none;">
+          <div class="prep-card-header">
+            <span class="prep-card-badge" id="inspector-prep-stage">Tahap 1: Tanda Kiamat Shughra</span>
+            <h4 id="inspector-prep-title" class="prep-main-title">A. Diutus & Wafatnya Rasulullah ﷺ</h4>
+          </div>
+
+          <div class="prep-section-block prep-what-box">
+            <h5 class="prep-subhead">⚡ Peristiwa Yang Terjadi (Deskripsi Wahyu):</h5>
+            <p id="inspector-event-what" class="prep-text-desc"></p>
+          </div>
+
+          <div class="prep-section-block prep-action-box">
+            <h5 class="prep-subhead-accent">🛡️ Bekal & Cara Menghadapinya (Amalan Penyelamat):</h5>
+            <div id="inspector-event-prep" class="prep-guide-content"></div>
+          </div>
         </div>
 
         <!-- Translation Card -->

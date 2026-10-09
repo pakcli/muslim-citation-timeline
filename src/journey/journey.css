@@ -74,13 +74,38 @@
 .jny-playhead-line { position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: #4da3ff; box-shadow: 0 0 8px #4da3ff; }
 
 /* ---- Info card ---- */
-.jny-card { flex: 0 0 auto; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-left: 4px solid var(--j-accent); }
+.jny-card { flex: 0 0 auto; padding: 12px 16px; border-radius: 10px; background: rgba(20, 25, 36, 0.95); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid var(--j-accent); display: flex; flex-direction: column; gap: 8px; }
+.jny-card-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .jny-card-group { font-size: 0.68rem; color: var(--j-muted); text-transform: uppercase; letter-spacing: .06em; }
-.jny-card-title { font-size: 1.05rem; font-weight: 800; margin: 2px 0 6px; }
+.jny-card-dalil-tag { font-size: 0.68rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 8px; border-radius: 999px; }
+.jny-card-title { font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0; }
+
+.jny-card-arabic { font-family: var(--font-arabic, "Traditional Arabic", "Amiri", serif); font-size: 1.35rem; line-height: 1.8; text-align: right; color: #fdfaf2; background: rgba(0, 0, 0, 0.35); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.08); }
+
+.jny-card-desc-box { background: rgba(255, 255, 255, 0.04); border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; line-height: 1.45; }
+.jny-subhead { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--j-muted); margin-bottom: 3px; }
+
+.jny-card-prep-box { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.06)); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; line-height: 1.45; color: #ecfdf5; }
+.jny-subhead-accent { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #34d399; margin-bottom: 3px; }
+
+.jny-card-minor-container { margin-top: 4px; }
+.jny-minor-toggle-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 6px; color: #e9d5ff; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: background .15s; }
+.jny-minor-toggle-btn:hover { background: rgba(168, 85, 247, 0.25); }
+.jny-minor-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
+.jny-minor-item { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 6px 10px; font-size: 0.78rem; display: flex; flex-direction: column; gap: 3px; }
+.jny-minor-top { display: flex; align-items: center; gap: 6px; color: #fff; }
+.jny-minor-code { background: rgba(234, 179, 8, 0.2); color: #fbbf24; padding: 1px 6px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; }
+.jny-minor-ref { color: var(--j-muted); font-size: 0.7rem; margin-left: auto; }
+.jny-minor-arabic { font-family: var(--font-arabic, serif); font-size: 1.05rem; text-align: right; color: #e2e8f0; }
+.jny-minor-prep { color: #34d399; font-size: 0.75rem; }
+
+.jny-transitions-section { border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 6px; }
+.jny-trans-label { font-size: 0.7rem; font-weight: 700; color: var(--j-muted); margin-bottom: 4px; text-transform: uppercase; }
 .jny-card-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 0.8rem; }
 .jny-card-list li span { font-weight: 700; }
 .jny-card-list li.is-believer span { color: #34d399; }
 .jny-card-list li.is-disbeliever span { color: #f87171; }
 .jny-card-list li.is-hypocrite span { color: #fbbf24; }
 .jny-card-list li.is-neutral span { color: #38bdf8; }
-.jny-card-end { font-size: 0.8rem; color: var(--j-muted); }
+.jny-card-end { font-size: 0.8rem; color: #38bdf8; font-weight: 700; }
+
